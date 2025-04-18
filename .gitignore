@@ -1,0 +1,14 @@
+# Ignorar node_modules en frontend y backend
+frontend/node_modules/
+backend/node_modules/
+
+# Ignorar archivos de entorno
+backend/.env
+
+# Ignorar archivos de compilación o distribución
+frontend/dist/
+backend/dist/
+
+# Archivos innecesarios del sistema
+.DS_Store
+Thumbs.db

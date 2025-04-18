@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    @apply min-h-screen w-full overflow-x-hidden;
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    @apply bg-white text-gray-800 dark:bg-gray-900 dark:text-white;
+  }
+}
+
+@layer utilities {
+  .fade-in-down {
+    animation: fade-in-down 0.3s ease-out both;
+  }
+}

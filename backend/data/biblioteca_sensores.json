@@ -1,0 +1,247 @@
+[
+  {
+    "nombre": "DHT11",
+    "tipo": "Temperatura y Humedad",
+    "unidad": "°C / %",
+    "descripcion": "Sensor digital básico para medir temperatura y humedad.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "DHT22",
+    "tipo": "Temperatura y Humedad",
+    "unidad": "°C / %",
+    "descripcion": "Sensor más preciso que el DHT11 para temperatura y humedad.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "LM35",
+    "tipo": "Temperatura",
+    "unidad": "°C",
+    "descripcion": "Sensor analógico de temperatura de alta precisión.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "DS18B20",
+    "tipo": "Temperatura",
+    "unidad": "°C",
+    "descripcion": "Sensor digital de temperatura con interfaz 1-Wire.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "BME280",
+    "tipo": "Temperatura, Humedad y Presión",
+    "unidad": "°C / % / hPa",
+    "descripcion": "Sensor ambiental completo para temperatura, humedad y presión.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "BMP180",
+    "tipo": "Presión y Temperatura",
+    "unidad": "hPa / °C",
+    "descripcion": "Sensor de presión barométrica y temperatura.",
+    "categoria": "Clima"
+  },
+  {
+    "nombre": "MQ-2",
+    "tipo": "Gas / Humo",
+    "unidad": "ppm",
+    "descripcion": "Detecta gases combustibles como LPG, humo, metano, etc.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-3",
+    "tipo": "Alcohol",
+    "unidad": "ppm",
+    "descripcion": "Sensor de alcohol en el aire.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-4",
+    "tipo": "Metano",
+    "unidad": "ppm",
+    "descripcion": "Sensor de gas natural (metano).",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-5",
+    "tipo": "Gas",
+    "unidad": "ppm",
+    "descripcion": "Sensor para gas natural, LPG y gas de carbón.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-6",
+    "tipo": "Gas",
+    "unidad": "ppm",
+    "descripcion": "Sensor para LPG, butano, propano, metano y alcohol.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-7",
+    "tipo": "Monóxido de Carbono",
+    "unidad": "ppm",
+    "descripcion": "Sensor especializado en detección de CO.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-9",
+    "tipo": "Monóxido de Carbono y Gas",
+    "unidad": "ppm",
+    "descripcion": "Sensor de monóxido de carbono y gases inflamables.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "MQ-135",
+    "tipo": "Calidad del Aire",
+    "unidad": "ppm",
+    "descripcion": "Sensor de calidad del aire para detectar gases nocivos.",
+    "categoria": "Gas"
+  },
+  {
+    "nombre": "KY-038",
+    "tipo": "Sonido",
+    "unidad": "dB",
+    "descripcion": "Sensor de sonido con micrófono electret.",
+    "categoria": "Sonido"
+  },
+  {
+    "nombre": "SW-420",
+    "tipo": "Vibración",
+    "unidad": "Digital",
+    "descripcion": "Sensor para detectar vibraciones o golpes.",
+    "categoria": "Movimiento"
+  },
+  {
+    "nombre": "HC-SR04",
+    "tipo": "Distancia",
+    "unidad": "cm",
+    "descripcion": "Sensor ultrasónico de distancia de alta precisión.",
+    "categoria": "Distancia"
+  },
+  {
+    "nombre": "RCWL-0516",
+    "tipo": "Proximidad",
+    "unidad": "Digital",
+    "descripcion": "Sensor de microondas para detección de movimiento.",
+    "categoria": "Distancia"
+  },
+  {
+    "nombre": "GP2Y0A21YK0F",
+    "tipo": "Distancia Infrarroja",
+    "unidad": "cm",
+    "descripcion": "Sensor de distancia basado en infrarrojo.",
+    "categoria": "Distancia"
+  },
+  {
+    "nombre": "LDR",
+    "tipo": "Luz",
+    "unidad": "Lux",
+    "descripcion": "Sensor de luz ambiental basado en fotoresistencia.",
+    "categoria": "Luz"
+  },
+  {
+    "nombre": "BH1750",
+    "tipo": "Luz",
+    "unidad": "Lux",
+    "descripcion": "Sensor de luz digital de alta precisión.",
+    "categoria": "Luz"
+  },
+  {
+    "nombre": "TSL2561",
+    "tipo": "Luz",
+    "unidad": "Lux",
+    "descripcion": "Sensor de luz visible e infrarroja con salida digital.",
+    "categoria": "Luz"
+  },
+  {
+    "nombre": "MPU6050",
+    "tipo": "Acelerómetro y Giroscopio",
+    "unidad": "m/s², °/s",
+    "descripcion": "Sensor de 6 ejes para movimiento y orientación.",
+    "categoria": "Movimiento"
+  },
+  {
+    "nombre": "ADXL345",
+    "tipo": "Acelerómetro",
+    "unidad": "m/s²",
+    "descripcion": "Sensor de aceleración de 3 ejes.",
+    "categoria": "Movimiento"
+  },
+  {
+    "nombre": "HMC5883L",
+    "tipo": "Magnetómetro",
+    "unidad": "µT",
+    "descripcion": "Sensor de campo magnético de 3 ejes.",
+    "categoria": "Movimiento"
+  },
+  {
+    "nombre": "YL-69",
+    "tipo": "Humedad del Suelo",
+    "unidad": "%",
+    "descripcion": "Sensor para medir la humedad del suelo.",
+    "categoria": "Agua"
+  },
+  {
+    "nombre": "Sensor de lluvia",
+    "tipo": "Lluvia",
+    "unidad": "Digital",
+    "descripcion": "Detecta presencia de agua o gotas de lluvia.",
+    "categoria": "Agua"
+  },
+  {
+    "nombre": "Sensor de nivel de agua",
+    "tipo": "Nivel de Agua",
+    "unidad": "cm",
+    "descripcion": "Detecta el nivel de líquido en un contenedor.",
+    "categoria": "Agua"
+  },
+  {
+    "nombre": "RC522",
+    "tipo": "RFID",
+    "unidad": "Digital",
+    "descripcion": "Sensor lector de tarjetas RFID.",
+    "categoria": "Seguridad"
+  },
+  {
+    "nombre": "R307",
+    "tipo": "Huella Dactilar",
+    "unidad": "Digital",
+    "descripcion": "Sensor biométrico de huellas digitales.",
+    "categoria": "Seguridad"
+  },
+  {
+    "nombre": "HC-SR501",
+    "tipo": "Movimiento (PIR)",
+    "unidad": "Digital",
+    "descripcion": "Sensor de movimiento por infrarrojo pasivo.",
+    "categoria": "Seguridad"
+  },
+  {
+    "nombre": "TCS3200",
+    "tipo": "Color",
+    "unidad": "RGB",
+    "descripcion": "Sensor de color con salida de frecuencia.",
+    "categoria": "Otros"
+  },
+  {
+    "nombre": "ACS712",
+    "tipo": "Corriente",
+    "unidad": "A",
+    "descripcion": "Sensor de corriente basado en efecto Hall.",
+    "categoria": "Otros"
+  },
+  {
+    "nombre": "Sensor de pH",
+    "tipo": "pH",
+    "unidad": "pH",
+    "descripcion": "Mide la acidez o alcalinidad de líquidos.",
+    "categoria": "Otros"
+  },
+  {
+    "nombre": "Sensor de turbidez",
+    "tipo": "Turbidez",
+    "unidad": "NTU",
+    "descripcion": "Mide la claridad del agua u otros líquidos.",
+    "categoria": "Otros"
+  }
+]

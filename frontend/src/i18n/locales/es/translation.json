@@ -1,0 +1,164 @@
+{
+  "general": {
+    "welcome": "Bienvenido",
+    "dashboard": "Panel",
+    "users": "Usuarios",
+    "export": "Exportar datos",
+    "confirm": "¿Estás seguro?",
+    "search": "Buscar...",
+    "actions": "Acciones",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+
+  "navbar": {
+    "hello": "Hola",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "register": "Registrarse",
+    "theme": "Cambiar tema"
+  },
+
+  "admin": {
+    "title": "Panel de Administración",
+    "description": "Estadísticas globales del sistema",
+    "titulo": "Panel de Administración",
+    "descripcion": "Estadísticas globales del sistema",
+    "usuarios": "Usuarios",
+    "proyectos": "Proyectos",
+    "sensores": "Sensores",
+    "alertas": "Alertas",
+    "usuariosRegistrados": "Usuarios Registrados",
+    "nombre": "Nombre",
+    "email": "Email",
+    "rol": "Rol",
+    "usuario": "Usuario",
+    "admin": "Administrador",
+    "estado": "Estado",
+    "activo": "Activo",
+    "inactivo": "Inactivo",
+    "activarDesactivar": "Activar/Desactivar",
+    "eliminar": "Eliminar",
+    "confirmarEliminacion": "¿Estás seguro que deseas eliminar los usuarios seleccionados?",
+    "confirmarEliminarUsuario": "¿Estás seguro que deseas eliminar este usuario?"
+  },
+
+  "proyectos": {
+    "titulo": "Tus Dispositivos",
+    "noProyectos": "No tienes dispositivos aún. Usa el asistente para agregar uno.",
+    "nuevoDispositivo": "Nuevo Dispositivo"
+  },
+
+  "sidebar": {
+    "home": "Inicio",
+    "proyectos": "Proyectos",
+    "notificaciones": "Notificaciones",
+    "actividad": "Actividad",
+    "ayuda": "Ayuda",
+    "admin": "Admin",
+    "logsGlobales": "Logs globales",
+    "exportar": "Exportar",
+    "cerrarSesion": "Cerrar sesión"
+  },
+
+  "proyectos": {
+    "titulo": "📋 Tus Proyectos IoT",
+    "descripcion": "Administra tus dispositivos conectados y sensores.",
+    "nuevoDispositivo": "Nuevo Dispositivo",
+    "crearThing": "Crear Algo",
+    "sinProyectos": "Aún no tienes proyectos creados.",
+    "instruccion": "Comienza creando un nuevo dispositivo o un Thing para verlos aquí.",
+    "sinDescripcion": "Sin descripción",
+    "cerrar": "✖ Cerrar"
+  },
+
+  "notificaciones": {
+    "titulo": "Notificaciones",
+    "todas": "Todas",
+    "noLeidas": "No leídas",
+    "leidas": "Leídas",
+    "vacio": "No hay notificaciones.",
+    "marcarLeida": "Marcar como leída"
+  },
+
+  "logs": {
+    "titulo": "Historial de Actividad",
+    "vacio": "No hay actividad registrada aún."
+  },
+
+  "ayuda": {
+    "titulo": "🆘 Centro de Ayuda",
+    "descripcion": "Encuentra respuestas, tutoriales y soporte para comenzar a usar tu plataforma IoT.",
+    "introTitulo": "📖 ¿Qué es esta plataforma?",
+    "introDescripcion": "Esta plataforma está diseñada para ayudarte a gestionar tus proyectos IoT de forma profesional. Podrás conectar sensores, visualizar datos en tiempo real, recibir alertas automáticas y mucho más — sin necesidad de ser un experto.",
+    "comoEmpezarTitulo": "🚀 ¿Dónde empiezo?",
+    "faqTitulo": " Preguntas Frecuentes",
+    "faq": {
+      "1": {
+        "q": "¿Necesito saber programar para usar la plataforma?",
+        "a": "No. Nuestro sistema está pensado para usuarios con cualquier nivel de experiencia."
+      },
+      "2": {
+        "q": "¿Puedo recibir alertas si un sensor supera un umbral?",
+        "a": "Sí, puedes configurar alertas personalizadas basadas en condiciones específicas."
+      },
+      "3": {
+        "q": "¿Cómo visualizo los datos en tiempo real?",
+        "a": "Al acceder a un proyecto, verás las lecturas más recientes de tus sensores y gráficas dinámicas."
+      },
+      "4": {
+        "q": "¿Puedo exportar mis datos?",
+        "a": "Sí, puedes exportar lecturas, usuarios, logs y más desde el panel de administración."
+      }
+    },
+    "pasos": {
+      "crearCuenta": "Crear una cuenta",
+      "crearCuentaDesc": "Comienza registrándote en la plataforma para guardar tus proyectos y configuraciones.",
+      "nuevoDispositivo": "Conectar tu primer dispositivo",
+      "nuevoDispositivoDesc": "Usa el asistente visual para registrar y configurar un nuevo dispositivo.",
+      "crearThing": "Configurar sensores",
+      "crearThingDesc": "Asocia sensores a tu proyecto para comenzar a recibir datos en tiempo real."
+    },
+    "navegacionTitulo": "¿No encontraste lo que buscabas? Visita nuestras secciones principales:",
+    "links": {
+      "inicio": "🏠 Inicio",
+      "proyectos": "📋 Proyectos",
+      "notificaciones": "🔔 Notificaciones"
+    }
+  },
+
+  "home": {
+    "titulo": "Plataforma IoT Unificada",
+    "descripcion": "Conecta, monitorea y escala tus dispositivos inteligentes con una interfaz moderna, segura y lista para el futuro. Desde agricultura hasta ciudades inteligentes, esta plataforma está diseñada para todos.",
+    "botonComenzar": "Comenzar Ahora",
+    "botonPanel": "Ir al Panel",
+    "feature1": {
+      "titulo": "Escalabilidad",
+      "desc": "Diseñado para crecer contigo. Soporta desde prototipos hasta despliegues masivos."
+    },
+    "feature2": {
+      "titulo": "Conectividad",
+      "desc": "Módulos ESP, MQTT, WiFi y más: intégralos fácilmente desde cualquier lugar."
+    },
+    "feature3": {
+      "titulo": "Seguridad",
+      "desc": "Autenticación robusta, control de roles y cifrado de extremo a extremo."
+    },
+    "feature4": {
+      "titulo": "Visualización Avanzada",
+      "desc": "Gráficas personalizables, dashboards interactivos y alertas en tiempo real."
+    },
+
+    "toaster": {
+      "success": {
+        "title": "¡Éxito!",
+        "description": "La operación se completó correctamente."
+      },
+      "error": {
+        "title": "Error",
+        "description": "Ocurrió un error al procesar la solicitud."
+      }
+    }
+  }
+}

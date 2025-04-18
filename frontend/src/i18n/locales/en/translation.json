@@ -1,0 +1,164 @@
+{
+  "general": {
+    "welcome": "Welcome",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "export": "Export Data",
+    "confirm": "Are you sure?",
+    "search": "Search...",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+
+  "navbar": {
+    "hello": "Hello",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "theme": "Change Theme"
+  },
+
+  "admin": {
+    "title": "Admin Dashboard",
+    "description": "System-wide statistics",
+    "titulo": "Admin Dashboard",
+    "descripcion": "System-wide statistics",
+    "usuarios": "Users",
+    "proyectos": "Projects",
+    "sensores": "Sensors",
+    "alertas": "Alerts",
+    "usuariosRegistrados": "Registered Users",
+    "nombre": "Name",
+    "email": "Email",
+    "rol": "Role",
+    "usuario": "User",
+    "admin": "Admin",
+    "estado": "Status",
+    "activo": "Active",
+    "inactivo": "Inactive",
+    "activarDesactivar": "Activate/Deactivate",
+    "eliminar": "Delete",
+    "confirmarEliminacion": "Are you sure you want to delete the selected users?",
+    "confirmarEliminarUsuario": "Are you sure you want to delete this user?"
+  },
+
+  "proyectos": {
+    "titulo": "Your Devices",
+    "noProyectos": "You don't have any devices yet. Use the wizard to add one.",
+    "nuevoDispositivo": "New Device"
+  },
+
+  "sidebar": {
+    "home": "Home",
+    "proyectos": "Projects",
+    "notificaciones": "Notifications",
+    "actividad": "Activity",
+    "ayuda": "Help",
+    "admin": "Admin",
+    "logsGlobales": "Global Logs",
+    "exportar": "Export",
+    "cerrarSesion": "Log out"
+  },
+
+  "proyectos": {
+    "titulo": "📋 Your IoT Projects",
+    "descripcion": "Manage your connected devices and sensors.",
+    "nuevoDispositivo": "New Device",
+    "crearThing": "Create Thing",
+    "sinProyectos": "You don't have any projects yet.",
+    "instruccion": "Start by creating a new device or a Thing to see them here.",
+    "sinDescripcion": "No description",
+    "cerrar": "✖ Close"
+  },
+
+  "notificaciones": {
+    "titulo": "Notifications",
+    "todas": "All",
+    "noLeidas": "Unread",
+    "leidas": "Read",
+    "vacio": "No notifications available.",
+    "marcarLeida": "Mark as read"
+  },
+
+  "logs": {
+    "titulo": "Activity History",
+    "vacio": "No activity logged yet."
+  },
+
+  "ayuda": {
+    "titulo": "🆘 Help Center",
+    "descripcion": "Find answers, tutorials and support to get started using your IoT platform.",
+    "introTitulo": "📖 What is this platform?",
+    "introDescripcion": "This platform is designed to help you manage your IoT projects professionally. You can connect sensors, view real-time data, receive automatic alerts and much more — no expertise required.",
+    "comoEmpezarTitulo": "🚀 Where do I start?",
+    "faqTitulo": " Frequently Asked Questions",
+    "faq": {
+      "1": {
+        "q": "Do I need to know how to code to use the platform?",
+        "a": "No. Our system is built for users of any experience level."
+      },
+      "2": {
+        "q": "Can I receive alerts if a sensor exceeds a threshold?",
+        "a": "Yes, you can set up custom alerts based on specific conditions."
+      },
+      "3": {
+        "q": "How do I see real-time data?",
+        "a": "Access a project to view the latest sensor readings and dynamic charts."
+      },
+      "4": {
+        "q": "Can I export my data?",
+        "a": "Yes, you can export readings, users, logs and more from the admin panel."
+      }
+    },
+    "pasos": {
+      "crearCuenta": "Create an account",
+      "crearCuentaDesc": "Start by registering to save your projects and settings.",
+      "nuevoDispositivo": "Connect your first device",
+      "nuevoDispositivoDesc": "Use the visual wizard to register and configure a new device.",
+      "crearThing": "Configure sensors",
+      "crearThingDesc": "Link sensors to your project to start receiving real-time data."
+    },
+    "navegacionTitulo": "Didn’t find what you were looking for? Visit our main sections:",
+    "links": {
+      "inicio": "🏠 Home",
+      "proyectos": "📋 Projects",
+      "notificaciones": "🔔 Notifications"
+    }
+  },
+
+  "home": {
+    "titulo": "Unified IoT Platform",
+    "descripcion": "Connect, monitor, and scale your smart devices with a modern, secure, and future-ready interface. From agriculture to smart cities, this platform is built for everyone.",
+    "botonComenzar": "Get Started",
+    "botonPanel": "Go to Dashboard",
+    "feature1": {
+      "titulo": "Scalability",
+      "desc": "Built to grow with you. Supports everything from prototypes to mass deployments."
+    },
+    "feature2": {
+      "titulo": "Connectivity",
+      "desc": "ESP modules, MQTT, WiFi, and more—easily integrate from anywhere."
+    },
+    "feature3": {
+      "titulo": "Security",
+      "desc": "Robust authentication, role-based control, and end-to-end encryption."
+    },
+    "feature4": {
+      "titulo": "Advanced Visualization",
+      "desc": "Customizable charts, interactive dashboards, and real-time alerts."
+    },
+
+    "toaster": {
+      "success": {
+        "title": "Success!",
+        "description": "The operation completed successfully."
+      },
+      "error": {
+        "title": "Error",
+        "description": "An error occurred while processing the request."
+      }
+    }
+  }
+}
