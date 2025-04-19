@@ -1,3 +1,4 @@
+// src/pages/VisualizacionAvanzada.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -10,7 +11,7 @@ import Swal from 'sweetalert2';
 import Button from '../../components/ui/Button';
 
 export default function VisualizacionAvanzada() {
-  const { id } = useParams(); // ID del proyecto
+  const { id } = useParams();
   const [visualizaciones, setVisualizaciones] = useState([]);
   const [sensores, setSensores] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -31,7 +32,7 @@ export default function VisualizacionAvanzada() {
       const res = await axios.get(`/api/visualizaciones?proyecto=${id}`, config);
       setVisualizaciones(res.data);
     } catch (err) {
-      console.error('Error al obtener visualizaciones:', err);
+      console.error('❌ Error al obtener visualizaciones:', err);
     }
   };
 
@@ -40,7 +41,7 @@ export default function VisualizacionAvanzada() {
       const res = await axios.get(`/api/sensores?proyecto=${id}`, config);
       setSensores(res.data);
     } catch (err) {
-      console.error('Error al obtener sensores:', err);
+      console.error('❌ Error al obtener sensores:', err);
     }
   };
 
@@ -50,15 +51,15 @@ export default function VisualizacionAvanzada() {
       const oldIndex = visualizaciones.findIndex(v => v._id === active.id);
       const newIndex = visualizaciones.findIndex(v => v._id === over.id);
 
-      const newOrden = arrayMove(visualizaciones, oldIndex, newIndex);
-      setVisualizaciones(newOrden);
+      const nuevoOrden = arrayMove(visualizaciones, oldIndex, newIndex);
+      setVisualizaciones(nuevoOrden);
 
       try {
-        for (let i = 0; i < newOrden.length; i++) {
-          await axios.put(`/api/visualizaciones/${newOrden[i]._id}`, { orden: i }, config);
+        for (let i = 0; i < nuevoOrden.length; i++) {
+          await axios.put(`/api/visualizaciones/${nuevoOrden[i]._id}`, { orden: i }, config);
         }
       } catch (err) {
-        console.error('Error al actualizar orden:', err);
+        console.error('❌ Error al actualizar orden:', err);
       }
     }
   };
@@ -82,12 +83,15 @@ export default function VisualizacionAvanzada() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📈 Visualización Avanzada</h1>
-
-      <Button onClick={abrirModal} variant="success" className="mb-6">
-        ➕ Añadir gráfica personalizada
-      </Button>
+    <div className="p-8 max-w-6xl mx-auto space-y-6 bg-light-bg dark:bg-dark-bg rounded-xl transition-colors">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          📈 Visualización Avanzada
+        </h1>
+        <Button onClick={abrirModal} variant="success">
+          ➕ Añadir gráfica personalizada
+        </Button>
+      </div>
 
       <DndContext
         collisionDetection={closestCenter}
@@ -100,7 +104,9 @@ export default function VisualizacionAvanzada() {
         >
           <div className="space-y-4">
             {visualizaciones.length === 0 ? (
-              <p className="text-gray-500">No hay visualizaciones creadas aún.</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                No hay visualizaciones creadas aún. Puedes añadir una usando el botón de arriba. 👆
+              </p>
             ) : (
               visualizaciones.map(vis => (
                 <VisualizacionCard

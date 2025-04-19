@@ -28,7 +28,6 @@ export default function FormularioVisualizacion({
       setMostrarLeyenda(visualizacion.mostrarLeyenda ?? true);
       setSensoresSeleccionados(visualizacion.sensores || []);
     } else {
-      // Reset al abrir modal nuevo
       setTitulo('');
       setTipo('line');
       setColor('#8884d8');
@@ -62,17 +61,15 @@ export default function FormularioVisualizacion({
       fetchAll();
       onClose();
     } catch (err) {
-      console.error('Error al guardar visualización:', err);
+      console.error('❌ Error al guardar visualización:', err);
       alert('Error al guardar visualización.');
     }
   };
 
   const toggleSensor = id => {
-    if (sensoresSeleccionados.includes(id)) {
-      setSensoresSeleccionados(sensoresSeleccionados.filter(s => s !== id));
-    } else {
-      setSensoresSeleccionados([...sensoresSeleccionados, id]);
-    }
+    setSensoresSeleccionados(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -81,25 +78,25 @@ export default function FormularioVisualizacion({
       onOpenChange={onClose}
       title={visualizacion ? '✏️ Editar Visualización' : '➕ Crear Visualización'}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Título</label>
+          <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+            Título
+          </label>
           <input
             type="text"
             value={titulo}
             onChange={e => setTitulo(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
+            className="input"
             placeholder="Ej: Temperatura vs Tiempo"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Tipo de gráfica</label>
-          <select
-            value={tipo}
-            onChange={e => setTipo(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          >
+          <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+            Tipo de gráfica
+          </label>
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="input">
             <option value="line">Línea</option>
             <option value="bar">Barras</option>
             <option value="area">Área</option>
@@ -111,35 +108,45 @@ export default function FormularioVisualizacion({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Color principal</label>
+          <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+            Color principal
+          </label>
           <input
             type="color"
             value={color}
             onChange={e => setColor(e.target.value)}
-            className="w-16 h-10 border rounded"
+            className="w-16 h-10 border border-light-border dark:border-dark-border rounded cursor-pointer bg-transparent"
           />
         </div>
 
-        <div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={mostrarLeyenda}
-              onChange={() => setMostrarLeyenda(!mostrarLeyenda)}
-            />
+        <div className="flex items-center gap-2">
+          <input
+            id="mostrarLeyenda"
+            type="checkbox"
+            checked={mostrarLeyenda}
+            onChange={() => setMostrarLeyenda(!mostrarLeyenda)}
+            className="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-dark-surface"
+          />
+          <label htmlFor="mostrarLeyenda" className="text-sm text-light-text dark:text-dark-text">
             Mostrar leyenda
           </label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Selecciona sensores</label>
+          <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+            Selecciona sensores
+          </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {sensores.map(sensor => (
-              <label key={sensor._id} className="text-sm flex items-center gap-2">
+              <label
+                key={sensor._id}
+                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"
+              >
                 <input
                   type="checkbox"
                   checked={sensoresSeleccionados.includes(sensor._id)}
                   onChange={() => toggleSensor(sensor._id)}
+                  className="rounded border-gray-300 dark:border-gray-600 text-primary dark:bg-dark-surface"
                 />
                 {sensor.nombre}
               </label>
@@ -147,12 +154,12 @@ export default function FormularioVisualizacion({
           </div>
         </div>
 
-        <div className="flex gap-4 justify-end pt-2">
-          <Button type="submit" variant="primary">
-            {visualizacion ? 'Guardar cambios' : 'Crear visualización'}
-          </Button>
+        <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
+          </Button>
+          <Button type="submit" variant="primary">
+            {visualizacion ? 'Guardar cambios' : 'Crear visualización'}
           </Button>
         </div>
       </form>

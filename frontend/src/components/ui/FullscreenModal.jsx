@@ -1,4 +1,4 @@
-// components/ui/FullscreenModal.jsx
+// src/components/ui/FullscreenModal.jsx
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 
@@ -6,19 +6,19 @@ export default function FullscreenModal({ open, onClose, children, title = 'Vist
   return (
     <Dialog.Root open={open} onOpenChange={onClose}>
       <Dialog.Portal>
-        {/* Fondo con animación de opacidad */}
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out" />
-        
-        {/* Modal centrado con animación suave de entrada */}
+        {/* Fondo oscurecido con blur y transición */}
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity data-[state=open]:opacity-100 data-[state=closed]:opacity-0" />
+
+        {/* Contenedor del modal con animación */}
         <Dialog.Content
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4
           data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-8
           data-[state=closed]:animate-out data-[state=closed]:fade-out-90 data-[state=closed]:slide-out-to-top-8"
         >
-          <div className="relative w-full max-w-6xl h-[90vh] bg-white dark:bg-darkSurface rounded-2xl shadow-xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="relative w-full max-w-6xl h-[90vh] bg-white dark:bg-dark-bg text-light-text dark:text-dark-text rounded-2xl shadow-2xl border border-light-border dark:border-dark-border flex flex-col overflow-hidden transition-colors">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-              <Dialog.Title className="text-lg font-semibold text-gray-800 dark:text-white">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface">
+              <Dialog.Title className="text-lg font-semibold text-light-text dark:text-white">
                 {title}
               </Dialog.Title>
               <Dialog.Close
@@ -29,8 +29,8 @@ export default function FullscreenModal({ open, onClose, children, title = 'Vist
               </Dialog.Close>
             </div>
 
-            {/* Contenido scrollable */}
-            <div className="flex-1 p-4 overflow-auto">{children}</div>
+            {/* Contenido */}
+            <div className="flex-1 p-6 overflow-auto bg-light-bg dark:bg-dark-bg">{children}</div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

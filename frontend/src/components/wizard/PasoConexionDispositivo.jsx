@@ -25,7 +25,6 @@ export default function PasoConectarDispositivo({ onNext, onBack, formData, setF
       const completo = { ...disp, imagen, tipo };
       setDispositivo(completo);
 
-      // ✅ Solo cambiamos la placa si aún no se seleccionó
       if (!formData.placa) {
         setFormData({ ...formData, dispositivo: completo, placa: tipo });
       } else {
@@ -40,7 +39,7 @@ export default function PasoConectarDispositivo({ onNext, onBack, formData, setF
 
   useEffect(() => {
     fetchDispositivo();
-    const interval = setInterval(fetchDispositivo, 3000); // ⏱️ cada 3 segundos
+    const interval = setInterval(fetchDispositivo, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -51,39 +50,41 @@ export default function PasoConectarDispositivo({ onNext, onBack, formData, setF
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
-      className="space-y-6"
+      className="space-y-6 max-w-2xl mx-auto bg-white dark:bg-dark-surface p-6 rounded-xl shadow-md transition-colors"
     >
       <div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+        <h2 className="text-2xl font-bold text-light-text dark:text-white">
           2. Conecta tu dispositivo
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-light-muted dark:text-dark-muted">
           Conecta tu placa al computador. El agente la detectará automáticamente.
         </p>
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Buscando dispositivo...</p>
+        <p className="text-center text-gray-500 dark:text-gray-400">🔍 Buscando dispositivo...</p>
       ) : !dispositivo ? (
-        <p className="text-center text-red-500">No se detectó ningún dispositivo conectado.</p>
+        <p className="text-center text-red-500 dark:text-red-400">
+          ❌ No se detectó ningún dispositivo conectado.
+        </p>
       ) : (
         <div
           onClick={() => setFormData({ ...formData, dispositivo })}
-          className="border border-blue-600 bg-blue-50 dark:bg-gray-800 rounded-xl p-5 transition cursor-pointer"
+          className="cursor-pointer border-2 border-primary/60 hover:border-primary bg-blue-50 dark:bg-dark-muted/30 rounded-xl p-6 transition shadow"
         >
           <img
             src={dispositivo.imagen}
             alt={dispositivo.chip}
-            className="w-24 h-24 mx-auto mb-3 object-contain"
+            className="w-24 h-24 mx-auto mb-4 object-contain"
           />
-          <h3 className="text-xl font-bold text-center text-gray-900 dark:text-white">
+          <h3 className="text-xl font-bold text-center text-light-text dark:text-white mb-2">
             {formData.placa === 'esp32'
               ? 'ESP32 (WROOM)'
               : formData.placa === 'esp8266'
-                ? 'ESP8266'
-                : 'Dispositivo conectado'}
+              ? 'ESP8266'
+              : 'Dispositivo conectado'}
           </h3>
-          <div className="mt-3 text-sm text-gray-700 dark:text-gray-300 space-y-1 text-center">
+          <div className="text-sm text-light-muted dark:text-dark-muted space-y-1 text-center">
             <p>
               <strong>Fabricante:</strong> {dispositivo.manufacturer || 'Desconocido'}
             </p>
@@ -106,16 +107,16 @@ export default function PasoConectarDispositivo({ onNext, onBack, formData, setF
       <div className="flex justify-between pt-6">
         <button
           onClick={onBack}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded transition"
+          className="px-5 py-2 rounded-md text-sm font-medium bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white transition"
         >
-          Anterior
+          ⬅ Anterior
         </button>
         <button
           onClick={onNext}
           disabled={!dispositivo}
-          className="bg-primary hover:bg-primaryHover text-white px-5 py-2 rounded transition disabled:opacity-50"
+          className="px-5 py-2 rounded-md text-sm font-medium bg-primary hover:bg-primary-hover text-white transition disabled:opacity-50"
         >
-          Siguiente
+          Siguiente ➡
         </button>
       </div>
     </motion.div>

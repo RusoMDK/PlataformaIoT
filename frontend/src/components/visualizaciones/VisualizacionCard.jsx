@@ -73,6 +73,9 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
+      customClass: {
+        popup: 'dark:bg-dark-bg dark:text-white',
+      },
     });
 
     if (confirmar.isConfirmed) {
@@ -101,16 +104,31 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
     }
   };
 
-  const color = visualizacion.color || '#8884d8';
+  const color = visualizacion.color || '#3B82F6';
   const mostrarLeyenda = visualizacion.mostrarLeyenda !== false;
   const nombreSensores = sensores
     .filter(s => visualizacion.sensores.includes(s._id))
     .map(s => s.nombre)
     .join(', ');
 
-  const ejeX = <XAxis dataKey="timestamp" tickFormatter={v => new Date(v).toLocaleTimeString()} />;
-  const ejeY = <YAxis />;
-  const tooltip = <Tooltip labelFormatter={v => new Date(v).toLocaleString()} />;
+  const ejeX = (
+    <XAxis
+      dataKey="timestamp"
+      tickFormatter={v => new Date(v).toLocaleTimeString()}
+      stroke="currentColor"
+    />
+  );
+  const ejeY = <YAxis stroke="currentColor" />;
+  const tooltip = (
+    <Tooltip
+      contentStyle={{
+        backgroundColor: 'rgba(30, 41, 59, 0.9)',
+        border: 'none',
+        color: 'white',
+      }}
+      labelFormatter={v => new Date(v).toLocaleString()}
+    />
+  );
   const leyenda = mostrarLeyenda ? <Legend /> : null;
 
   const Grafica = () => (
@@ -121,7 +139,7 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
           {ejeY}
           {tooltip}
           {leyenda}
-          <Line dataKey="valor" stroke={color} />
+          <Line dataKey="valor" stroke={color} strokeWidth={2} />
         </LineChart>
       )}
       {visualizacion.tipo === 'bar' && (
@@ -171,8 +189,8 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
             cy="50%"
             outerRadius={80}
           >
-            {lecturas.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={color} />
+            {lecturas.map((entry, i) => (
+              <Cell key={i} fill={color} />
             ))}
           </Pie>
           {tooltip}
@@ -192,36 +210,45 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
   );
 
   return (
-    <div ref={setNodeRef} style={style} className="p-4 bg-white border rounded shadow relative">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl p-4 shadow transition-all relative"
+    >
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
           <button
             {...attributes}
             {...listeners}
-            className="cursor-grab p-1 text-gray-400"
+            className="cursor-grab p-1 text-light-muted dark:text-dark-muted"
             title="Mover"
           >
             <GripVertical size={16} />
           </button>
-          <h2 className="font-semibold text-lg text-gray-800">{visualizacion.titulo}</h2>
+          <h2 className="font-semibold text-lg text-light-text dark:text-white">
+            {visualizacion.titulo}
+          </h2>
         </div>
-        <div className="flex gap-3 text-sm">
-          <button onClick={onEditar} className="text-blue-600 hover:underline">
+        <div className="flex gap-2 text-sm">
+          <button
+            onClick={onEditar}
+            className="text-primary hover:underline dark:text-primary-dark"
+          >
             Editar
           </button>
-          <button onClick={eliminar} className="text-red-600 hover:underline">
+          <button onClick={eliminar} className="text-danger hover:underline">
             Eliminar
           </button>
-          <button onClick={() => exportarImagen('png')} className="text-green-600 hover:underline">
+          <button onClick={() => exportarImagen('png')} className="text-success hover:underline">
             PNG
           </button>
-          <button onClick={() => exportarImagen('jpg')} className="text-orange-600 hover:underline">
+          <button onClick={() => exportarImagen('jpg')} className="text-accent hover:underline">
             JPG
           </button>
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 mb-2">Sensores: {nombreSensores}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Sensores: {nombreSensores}</p>
 
       <div id={`grafica-${visualizacion._id}`}>
         <Grafica />
@@ -229,7 +256,7 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
 
       <button
         onClick={() => setFullscreen(true)}
-        className="absolute bottom-2 right-2 p-1 text-gray-400 hover:text-gray-600"
+        className="absolute bottom-2 right-2 p-1 text-gray-400 hover:text-primary transition"
         title="Pantalla completa"
       >
         <Expand size={18} />
@@ -240,7 +267,7 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
         onClose={() => setFullscreen(false)}
         title={visualizacion.titulo}
       >
-        <div style={{ height: '100%' }}>
+        <div className="h-full">
           <Grafica />
         </div>
       </FullscreenModal>

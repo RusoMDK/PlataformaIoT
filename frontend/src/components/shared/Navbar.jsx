@@ -1,3 +1,4 @@
+// src/components/shared/Navbar.jsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useNotificaciones } from '../../context/NotificacionesContext';
 import { Bell, User, Moon, Sun, Globe } from 'lucide-react';
@@ -38,7 +39,6 @@ export default function Navbar({ minimal = false }) {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} alt="IoT Platform Logo" className="h-10 w-auto" />
-          <span className="text-xl font-semibold text-gray-800 dark:text-white hidden sm:block"></span>
         </Link>
 
         {/* Acciones */}
@@ -63,10 +63,7 @@ export default function Navbar({ minimal = false }) {
 
           {!minimal && token && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-700 dark:text-gray-200 hidden sm:block">
-                👋 {i18n.language === 'es' ? 'Hola' : 'Hi'}, <strong>{nombre || 'Usuario'}</strong>
-              </span>
-
+              {/* 🔔 Notificaciones */}
               <button
                 onClick={toggleNotificaciones}
                 className="relative"
@@ -83,6 +80,12 @@ export default function Navbar({ minimal = false }) {
                 )}
               </button>
 
+              {/* 👋 Saludo */}
+              <span className="text-sm text-gray-700 dark:text-gray-200 hidden sm:block">
+                👋 {i18n.language === 'es' ? 'Hola' : 'Hi'}, <strong>{nombre || 'Usuario'}</strong>
+              </span>
+
+              {/* 👤 Perfil */}
               <Link
                 to="/perfil"
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition"
@@ -112,7 +115,7 @@ export default function Navbar({ minimal = false }) {
         </div>
       </div>
 
-      {/* Dropdowns */}
+      {/* Dropdown notificaciones */}
       {!minimal && (
         <NotificacionesDropdown
           open={mostrarNotificaciones}

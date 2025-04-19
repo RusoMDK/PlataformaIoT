@@ -33,7 +33,7 @@ export default function SidebarDispositivos({
   return (
     <div
       id="sidebar-dispositivos"
-      className={`fixed top-[64px] right-0 z-50 h-[calc(91.5vh-64px)] transition-all duration-300 ease-in-out ${
+      className={`fixed top-[64px] right-0 z-30 h-[calc(91.5vh-64px)] transition-all duration-300 ease-in-out ${
         hover ? 'w-64' : 'w-16'
       } group`}
       onMouseEnter={() => onHoverChange(true)}
@@ -99,7 +99,7 @@ export default function SidebarDispositivos({
           {hover && (
             <div
               onClick={() => navigate('/nuevo-dispositivo')}
-              className="flex items-center justify-center h-[64px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:border-darkAccent/60 dark:hover:bg-darkMuted/10 transition"
+              className="flex items-center justify-center h-[64px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-100/40 dark:hover:bg-blue-600/20 transition"
             >
               <Plus size={20} className="text-gray-500 dark:text-gray-300" />
             </div>

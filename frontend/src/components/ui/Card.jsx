@@ -14,9 +14,7 @@ function Card({ title, icon, actions, children, className }) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {icon && <span className="text-primary dark:text-primary-dark">{icon}</span>}
-            {title && (
-              <h3 className="text-lg font-semibold text-light-text dark:text-white">{title}</h3>
-            )}
+            {title && <CardTitle>{title}</CardTitle>}
           </div>
           {actions && <div className="flex gap-2">{actions}</div>}
         </div>
@@ -27,9 +25,23 @@ function Card({ title, icon, actions, children, className }) {
   );
 }
 
+function CardTitle({ children, className }) {
+  return (
+    <h3
+      className={cn(
+        'text-lg font-semibold text-light-text dark:text-white',
+        className
+      )}
+    >
+      {children}
+    </h3>
+  );
+}
+
 function CardContent({ children, className }) {
   return <div className={cn('p-4', className)}>{children}</div>;
 }
 
-export { Card, CardContent };
+// ✅ Exportación completa
+export { Card, CardContent, CardTitle };
 export default Card;

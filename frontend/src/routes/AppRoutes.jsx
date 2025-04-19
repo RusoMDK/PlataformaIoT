@@ -13,18 +13,19 @@ import ProyectoDetalle from '../pages/proyectos/DetalleThing';
 import EditarThing from '../pages/proyectos/EditarThing';
 import Lecturas from '../pages/proyectos/Lecturas';
 import Visualizacion from '../pages/proyectos/VisualizacionAvanzada';
-import NuevoDispositivo from '../pages/dispositivos/NuevoDispositivoPage';
+import NuevoDispositivo from '../pages/dispositivos/Wizard';
 import NuevoThing from '../pages/proyectos/NuevoThing';
 import Notificaciones from '../pages/notificaciones/Notificaciones';
 import Perfil from '../pages/user/Perfil';
 
-/* ─ Páginas de administración ─ */
+/* ─ Páginas de administración ─ */
 import DashboardAdmin from '../pages/admin/DashboardAdmin';
 import LogsGlobales from '../pages/admin/LogsGlobales';
 import ExportarDatos from '../pages/admin/ExportarDatos';
 
-/* ─ Layout auth ─ */
+/* ─ Layouts ─ */
 import AuthLayout from '../layouts/AuthLayout';
+import WizardLayout from '../layouts/WizardLayout';
 
 /* ─ Wrappers de protección ─ */
 const PrivateRoute = ({ children, token }) => {
@@ -94,7 +95,9 @@ export default function AppRoutes({ token, rol }) {
         path="/nuevo-dispositivo"
         element={
           <PrivateRoute token={token}>
-            <NuevoDispositivo />
+            <WizardLayout>
+              <NuevoDispositivo />
+            </WizardLayout>
           </PrivateRoute>
         }
       />

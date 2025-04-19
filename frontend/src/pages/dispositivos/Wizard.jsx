@@ -5,7 +5,7 @@ import PasoSeleccionPlaca from '../../components/wizard/PasoSeleccionPlaca';
 import PasoConexionDispositivo from '../../components/wizard/PasoConexionDispositivo';
 import PasoConfigurarWiFi from '../../components/wizard/PasoConfigurarWiFi';
 import PasoSubirCodigo from '../../components/wizard/PasoSubirCodigo';
-import PasoInstalarESP32 from '../../components/wizard/PasoInstalarESP32'; // 🆕 Paso condicional
+import PasoInstalarESP32 from '../../components/wizard/PasoInstalarESP32';
 import PasoVerificarConexion from '../../components/wizard/PasoVerificarConexion';
 import PasoFinal from '../../components/wizard/PasoFinal';
 
@@ -23,7 +23,6 @@ export default function Wizard() {
 
   const incluirPasoInstalacion = formData.placa === 'esp32' || formData.placa === 'esp8266';
 
-  // 🧠 Secuencia completa de pasos
   const pasosBase = [
     { id: 'placa', nombre: 'Selecciona la placa', componente: PasoSeleccionPlaca },
     { id: 'conexion', nombre: 'Conecta el dispositivo', componente: PasoConexionDispositivo },
@@ -51,29 +50,27 @@ export default function Wizard() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white dark:bg-darkBg flex items-center justify-center px-4">
-      <div className="w-full max-w-3xl bg-white dark:bg-darkSurface rounded-xl shadow-xl p-6 relative overflow-hidden">
-        {/* 🧭 Barra superior con nombre del paso */}
-        <div className="mb-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Paso {pasoActual + 1} de {pasosBase.length}
-          </p>
-          <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-            {pasosBase[pasoActual].nombre}
-          </h1>
-        </div>
-
-        {/* 🎞️ Transición entre pasos */}
-        <AnimatePresence mode="wait">
-          <PasoActualComponente
-            key={pasosBase[pasoActual].id}
-            formData={formData}
-            setFormData={setFormData}
-            onNext={siguiente}
-            onBack={anterior}
-          />
-        </AnimatePresence>
+    <div className="w-full max-w-3xl bg-white dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-2xl shadow-xl p-8 transition-colors duration-300">
+      {/* 🧭 Barra superior con título */}
+      <div className="mb-6 text-center">
+        <p className="text-sm text-light-muted dark:text-dark-muted mb-1">
+          Paso {pasoActual + 1} de {pasosBase.length}
+        </p>
+        <h1 className="text-xl font-bold text-light-text dark:text-white">
+          {pasosBase[pasoActual].nombre}
+        </h1>
       </div>
+
+      {/* 🎞️ Animación y paso actual */}
+      <AnimatePresence mode="wait">
+        <PasoActualComponente
+          key={pasosBase[pasoActual].id}
+          formData={formData}
+          setFormData={setFormData}
+          onNext={siguiente}
+          onBack={anterior}
+        />
+      </AnimatePresence>
     </div>
   );
 }
