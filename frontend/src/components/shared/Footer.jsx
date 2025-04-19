@@ -2,8 +2,8 @@ import { Twitter, Github, Linkedin, Mail, HelpCircle, FileText } from 'lucide-re
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-white/90 dark:bg-darkSurface/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 text-gray-600 dark:text-darkMuted py-5 px-6 z-30">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm gap-3">
+    <footer className="w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 py-5 px-6 z-30">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm gap-4">
         {/* Texto */}
         <div className="text-center md:text-left">
           © {new Date().getFullYear()}{' '}
@@ -12,7 +12,7 @@ export default function Footer() {
         </div>
 
         {/* Enlaces útiles */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 flex-wrap justify-center">
           <a
             href="/ayuda"
             className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-darkAccent transition"
@@ -37,7 +37,7 @@ export default function Footer() {
         </div>
 
         {/* Redes sociales */}
-        <div className="flex gap-4 text-gray-600 dark:text-darkMuted">
+        <div className="flex gap-4 text-gray-500 dark:text-gray-400">
           <a
             href="https://twitter.com"
             target="_blank"

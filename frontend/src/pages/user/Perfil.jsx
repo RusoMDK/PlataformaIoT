@@ -1,8 +1,8 @@
-import { Card, CardContent } from '@components/ui/Card'; // ó card.jsx → card
-import { Button } from '@components/ui/Button'; // idem
-// Perfil.jsx
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@components/ui/Tabs'; //  T mayúscula y ruta única
-import { Input } from '@components/ui/Input'; // nombre ya corregido
+import { useState } from 'react';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/Tabs';
+import { Input } from '../../components/ui/Input';
 import {
   UserCircle,
   ImagePlus,
@@ -18,24 +18,13 @@ import {
   Trash2,
 } from 'lucide-react';
 
-/**
- * ⚡ Perfil de Usuario all‑in‑one
- * - Cambiar avatar (arrastrar / seleccionar)
- * - Editar datos básicos
- * - Preferencias (tema, idioma)
- * - Seguridad (password, 2FA mock, tokens API)
- * - Integraciones (OAuth mock)
- * - Privacidad (descargar datos, eliminar cuenta)
- */
 export default function UserProfile() {
-  /* ---- DEMO STATE (remove once wired to backend) ---- */
   const [avatar, setAvatar] = useState(null);
   const [nombre, setNombre] = useState('John Doe');
   const [email, setEmail] = useState('john@example.com');
   const [theme, setTheme] = useState('system');
   const [language, setLanguage] = useState('es');
 
-  /* ------------- helpers ------------- */
   const handleAvatar = e => {
     const file = e.target.files?.[0];
     if (file) setAvatar(URL.createObjectURL(file));
@@ -61,7 +50,6 @@ export default function UserProfile() {
         <TabsContent value="cuenta" className="space-y-6">
           <Card>
             <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
-              {/* avatar */}
               <div className="relative group">
                 <img
                   src={avatar || 'https://i.pravatar.cc/150'}
@@ -74,15 +62,29 @@ export default function UserProfile() {
                 </label>
               </div>
 
-              {/* info form */}
               <div className="flex-1 grid sm:grid-cols-2 gap-4 w-full">
-                <Input label="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
-                <Input
-                  label="Correo"
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-gray-300 mb-1 block">
+                    Nombre
+                  </label>
+                  <Input
+                    type="text"
+                    value={nombre}
+                    onChange={e => setNombre(e.target.value)}
+                    placeholder="Tu nombre"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 dark:text-gray-300 mb-1 block">
+                    Correo
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="ejemplo@email.com"
+                  />
+                </div>
                 <Button className="sm:col-span-2 w-full">Guardar cambios</Button>
               </div>
             </CardContent>
@@ -137,9 +139,9 @@ export default function UserProfile() {
                 <KeyRound className="w-4 h-4" /> Cambiar contraseña
               </h3>
               <div className="grid sm:grid-cols-3 gap-4">
-                <Input label="Actual" type="password" />
-                <Input label="Nueva" type="password" />
-                <Input label="Repetir" type="password" />
+                <Input type="password" placeholder="Actual" />
+                <Input type="password" placeholder="Nueva" />
+                <Input type="password" placeholder="Repetir" />
               </div>
               <Button>Cambiar</Button>
 

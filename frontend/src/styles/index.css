@@ -4,12 +4,66 @@
 
 @layer base {
   html, body, #root {
-    @apply min-h-screen w-full overflow-x-hidden;
-    scroll-behavior: smooth;
+    @apply min-h-screen w-full overflow-x-hidden scroll-smooth;
   }
+
   body {
     font-family: 'Inter', sans-serif;
-    @apply bg-white text-gray-800 dark:bg-gray-900 dark:text-white;
+    @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
+  }
+
+  a {
+    @apply text-primary hover:text-primary-hover dark:text-primary-dark dark:hover:text-primary;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-semibold text-light-text dark:text-white;
+  }
+
+  /* Scrollbar personalizado */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-light-muted dark:bg-dark-muted rounded-full;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+}
+
+@layer components {
+  .navbar {
+    @apply fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-dark-surface/80 border-b border-light-border dark:border-dark-border px-6 py-4 shadow-md transition-all;
+  }
+
+  .navbar-logo {
+    @apply flex items-center gap-3 text-primary font-bold tracking-tight;
+  }
+
+  .navbar-icon-button {
+    @apply text-light-muted dark:text-dark-muted hover:text-primary dark:hover:text-primary-dark transition;
+  }
+
+  .navbar-user-info {
+    @apply text-sm font-medium text-light-text dark:text-dark-text;
+  }
+
+  .navbar-link {
+    @apply text-sm text-primary hover:underline dark:text-primary-dark dark:hover:text-primary;
+  }
+
+  .navbar-notification-badge {
+    @apply absolute -top-2 -right-2 bg-danger text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold text-white;
+  }
+
+  .card {
+    @apply bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl shadow-sm p-6 transition-all;
+  }
+
+  .input {
+    @apply w-full border border-light-border dark:border-dark-border bg-white dark:bg-dark-bg text-light-text dark:text-dark-text rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
   }
 }
 
@@ -17,4 +71,25 @@
   .fade-in-down {
     animation: fade-in-down 0.3s ease-out both;
   }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text;
+  }
+
+  .glass {
+    @apply backdrop-blur-md bg-white/30 dark:bg-dark-surface/30 border border-white/20 dark:border-dark-border rounded-lg;
+  }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

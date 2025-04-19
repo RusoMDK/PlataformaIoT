@@ -24,7 +24,7 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
   }, []);
 
   useEffect(() => {
-    setQuery(value); // 🔁 Sync cuando cambia el value desde fuera
+    setQuery(value);
   }, [value]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
 
   const seleccionar = sensor => {
     setQuery(sensor.nombre);
-    onSelect(sensor); // ✅ Esto manda nombre, tipo y unidad
+    onSelect(sensor);
     onInputChange(sensor.nombre);
     setTimeout(() => {
       setResultados([]);
@@ -80,8 +80,8 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center gap-2 border rounded px-3 py-2 bg-white dark:bg-darkSurface">
-        <Search size={16} className="text-gray-400" />
+      <div className="flex items-center gap-2 border rounded px-3 py-2 bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border">
+        <Search size={16} className="text-gray-400 dark:text-gray-500" />
         <input
           ref={inputRef}
           type="text"
@@ -89,24 +89,24 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent outline-none text-sm text-gray-800 dark:text-white"
+          className="flex-1 bg-transparent outline-none text-sm text-light-text dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
       {mostrarResultados && resultados.length > 0 && (
-        <div className="absolute z-50 bg-white dark:bg-darkSurface border rounded w-full mt-1 max-h-60 overflow-y-auto shadow">
+        <div className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto rounded border shadow-sm bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border">
           {resultados.map((sensor, i) => (
             <div
               key={i}
               onMouseDown={() => seleccionar(sensor)}
-              className={`px-3 py-2 text-sm cursor-pointer ${
+              className={`px-3 py-2 text-sm cursor-pointer transition ${
                 highlightedIndex === i
-                  ? 'bg-gray-200 dark:bg-gray-700'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-gray-100 dark:bg-gray-700'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
-              <strong>{sensor.nombre}</strong>{' '}
-              <span className="text-gray-500">
+              <strong className="text-light-text dark:text-white">{sensor.nombre}</strong>{' '}
+              <span className="text-muted dark:text-gray-400">
                 ({sensor.tipo}, {sensor.unidad})
               </span>
             </div>

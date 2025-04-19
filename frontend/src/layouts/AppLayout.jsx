@@ -36,14 +36,15 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-darkBg text-gray-800 dark:text-darkText min-h-screen transition-colors duration-300">
-      {/* Navbar, Sidebar, Footer y SidebarDispositivos solo si aplica layout */}
+    <div className="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text min-h-screen transition-colors duration-300">
       {mostrarLayout && (
         <>
-          <div className="fixed top-0 left-0 right-0 z-40">
+          {/* Navbar glass y sombra */}
+          <div className="fixed top-0 left-0 right-0 z-40 shadow-sm glass">
             <Navbar onOpenDispositivos={() => setHoverSidebarRight(true)} />
           </div>
 
+          {/* Sidebar izquierdo con expansión hover */}
           <div
             id="sidebar-hover"
             className={`fixed top-[80px] bottom-[60px] left-0 z-40 transition-all duration-300 ease-in-out ${
@@ -53,10 +54,12 @@ export default function AppLayout() {
             <Sidebar onLogout={handleLogout} />
           </div>
 
+          {/* Footer fijo abajo */}
           <div className="fixed bottom-0 left-0 right-0 z-40">
             <Footer />
           </div>
 
+          {/* Sidebar derecho (Dispositivos) */}
           <SidebarDispositivos
             hover={hoverSidebarRight}
             onHoverChange={setHoverSidebarRight}
@@ -66,7 +69,7 @@ export default function AppLayout() {
         </>
       )}
 
-      {/* El main debe mostrarse siempre */}
+      {/* Contenido principal ajustado al layout */}
       <div
         className={`
           transition-[margin] duration-300 ease-in-out min-h-screen pt-[80px] pb-[60px] px-4

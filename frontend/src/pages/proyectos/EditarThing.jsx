@@ -1,9 +1,9 @@
-// src/pages/EditarThing.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
 import SensorAutocomplete from '../../components/things/SensorAutocomplete';
 
 export default function EditarThing() {
@@ -22,14 +22,11 @@ export default function EditarThing() {
       try {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
-
         const [resProyecto, resSensores] = await Promise.all([
           axios.get(`/api/proyectos/${id}`, { headers }),
           axios.get(`/api/sensores?proyecto=${id}`, { headers }),
         ]);
-
         const { nombre, descripcion, dispositivoId } = resProyecto.data;
-
         setForm({
           nombre,
           descripcion,
@@ -41,7 +38,6 @@ export default function EditarThing() {
         toast.error('No se pudo cargar el proyecto.');
       }
     };
-
     fetchProyecto();
   }, [id]);
 
@@ -75,7 +71,6 @@ export default function EditarThing() {
 
   const handleGuardarCambios = async () => {
     const errores = form.sensores.filter(s => !s.nombre || !s.tipo || !s.unidad);
-
     if (errores.length > 0) {
       toast.error('❌ Todos los sensores deben tener nombre, tipo y unidad.');
       return;
@@ -83,9 +78,9 @@ export default function EditarThing() {
 
     try {
       const token = localStorage.getItem('token');
+      const usuarioId = localStorage.getItem('usuarioId'); // 👈 debe existir
       const headers = { Authorization: `Bearer ${token}` };
 
-      // 1. Actualizar datos del proyecto
       await axios.put(
         `/api/proyectos/${id}`,
         {
@@ -97,10 +92,8 @@ export default function EditarThing() {
         { headers }
       );
 
-      // 2. Eliminar sensores actuales del proyecto
       await axios.delete(`/api/sensores/proyecto/${id}`, { headers });
 
-      // 3. Crear nuevos sensores con el proyecto asignado
       await Promise.all(
         form.sensores.map(sensor =>
           axios.post(
@@ -110,7 +103,8 @@ export default function EditarThing() {
               tipo: sensor.tipo,
               unidad: sensor.unidad,
               pin: sensor.pin,
-              proyecto: id, // <-- 🔥 Aquí estaba el fallo
+              proyecto: id,
+              usuario: usuarioId, // ✅ Agregado
             },
             { headers }
           )
@@ -126,11 +120,10 @@ export default function EditarThing() {
   };
 
   const handleEliminarThing = async () => {
-    const confirm = window.confirm(
-      '¿Seguro que deseas eliminar este Thing? Esta acción no se puede deshacer.'
-    );
-    if (!confirm) return;
-
+    if (
+      !window.confirm('¿Seguro que deseas eliminar este Thing? Esta acción no se puede deshacer.')
+    )
+      return;
     try {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
@@ -144,32 +137,31 @@ export default function EditarThing() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8">
+    <div className="p-8 max-w-4xl mx-auto space-y-8 bg-light-bg dark:bg-dark-bg rounded-xl transition-colors">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Editar Thing</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Editar Thing</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Modifica los datos de tu proyecto.
         </p>
       </div>
 
-      <div className="space-y-6 bg-white dark:bg-darkSurface rounded-lg p-6 shadow">
-        {/* 📝 Datos generales */}
+      <div className="space-y-6 bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl shadow-sm p-6 transition-colors">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1 font-medium">Nombre del proyecto</label>
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded bg-white dark:bg-darkBg dark:border-gray-600 dark:text-white"
+            <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+              Nombre del proyecto
+            </label>
+            <Input
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
               placeholder="Ej: Sensor de humedad"
             />
           </div>
           <div>
-            <label className="block text-sm mb-1 font-medium">Descripción</label>
-            <input
-              type="text"
-              className="w-full border px-3 py-2 rounded bg-white dark:bg-darkBg dark:border-gray-600 dark:text-white"
+            <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
+              Descripción
+            </label>
+            <Input
               value={form.descripcion}
               onChange={e => setForm({ ...form, descripcion: e.target.value })}
               placeholder="Proyecto que mide humedad en suelo"
@@ -177,9 +169,10 @@ export default function EditarThing() {
           </div>
         </div>
 
-        {/* 📡 Dispositivos */}
         <div>
-          <label className="block text-sm font-medium mb-2">Dispositivo asociado</label>
+          <label className="block text-sm font-medium mb-2 text-light-text dark:text-dark-text">
+            Dispositivo asociado
+          </label>
           <div className="grid sm:grid-cols-2 gap-3">
             {dispositivos.map(d => {
               const selected = form.dispositivoId === d._id;
@@ -191,13 +184,13 @@ export default function EditarThing() {
                   className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer border transition ${
                     selected
                       ? 'bg-blue-100 dark:bg-blue-900 border-blue-400'
-                      : 'hover:bg-gray-50 dark:hover:bg-darkMuted'
+                      : 'hover:bg-light-muted/20 dark:hover:bg-dark-muted/30 border-light-border dark:border-dark-border'
                   }`}
                 >
                   <img src={imgSrc} alt={d.nombre} className="w-10 h-10 object-contain" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{d.nombre}</p>
-                    <p className="text-xs text-gray-500">{d.uid.slice(0, 8)}…</p>
+                    <p className="font-medium text-sm text-gray-800 dark:text-white">{d.nombre}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{d.uid.slice(0, 8)}…</p>
                   </div>
                   {selected && (
                     <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">
@@ -210,41 +203,36 @@ export default function EditarThing() {
           </div>
         </div>
 
-        {/* 🧪 Sensores */}
         <div>
-          <label className="block text-sm font-medium mb-2">Sensores</label>
+          <label className="block text-sm font-medium mb-2 text-light-text dark:text-dark-text">
+            Sensores
+          </label>
           <div className="space-y-3">
             {form.sensores.map((sensor, i) => (
               <div key={i} className="grid grid-cols-5 gap-2 items-end">
                 <SensorAutocomplete
                   value={sensor.nombre}
+                  onInputChange={val => handleSensorChange(i, 'nombre', val)}
                   onSelect={s => {
                     handleSensorChange(i, 'nombre', s.nombre);
                     handleSensorChange(i, 'tipo', s.tipo);
                     handleSensorChange(i, 'unidad', s.unidad);
                   }}
-                  onInputChange={val => handleSensorChange(i, 'nombre', val)}
                 />
-                <input
-                  type="text"
+                <Input
                   placeholder="Tipo"
                   value={sensor.tipo}
                   onChange={e => handleSensorChange(i, 'tipo', e.target.value)}
-                  className="border px-2 py-1 rounded bg-white dark:bg-darkBg dark:border-gray-600 dark:text-white"
                 />
-                <input
-                  type="text"
+                <Input
                   placeholder="Unidad"
                   value={sensor.unidad}
                   onChange={e => handleSensorChange(i, 'unidad', e.target.value)}
-                  className="border px-2 py-1 rounded bg-white dark:bg-darkBg dark:border-gray-600 dark:text-white"
                 />
-                <input
-                  type="text"
+                <Input
                   placeholder="Pin"
                   value={sensor.pin}
                   onChange={e => handleSensorChange(i, 'pin', e.target.value)}
-                  className="border px-2 py-1 rounded bg-white dark:bg-darkBg dark:border-gray-600 dark:text-white"
                 />
                 <button
                   onClick={() => handleEliminarSensor(i)}
@@ -260,7 +248,6 @@ export default function EditarThing() {
           </div>
         </div>
 
-        {/* Acciones finales */}
         <div className="flex justify-between pt-6">
           <Button variant="danger" onClick={handleEliminarThing}>
             🗑️ Eliminar Thing

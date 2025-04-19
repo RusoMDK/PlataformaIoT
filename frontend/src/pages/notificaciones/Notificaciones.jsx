@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 export default function Notificaciones() {
   const { t } = useTranslation();
   const [notificaciones, setNotificaciones] = useState([]);
-  const [filtro, setFiltro] = useState(''); // "", "leida", "no-leida"
-  const token = localStorage.getItem('token');
+  const [filtro, setFiltro] = useState('');
+  const [error, setError] = useState(null);
 
+  const token = localStorage.getItem('token');
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
@@ -20,9 +21,18 @@ export default function Notificaciones() {
       if (filtro === 'no-leida') url += '?leida=false';
 
       const res = await axios.get(url, config);
-      setNotificaciones(res.data);
+
+      if (Array.isArray(res.data)) {
+        setNotificaciones(res.data);
+        setError(null);
+      } else {
+        console.warn('⚠️ El backend no devolvió un array:', res.data);
+        setNotificaciones([]);
+        setError('Error al obtener notificaciones del servidor.');
+      }
     } catch (err) {
-      console.error('Error al obtener notificaciones:', err);
+      console.error('❌ Error al obtener notificaciones:', err);
+      setError('Error al obtener notificaciones.');
     }
   };
 
@@ -33,9 +43,9 @@ export default function Notificaciones() {
   const marcarLeida = async id => {
     try {
       await axios.patch(`/api/notificaciones/${id}/leida`, {}, config);
-      fetchNotificaciones(); // Actualizar lista
+      fetchNotificaciones();
     } catch (err) {
-      console.error('Error al marcar como leída:', err);
+      console.error('❌ Error al marcar como leída:', err);
     }
   };
 
@@ -64,18 +74,22 @@ export default function Notificaciones() {
 
       {/* Lista de notificaciones */}
       <div className="space-y-4">
-        {notificaciones.length === 0 ? (
+        {error ? (
+          <p className="text-red-500">{error}</p>
+        ) : Array.isArray(notificaciones) && notificaciones.length === 0 ? (
           <p className="text-gray-500">{t('notificaciones.vacio')}</p>
         ) : (
-          notificaciones.map(n => (
+          notificaciones.map((n, index) => (
             <div
-              key={n._id}
+              key={n._id || index}
               className={`p-4 rounded border shadow-sm transition ${
                 n.leida ? 'bg-gray-100 border-gray-200' : 'bg-yellow-50 border-yellow-200'
               }`}
             >
-              <p className="font-medium text-gray-800">{n.mensaje}</p>
-              <p className="text-sm text-gray-500">{new Date(n.timestamp).toLocaleString()}</p>
+              <p className="font-medium text-gray-800">{n.mensaje || 'Mensaje vacío'}</p>
+              <p className="text-sm text-gray-500">
+                {n.timestamp ? new Date(n.timestamp).toLocaleString() : 'Fecha no disponible'}
+              </p>
               {!n.leida && (
                 <Button
                   onClick={() => marcarLeida(n._id)}

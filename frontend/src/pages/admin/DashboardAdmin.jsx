@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import axios from 'axios';
 import TablaPro from '../../components/ui/TablaPro';
 import Card from '../../components/ui/Card';
 import { useTranslation } from 'react-i18next';
-import { Users, Folder, Activity, AlertTriangle } from 'lucide-react';
+import { Users, Folder, Activity, AlertTriangle, ChevronDown } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
-import { ChevronDown } from 'lucide-react';
-import { Fragment } from 'react';
 
 export default function DashboardAdmin() {
   const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
   const [seleccionados, setSeleccionados] = useState([]);
+  const [error, setError] = useState(null);
+  const [openRol, setOpenRol] = useState(null); // Para controlar el ícono giratorio
+
   const token = localStorage.getItem('token');
   const config = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -24,9 +25,10 @@ export default function DashboardAdmin() {
           axios.get('/api/admin/usuarios', config),
         ]);
         setStats(resStats.data);
-        setUsuarios(resUsuarios.data);
+        setUsuarios(Array.isArray(resUsuarios.data) ? resUsuarios.data : []);
       } catch (err) {
-        console.error('❌ Error al obtener datos del admin dashboard:', err);
+        console.error('❌ Error al obtener datos:', err);
+        setError('Error al cargar el dashboard de administración.');
       }
     };
     fetchData();
@@ -42,14 +44,13 @@ export default function DashboardAdmin() {
   };
 
   const eliminarSeleccionados = async () => {
-    const confirmar = window.confirm(t('admin.confirmarEliminacion'));
-    if (!confirmar) return;
+    if (!window.confirm(t('admin.confirmarEliminacion'))) return;
     try {
       await Promise.all(seleccionados.map(id => axios.delete(`/api/admin/usuarios/${id}`, config)));
       setUsuarios(prev => prev.filter(u => !seleccionados.includes(u._id)));
       setSeleccionados([]);
     } catch (err) {
-      console.error('❌ Error al eliminar usuarios seleccionados:', err);
+      console.error('❌ Error al eliminar usuarios:', err);
     }
   };
 
@@ -61,58 +62,75 @@ export default function DashboardAdmin() {
       label: t('admin.rol'),
       render: fila => (
         <Menu as="div" className="relative inline-block text-left w-32">
-          {' '}
-          {/* ancho fijo */}
-          <Menu.Button className="inline-flex justify-between items-center w-full rounded border px-3 py-1 text-sm bg-white dark:bg-darkBg text-gray-800 dark:text-white dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-darkMuted transition">
-            {fila.rol === 'admin' ? t('admin.admin') : t('admin.usuario')}
-            <ChevronDown size={14} className="ml-1 text-gray-500 dark:text-gray-400" />
-          </Menu.Button>
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute z-50 mt-1 w-full origin-top-right rounded-md bg-white dark:bg-darkSurface shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {[
-                { value: 'usuario', label: t('admin.usuario') },
-                { value: 'admin', label: t('admin.admin') },
-              ].map(opt => (
-                <Menu.Item key={opt.value}>
-                  {({ active }) => (
-                    <button
-                      onClick={() => cambiarRol(fila._id, opt.value)}
-                      className={`w-full px-3 py-2 text-sm text-left ${
-                        active
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-white'
-                          : 'text-gray-700 dark:text-white'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  )}
-                </Menu.Item>
-              ))}
-            </Menu.Items>
-          </Transition>
+          {({ open }) => {
+            if (open) setOpenRol(fila._id);
+            else if (openRol === fila._id) setOpenRol(null);
+
+            return (
+              <>
+                <Menu.Button
+                  className="inline-flex justify-between items-center w-full rounded border px-3 py-1 text-sm bg-white text-gray-800 border-gray-300 hover:bg-gray-50
+                    dark:bg-dark-surface dark:text-white dark:border-dark-border dark:hover:bg-dark-muted transition"
+                >
+                  {fila.rol === 'admin' ? t('admin.admin') : t('admin.usuario')}
+                  <ChevronDown
+                    size={14}
+                    className={`ml-1 transition-transform duration-200 ${
+                      openRol === fila._id ? 'rotate-180' : ''
+                    } text-gray-500 dark:text-gray-400`}
+                  />
+                </Menu.Button>
+
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute z-50 mt-1 w-full origin-top-right rounded-md bg-white dark:bg-dark-surface shadow-lg ring-1 ring-black/10 focus:outline-none">
+                    {[
+                      { value: 'usuario', label: t('admin.usuario') },
+                      { value: 'admin', label: t('admin.admin') },
+                    ].map(opt => (
+                      <Menu.Item key={opt.value}>
+                        {({ active }) => (
+                          <button
+                            onClick={() => cambiarRol(fila._id, opt.value)}
+                            className={`w-full px-3 py-2 text-sm text-left transition ${
+                              active
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-white'
+                                : 'text-gray-700 dark:text-white'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        )}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Items>
+                </Transition>
+              </>
+            );
+          }}
         </Menu>
       ),
     },
     {
       campo: 'activo',
       label: t('admin.estado'),
-      render: fila => (
-        <span
-          className={`text-xs font-medium px-2 py-1 rounded transition-all duration-200 ease-in-out ${
-            fila.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}
-        >
-          {fila.activo ? t('admin.activo') : t('admin.inactivo')}
-        </span>
-      ),
+      render: fila =>
+        typeof fila.activo !== 'undefined' && (
+          <span
+            className={`text-xs font-medium px-2 py-1 rounded transition-all duration-200 ease-in-out ${
+              fila.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}
+          >
+            {fila.activo ? t('admin.activo') : t('admin.inactivo')}
+          </span>
+        ),
     },
   ];
 
@@ -134,8 +152,7 @@ export default function DashboardAdmin() {
       label: t('admin.eliminar'),
       variant: 'danger',
       onClick: async fila => {
-        const confirmar = window.confirm(t('admin.confirmarEliminarUsuario'));
-        if (!confirmar) return;
+        if (!window.confirm(t('admin.confirmarEliminarUsuario'))) return;
         try {
           await axios.delete(`/api/admin/usuarios/${fila._id}`, config);
           setUsuarios(prev => prev.filter(u => u._id !== fila._id));
@@ -147,10 +164,14 @@ export default function DashboardAdmin() {
   ];
 
   const resumenes = [
-    { label: t('admin.usuarios'), value: stats?.totalUsuarios, icon: <Users size={18} /> },
-    { label: t('admin.proyectos'), value: stats?.totalProyectos, icon: <Folder size={18} /> },
-    { label: t('admin.sensores'), value: stats?.totalSensores, icon: <Activity size={18} /> },
-    { label: t('admin.alertas'), value: stats?.totalAlertas, icon: <AlertTriangle size={18} /> },
+    { label: t('admin.usuarios'), value: stats?.totalUsuarios || 0, icon: <Users size={18} /> },
+    { label: t('admin.proyectos'), value: stats?.totalProyectos || 0, icon: <Folder size={18} /> },
+    { label: t('admin.sensores'), value: stats?.totalSensores || 0, icon: <Activity size={18} /> },
+    {
+      label: t('admin.alertas'),
+      value: stats?.totalAlertas || 0,
+      icon: <AlertTriangle size={18} />,
+    },
   ];
 
   return (
@@ -159,6 +180,8 @@ export default function DashboardAdmin() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">📊 {t('admin.titulo')}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.descripcion')}</p>
       </div>
+
+      {error && <p className="text-red-500">{error}</p>}
 
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

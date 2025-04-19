@@ -1,4 +1,3 @@
-// src/pages/ProyectoDetalle.jsx
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -16,6 +15,8 @@ import {
   Legend,
 } from 'recharts';
 import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import { Settings, LineChart, LayoutDashboard, FileDown } from 'lucide-react';
 
 const colores = ['#6366F1', '#22C55E', '#FBBF24', '#EC4899', '#10B981'];
 
@@ -68,14 +69,10 @@ export default function ProyectoDetalle() {
     total: alertas.filter(a => a.sensor?._id === s._id).length,
   }));
 
-  // ✅ Tipos de sensores normalizado
   const tiposSensores = sensores.reduce((acc, sensor) => {
     let tipo = sensor.tipo;
     if (typeof tipo !== 'string' || !tipo.trim()) return acc;
-
-    tipo = tipo.trim();
-    tipo = tipo.charAt(0).toUpperCase() + tipo.slice(1); // Capitalizar
-
+    tipo = tipo.charAt(0).toUpperCase() + tipo.trim().slice(1);
     acc[tipo] = (acc[tipo] || 0) + 1;
     return acc;
   }, {});
@@ -85,34 +82,45 @@ export default function ProyectoDetalle() {
     value,
   }));
 
-  if (!proyecto) return <div className="p-8 text-gray-600">Cargando proyecto...</div>;
+  if (!proyecto)
+    return <div className="p-8 text-gray-600 dark:text-gray-300">Cargando proyecto...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-10">
+    <div className="p-8 max-w-6xl mx-auto space-y-10 bg-light-bg dark:bg-dark-bg transition-colors">
+      {/* Header */}
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">📁 {proyecto.nombre}</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">{proyecto.descripcion}</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <LayoutDashboard className="w-6 h-6 text-primary" />
+          {proyecto.nombre}
+        </h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{proyecto.descripcion}</p>
       </header>
 
-      {/* Acciones divididas */}
+      {/* Acciones */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-wrap gap-3">
           <Link to={`/proyectos/${id}/editar-thing`}>
-            <Button variant="secondary">🛠️ Editar</Button>
+            <Button variant="secondary">
+              <Settings className="w-4 h-4 mr-2" /> Editar
+            </Button>
           </Link>
           <Link to={`/proyectos/${id}/lecturas`}>
-            <Button variant="primary">📊 Lecturas</Button>
+            <Button variant="primary">
+              <LineChart className="w-4 h-4 mr-2" /> Lecturas
+            </Button>
           </Link>
           <Link to={`/proyectos/${id}/visualizacion`}>
-            <Button variant="success">📈 Visualización</Button>
+            <Button variant="success">
+              <LineChart className="w-4 h-4 mr-2" /> Visualización
+            </Button>
           </Link>
         </div>
         <div className="flex gap-3">
           <Button onClick={() => handleExport('excel')} variant="outline">
-            📥 Excel
+            <FileDown className="w-4 h-4 mr-2" /> Excel
           </Button>
           <Button onClick={() => handleExport('pdf')} variant="danger">
-            📥 PDF
+            <FileDown className="w-4 h-4 mr-2" /> PDF
           </Button>
         </div>
       </div>
@@ -120,10 +128,7 @@ export default function ProyectoDetalle() {
       {/* Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tipos de sensores */}
-        <div className="bg-white dark:bg-darkSurface border rounded-lg shadow p-5">
-          <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">
-            ⚙️ Tipos de sensores
-          </h2>
+        <Card title="Tipos de sensores">
           {datosTipos.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -139,7 +144,13 @@ export default function ProyectoDetalle() {
                     <Cell key={i} fill={colores[i % colores.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                    border: 'none',
+                    color: 'white',
+                  }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -148,23 +159,26 @@ export default function ProyectoDetalle() {
               No hay sensores registrados con tipo definido.
             </p>
           )}
-        </div>
+        </Card>
 
         {/* Alertas por sensor */}
-        <div className="bg-white dark:bg-darkSurface border rounded-lg shadow p-5">
-          <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">
-            🚨 Alertas por sensor
-          </h2>
+        <Card title="Alertas por sensor">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={alertasPorSensor}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="nombre" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" />
+              <XAxis dataKey="nombre" stroke="currentColor" />
+              <YAxis stroke="currentColor" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                  border: 'none',
+                  color: 'white',
+                }}
+              />
               <Bar dataKey="total" fill="#2563EB" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
       </div>
     </div>
   );

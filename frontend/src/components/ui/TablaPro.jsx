@@ -1,4 +1,3 @@
-/* src/components/ui/TablaPro.jsx */
 import { useState, useMemo, useEffect, Fragment } from 'react';
 import { ChevronLeft, ChevronRight, Trash2, FileText, ChevronDown } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
@@ -7,7 +6,6 @@ import Button from './Button';
 
 const getVal = (row, path) => path.split('.').reduce((a, k) => a?.[k], row);
 
-/* ————————————————————————————————————————————————————————— */
 export default function TablaPro({
   columnas = [],
   datos = [],
@@ -16,12 +14,11 @@ export default function TablaPro({
   setSeleccionados = () => {},
   onEliminarSeleccionados = () => {},
 }) {
-  /* estado paginación */
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(() => +localStorage.getItem('tabla_p') || 1);
   const [pp, setPp] = useState(() => +localStorage.getItem('tabla_pp') || 10);
+  const [openMenu, setOpenMenu] = useState(false);
 
-  /* filtrado + memo */
   const rows = useMemo(
     () =>
       datos.filter(r =>
@@ -39,18 +36,28 @@ export default function TablaPro({
     if (page > total) setPage(1);
   }, [total]);
 
-  /* selección */
-  const toggle = id =>
-    setSeleccionados(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]));
-  const toggleAll = () => {
-    const ids = slice.map(r => r._id);
-    const all = ids.every(id => seleccionados.includes(id));
-    setSeleccionados(
-      all ? seleccionados.filter(id => !ids.includes(id)) : [...seleccionados, ...ids]
-    );
+  const toggle = id => {
+    setSeleccionados(prev => {
+      const set = new Set(prev);
+      set.has(id) ? set.delete(id) : set.add(id);
+      return Array.from(set);
+    });
   };
 
-  /* csv */
+  const toggleAll = () => {
+    const ids = slice.map(r => r._id);
+    const allSelected = ids.every(id => seleccionados.includes(id));
+    setSeleccionados(prev => {
+      const set = new Set(prev);
+      if (allSelected) {
+        ids.forEach(id => set.delete(id));
+      } else {
+        ids.forEach(id => set.add(id));
+      }
+      return Array.from(set);
+    });
+  };
+
   const csv = () => {
     const lines = [columnas.map(c => c.label)];
     rows.forEach(r => lines.push(columnas.map(c => getVal(r, c.campo) ?? '')));
@@ -60,21 +67,28 @@ export default function TablaPro({
     URL.revokeObjectURL(url);
   };
 
-  /* ————————————————————————— UI ————————————————————————— */
   return (
     <div className="space-y-4">
-      {/* buscador + controles */}
       <div className="flex flex-wrap justify-between items-center gap-2">
         <Input
-          placeholder="🔍 Buscar…"
+          placeholder="🔍 Buscar…"
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="max-w-sm"
         />
         <div className="flex items-center gap-2">
           <Menu as="div" className="relative">
-            <Menu.Button className="inline-flex items-center gap-1 rounded border px-3 py-2 text-sm bg-white dark:bg-darkBg dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-darkMuted min-w-[7.5rem]">
-              {pp} / pág. <ChevronDown size={15} />
+            <Menu.Button
+              onClick={() => setOpenMenu(!openMenu)}
+              className="inline-flex items-center gap-1 rounded-xl border px-3 py-2 text-sm bg-white dark:bg-dark-surface border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-muted/10 transition-all"
+            >
+              {pp} / pág.
+              <ChevronDown
+                size={15}
+                className={`transition-transform duration-200 ${
+                  openMenu ? 'rotate-180' : 'rotate-0'
+                }`}
+              />
             </Menu.Button>
             <Transition
               as={Fragment}
@@ -85,19 +99,22 @@ export default function TablaPro({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Menu.Items className="absolute z-50 mt-1 w-full rounded bg-white dark:bg-darkSurface shadow ring-1 ring-black/20">
+              <Menu.Items className="absolute z-50 mt-1 w-full rounded-xl bg-white dark:bg-dark-surface shadow ring-1 ring-black/10 overflow-hidden">
                 {[5, 10, 20, 50].map(n => (
                   <Menu.Item key={n}>
                     {({ active }) => (
                       <button
-                        className={`w-full px-3 py-2 text-sm text-left ${active && 'bg-blue-100 dark:bg-blue-900'}`}
+                        className={`w-full px-3 py-2 text-sm text-left transition ${
+                          active ? 'bg-primary/10 dark:bg-primary-dark/20' : ''
+                        }`}
                         onClick={() => {
                           setPp(n);
                           setPage(1);
                           localStorage.setItem('tabla_pp', n);
+                          setOpenMenu(false);
                         }}
                       >
-                        {n} por página
+                        {n} por página
                       </button>
                     )}
                   </Menu.Item>
@@ -107,38 +124,36 @@ export default function TablaPro({
           </Menu>
 
           <Button size="sm" variant="outline" onClick={csv}>
-            <FileText size={15} className="mr-1" />
-             CSV
+            <FileText size={15} className="mr-1" /> CSV
           </Button>
         </div>
       </div>
 
-      {/* barra masiva */}
       <div
-        className={`overflow-hidden transition-[max-height] duration-200 ${seleccionados.length ? 'max-h-12' : 'max-h-0'}`}
+        className={`overflow-hidden transition-[max-height] duration-200 ${
+          seleccionados.length ? 'max-h-12' : 'max-h-0'
+        }`}
       >
         {seleccionados.length > 0 && (
-          <div className="flex justify-between items-center bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 p-3 rounded">
+          <div className="flex justify-between items-center bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 p-3 rounded-xl">
             <span className="text-sm text-red-600 dark:text-red-300">
-              {seleccionados.length} seleccionados
+              {seleccionados.length} seleccionados
             </span>
             <Button
               variant="danger"
               size="sm"
               onClick={() => onEliminarSeleccionados(seleccionados)}
             >
-              <Trash2 size={15} className="mr-1" />
-               Eliminar
+              <Trash2 size={15} className="mr-1" /> Eliminar
             </Button>
           </div>
         )}
       </div>
 
-      {/* tabla responsiva */}
-      <div className="w-full max-w-none overflow-x-auto overflow-y-auto scrollbar-gutter-stable border rounded shadow bg-white dark:bg-darkSurface min-h-[320px] max-h-[70vh]">
+      <div className="w-full max-w-none overflow-x-auto overflow-y-auto scrollbar-gutter-stable border rounded-xl shadow bg-white dark:bg-dark-surface min-h-[320px] max-h-[70vh]">
         <table className="w-full min-w-max table-auto text-sm">
           <thead>
-            <tr className="bg-gray-100 dark:bg-darkBg text-gray-700 dark:text-white">
+            <tr className="bg-white/80 dark:bg-gray-950/80 text-gray-700 dark:text-white">
               <th className="w-10 p-2 border text-center">
                 <input
                   type="checkbox"
@@ -159,7 +174,7 @@ export default function TablaPro({
           <tbody>
             {slice.length ? (
               slice.map(r => (
-                <tr key={r._id} className="border-t hover:bg-gray-50 dark:hover:bg-darkMuted">
+                <tr key={r._id} className="border-t hover:bg-gray-50 dark:hover:bg-dark-muted/50">
                   <td className="w-10 p-2 border text-center">
                     <input
                       type="checkbox"
@@ -179,7 +194,7 @@ export default function TablaPro({
                           if (variant === 'danger' && seleccionados.length) return null;
                           return (
                             <Button key={i} size="sm" variant={variant} onClick={() => onClick(r)}>
-                              {icono} {label}
+                              {icono} {label}
                             </Button>
                           );
                         })}
@@ -202,10 +217,9 @@ export default function TablaPro({
         </table>
       </div>
 
-      {/* paginación */}
       <div className="flex justify-between items-center mt-4 text-sm">
         <span>
-          Página {page} de {total}
+          Página {page} de {total}
         </span>
         <div className="space-x-2">
           <Button
@@ -217,8 +231,7 @@ export default function TablaPro({
               localStorage.setItem('tabla_p', p);
             }}
           >
-            <ChevronLeft size={15} />
-             Anterior
+            <ChevronLeft size={15} /> Anterior
           </Button>
           <Button
             size="sm"
@@ -229,8 +242,7 @@ export default function TablaPro({
               localStorage.setItem('tabla_p', p);
             }}
           >
-            Siguiente 
-            <ChevronRight size={15} />
+            Siguiente <ChevronRight size={15} />
           </Button>
         </div>
       </div>

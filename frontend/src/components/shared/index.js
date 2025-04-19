@@ -2,7 +2,7 @@
 
 export { default as Navbar } from './Navbar';
 export { default as Sidebar } from './Sidebar';
-export { default as SidebarDispositivos } from './SidebarDispositivos';
+export { default as SidebarDispositivos } from './DispositivosSidebar';
 export { default as Footer } from './Footer';
 export { default as ThemeToggle } from './ThemeToggle';
 export { default as LanguageSwitcher } from './LanguageSwitcher';

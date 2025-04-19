@@ -1,4 +1,4 @@
-// components/ui/Spinner.jsx
+// src/components/ui/Spinner.jsx
 import React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -10,7 +10,7 @@ const sizeMap = {
 };
 
 export default function Spinner({ size = 'md', className = '', label = 'Cargando...' }) {
-  const dimension = sizeMap[size] || size; // Soporta valores como "w-10 h-10" o "24px"
+  const dimension = sizeMap[size] || size; // Acepta también strings como "w-10 h-10"
 
   return (
     <div
@@ -18,7 +18,7 @@ export default function Spinner({ size = 'md', className = '', label = 'Cargando
       aria-label={label}
       className={cn(
         'inline-block animate-spin rounded-full border-2 border-t-transparent',
-        'border-gray-400 dark:border-white/40',
+        'border-muted dark:border-dark-muted',
         dimension,
         className
       )}

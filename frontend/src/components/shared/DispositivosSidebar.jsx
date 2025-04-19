@@ -33,22 +33,25 @@ export default function SidebarDispositivos({
   return (
     <div
       id="sidebar-dispositivos"
-      className={`fixed top-[80px] bottom-[60px] right-0 z-40 transition-all duration-300 ease-in-out ${
+      className={`fixed top-[64px] right-0 z-50 h-[calc(91.5vh-64px)] transition-all duration-300 ease-in-out ${
         hover ? 'w-64' : 'w-16'
       } group`}
       onMouseEnter={() => onHoverChange(true)}
       onMouseLeave={() => onHoverChange(false)}
     >
-      <aside className="h-full bg-white/90 dark:bg-darkSurface/90 backdrop-blur-md border-l border-gray-200 dark:border-gray-700 flex flex-col relative">
+      <aside className="h-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-l border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
         {/* Cabecera */}
         <header className="flex items-center justify-between px-3 py-3 border-b border-gray-200 dark:border-gray-700">
           {hover ? (
-            <h2 className="text-sm font-semibold whitespace-nowrap">
-              Dispositivos <span className="text-xs text-gray-500">({dispositivos.length})</span>
+            <h2 className="text-sm font-semibold whitespace-nowrap text-gray-700 dark:text-white">
+              Dispositivos{' '}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({dispositivos.length})
+              </span>
             </h2>
           ) : (
             <div className="relative flex items-center justify-center w-full">
-              <Cpu size={18} className="text-gray-500" />
+              <Cpu size={18} className="text-gray-500 dark:text-gray-400" />
               {dispositivos.length > 0 && (
                 <span className="absolute top-0.5 right-1.5 w-2.5 h-2.5 rounded-full bg-green-500 shadow-md animate-pulse"></span>
               )}
@@ -59,7 +62,7 @@ export default function SidebarDispositivos({
         {/* Lista de dispositivos */}
         <section className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 space-y-3">
           {dispositivos.length ? (
-            dispositivos.map((d) => {
+            dispositivos.map(d => {
               const online = Date.now() - new Date(d.ultimaConexion).getTime() < 10000;
               const file = (d.imagen || 'generic.png').split('/').pop();
               const imgSrc = `/images/conexion/${file}`;
@@ -67,12 +70,16 @@ export default function SidebarDispositivos({
               return (
                 <div
                   key={d.uid}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-neutral-800"
+                  className="flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-700"
                 >
                   <img src={imgSrc} alt={d.nombre} className="w-11 h-11 object-contain shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{d.nombre}</p>
-                    <p className="text-xs text-gray-500 truncate">{d.uid.slice(0, 8)}…</p>
+                    <p className="text-sm font-medium truncate text-gray-800 dark:text-white">
+                      {d.nombre}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {d.uid.slice(0, 8)}…
+                    </p>
                   </div>
                   {online ? (
                     <BadgeCheck className="w-5 h-5 text-green-500 shrink-0" title="En línea" />
@@ -83,14 +90,16 @@ export default function SidebarDispositivos({
               );
             })
           ) : (
-            <p className="text-center text-xs text-gray-500 mt-4">Sin dispositivos.</p>
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
+              Sin dispositivos.
+            </p>
           )}
 
-          {/* ➕ Botón de nuevo dispositivo al final */}
+          {/* ➕ Botón de nuevo dispositivo */}
           {hover && (
             <div
               onClick={() => navigate('/nuevo-dispositivo')}
-              className="flex items-center justify-center h-[64px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:border-darkAccent/60 dark:hover:bg-darkMuted transition"
+              className="flex items-center justify-center h-[64px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:border-darkAccent/60 dark:hover:bg-darkMuted/10 transition"
             >
               <Plus size={20} className="text-gray-500 dark:text-gray-300" />
             </div>
