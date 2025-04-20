@@ -17,6 +17,7 @@ import NuevoDispositivo from '../pages/dispositivos/Wizard';
 import NuevoThing from '../pages/proyectos/NuevoThing';
 import Notificaciones from '../pages/notificaciones/Notificaciones';
 import Perfil from '../pages/user/Perfil';
+import ThingBuilder from '../pages/sensor/ThingBuilder';
 
 /* ─ Páginas de administración ─ */
 import DashboardAdmin from '../pages/admin/DashboardAdmin';
@@ -106,6 +107,14 @@ export default function AppRoutes({ token, rol }) {
         element={
           <PrivateRoute token={token}>
             <NuevoThing />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/configurar-dispositivo/:id"
+        element={
+          <PrivateRoute token={token}>
+            <ThingBuilder />
           </PrivateRoute>
         }
       />

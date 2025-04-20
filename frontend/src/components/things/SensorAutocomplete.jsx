@@ -1,9 +1,13 @@
-// SensorAutocomplete.jsx
+// src/components/things/SensorAutocomplete.jsx
 import { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
 import { obtenerBibliotecaSensores } from '../../services/sensoresBiblioteca';
 
-export default function SensorAutocomplete({ value = '', onSelect, onInputChange }) {
+export default function SensorAutocomplete({
+  value = '',
+  onSelect = () => {},
+  onInputChange = () => {},
+}) {
   const [query, setQuery] = useState(value);
   const [resultados, setResultados] = useState([]);
   const [todo, setTodo] = useState([]);
@@ -42,14 +46,13 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
   }, [query, todo]);
 
   const seleccionar = sensor => {
+    if (!sensor) return;
     setQuery(sensor.nombre);
     onSelect(sensor);
     onInputChange(sensor.nombre);
-    setTimeout(() => {
-      setResultados([]);
-      setMostrarResultados(false);
-      setHighlightedIndex(-1);
-    }, 0);
+    setResultados([]);
+    setMostrarResultados(false);
+    setHighlightedIndex(-1);
   };
 
   const handleChange = e => {
@@ -94,12 +97,15 @@ export default function SensorAutocomplete({ value = '', onSelect, onInputChange
       </div>
 
       {mostrarResultados && resultados.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto rounded border shadow-sm bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border">
+        <div className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto rounded border shadow-md bg-white dark:bg-dark-surface border-light-border dark:border-dark-border">
           {resultados.map((sensor, i) => (
             <div
               key={i}
-              onMouseDown={() => seleccionar(sensor)}
-              className={`px-3 py-2 text-sm cursor-pointer transition ${
+              onMouseDown={e => {
+                e.preventDefault();
+                seleccionar(sensor);
+              }}
+              className={`px-3 py-2 text-sm cursor-pointer transition-all ${
                 highlightedIndex === i
                   ? 'bg-gray-100 dark:bg-gray-700'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-800'

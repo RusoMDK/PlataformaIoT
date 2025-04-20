@@ -1,0 +1,7 @@
+[
+    { "nombre": "3V3", "tipo": "power", "top": "10%", "left": "5%" },
+    { "nombre": "GND", "tipo": "gnd", "top": "15%", "left": "5%" },
+    { "nombre": "A0", "tipo": "analog", "top": "20%", "left": "5%" },
+    { "nombre": "D2", "tipo": "digital", "top": "25%", "left": "5%" },
+    { "nombre": "D4", "tipo": "digital", "top": "30%", "left": "5%" }
+  ]

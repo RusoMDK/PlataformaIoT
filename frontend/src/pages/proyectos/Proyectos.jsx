@@ -97,7 +97,7 @@ export default function Proyectos() {
 
       {/* 🧙 Nuevo dispositivo wizard */}
       {mostrarWizard && (
-        <div className="fixed inset-0 z-50 bg-white dark:bg-darkBg p-6 overflow-y-auto transition-colors">
+        <div className="fixed inset-0 z-50 bg-black -translate-y-8 dark:bg-darkBg p-6 h-[100vh]  overflow-y-auto transition-colors">
           <div className="flex justify-end mb-4">
             <button
               onClick={() => setMostrarWizard(false)}

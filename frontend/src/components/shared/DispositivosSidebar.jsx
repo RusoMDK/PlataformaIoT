@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BadgeCheck, AlertCircle, Plus, Cpu } from 'lucide-react';
+import { BadgeCheck, AlertCircle, Plus, Cpu, Wrench, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
 export default function SidebarDispositivos({
@@ -66,13 +66,18 @@ export default function SidebarDispositivos({
               const online = Date.now() - new Date(d.ultimaConexion).getTime() < 10000;
               const file = (d.imagen || 'generic.png').split('/').pop();
               const imgSrc = `/images/conexion/${file}`;
+              const sensoresConfigurados = Array.isArray(d.sensores) && d.sensores.length > 0;
 
               return (
                 <div
                   key={d.uid}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-700"
+                  onClick={() => navigate(`/configurar-dispositivo/${d.uid}`)}
+                  className="relative flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-1 hover:ring-blue-400 transition"
                 >
+                  {/* Imagen */}
                   <img src={imgSrc} alt={d.nombre} className="w-11 h-11 object-contain shrink-0" />
+
+                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate text-gray-800 dark:text-white">
                       {d.nombre}
@@ -81,11 +86,31 @@ export default function SidebarDispositivos({
                       {d.uid.slice(0, 8)}…
                     </p>
                   </div>
-                  {online ? (
-                    <BadgeCheck className="w-5 h-5 text-green-500 shrink-0" title="En línea" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0" title="Offline" />
-                  )}
+
+                  {/* Indicadores alineados */}
+                  <div className="flex flex-col gap-1 items-center justify-center">
+                    {online ? (
+                      <BadgeCheck className="w-5 h-5 text-green-500" title="En línea" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-500" title="Offline" />
+                    )}
+                    {hover && (
+                      <div
+                        className={`p-1 rounded-full ${
+                          sensoresConfigurados
+                            ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
+                            : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300'
+                        }`}
+                        title={
+                          sensoresConfigurados
+                            ? 'Sensores configurados'
+                            : 'Aún sin sensores configurados'
+                        }
+                      >
+                        {sensoresConfigurados ? <CheckCircle size={16} /> : <Wrench size={16} />}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })

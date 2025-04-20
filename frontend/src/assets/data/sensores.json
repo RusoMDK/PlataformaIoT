@@ -1,0 +1,277 @@
+{
+  "accelerometer_3_Axis_ADXL345": {
+    "nombre": "ADXL345",
+    "tipo": "Aceler\u00f3metro",
+    "imagen": "/assets/sensores/acelerometer/accelerometer_3_Axis_ADXL345.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "accelerometer_9_Axis_gyro__magnetometer_mpu_9250": {
+    "nombre": "9250",
+    "tipo": "Aceler\u00f3metro",
+    "imagen": "/assets/sensores/acelerometer/accelerometer_9_Axis_gyro__magnetometer_mpu_9250.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "clock_ds3231_for_pi": {
+    "nombre": "PI",
+    "tipo": "Reloj/RTC",
+    "imagen": "/assets/sensores/clock/clock_ds3231_for_pi.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "clock_tinyrtc_I2C_modules": {
+    "nombre": "MODULES",
+    "tipo": "Reloj/RTC",
+    "imagen": "/assets/sensores/clock/clock_tinyrtc_I2C_modules.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "ds3231_classic": {
+    "nombre": "CLASSIC",
+    "tipo": "Sensor",
+    "imagen": "/assets/sensores/clock/ds3231_classic.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "light_photoresistor": {
+    "nombre": "PHOTORESISTOR",
+    "tipo": "Luz",
+    "imagen": "/assets/sensores/light/light_photoresistor.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "light_tsl2561": {
+    "nombre": "TSL2561",
+    "tipo": "Luz",
+    "imagen": "/assets/sensores/light/light_tsl2561.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "presence_hc_sr501_pir": {
+    "nombre": "PIR",
+    "tipo": "Presencia",
+    "imagen": "/assets/sensores/presence/presence_hc_sr501_pir.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "presence_keyes_pir": {
+    "nombre": "PIR",
+    "tipo": "Presencia",
+    "imagen": "/assets/sensores/presence/presence_keyes_pir.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "presence_rcwl_0516": {
+    "nombre": "0516",
+    "tipo": "Presencia",
+    "imagen": "/assets/sensores/presence/presence_rcwl_0516.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "presence_reed_switch": {
+    "nombre": "SWITCH",
+    "tipo": "Presencia",
+    "imagen": "/assets/sensores/presence/presence_reed_switch.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature__humidity_barometric_gaz_bme680": {
+    "nombre": "BME680",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature__humidity_barometric_gaz_bme680.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_altimeter_barometric_adafruit_mpl3115A2": {
+    "nombre": "MPL3115A2",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_altimeter_barometric_adafruit_mpl3115A2.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_ds18b20": {
+    "nombre": "DS18B20",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_ds18b20.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_humidity_barometric_bmpe280": {
+    "nombre": "BMPE280",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_humidity_barometric_bmpe280.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_humidity_dht11": {
+    "nombre": "DHT11",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_humidity_dht11.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_humidity_si7021": {
+    "nombre": "SI7021",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_humidity_si7021.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_humidity_sparkfun_si7021": {
+    "nombre": "SI7021",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_humidity_sparkfun_si7021.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "temperature_tmp36": {
+    "nombre": "TMP36",
+    "tipo": "Temperatura",
+    "imagen": "/assets/sensores/temperature/temperature_tmp36.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "distance_hcsr04": {
+    "nombre": "HCSR04",
+    "tipo": "Distancia",
+    "imagen": "/assets/sensores/distance_hcsr04.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "mpr121": {
+    "nombre": "MPR121",
+    "tipo": "Touch",
+    "imagen": "/assets/sensores/mpr121.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "multiplexer_i2c_tca9548A": {
+    "nombre": "TCA9548A",
+    "tipo": "Multiplexor",
+    "imagen": "/assets/sensores/multiplexer_i2c_tca9548A.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "polulu_vl6180": {
+    "nombre": "VL6180",
+    "tipo": "Distancia/ToF",
+    "imagen": "/assets/sensores/polulu_vl6180.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "water_sensor": {
+    "nombre": "SENSOR",
+    "tipo": "Sensor",
+    "imagen": "/assets/sensores/water_sensor.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  },
+  "weight_sensor_hx711": {
+    "nombre": "HX711",
+    "tipo": "Peso",
+    "imagen": "/assets/sensores/weight_sensor_hx711.svg",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "protocol": "Digital"
+  }
+}
