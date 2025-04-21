@@ -71,7 +71,11 @@ export default function SidebarDispositivos({
               return (
                 <div
                   key={d.uid}
-                  onClick={() => navigate(`/configurar-dispositivo/${d.uid}`)}
+                  onClick={() =>
+                    navigate(`/configurar-dispositivo/${d.uid}`, {
+                      state: { from: window.location.pathname },
+                    })
+                  }
                   className="relative flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-1 hover:ring-blue-400 transition"
                 >
                   {/* Imagen */}

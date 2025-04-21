@@ -1,7 +1,6 @@
-// src/components/things/SensorCard.jsx
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 
-export default function SensorCard({ sensor, onRemove }) {
+export default function SensorCard({ sensor, onRemove, onEdit }) {
   return (
     <div className="flex items-center justify-between p-4 border rounded-xl bg-white dark:bg-dark-surface border-light-border dark:border-dark-border shadow-sm">
       <div className="flex items-center gap-4">
@@ -23,13 +22,27 @@ export default function SensorCard({ sensor, onRemove }) {
         </div>
       </div>
 
-      <button
-        onClick={() => onRemove(sensor)}
-        className="text-danger hover:text-danger-hover transition"
-        title="Eliminar sensor"
-      >
-        <Trash2 size={18} />
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Botón editar */}
+        {onEdit && (
+          <button
+            onClick={() => onEdit(sensor)}
+            className="text-blue-600 hover:text-blue-800 transition"
+            title="Editar sensor"
+          >
+            <Pencil size={18} />
+          </button>
+        )}
+
+        {/* Botón eliminar */}
+        <button
+          onClick={() => onRemove(sensor)}
+          className="text-danger hover:text-danger-hover transition"
+          title="Eliminar sensor"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ export default function SensorAutocomplete({
   value = '',
   onSelect = () => {},
   onInputChange = () => {},
+  pinPreseleccionado = null, // 🆕 pin pasado desde la placa
 }) {
   const [query, setQuery] = useState(value);
   const [resultados, setResultados] = useState([]);
@@ -48,7 +49,8 @@ export default function SensorAutocomplete({
   const seleccionar = sensor => {
     if (!sensor) return;
     setQuery(sensor.nombre);
-    onSelect(sensor);
+    const sensorConPin = pinPreseleccionado ? { ...sensor, pin: pinPreseleccionado } : sensor;
+    onSelect(sensorConPin); // ✅ envia el sensor con el pin si lo hay
     onInputChange(sensor.nombre);
     setResultados([]);
     setMostrarResultados(false);

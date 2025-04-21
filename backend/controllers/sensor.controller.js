@@ -2,7 +2,7 @@ const Sensor = require('../models/Sensor');
 
 exports.crearSensor = async (req, res) => {
   try {
-    const { nombre, tipo, pin, unidad, proyecto } = req.body;
+    const { nombre, tipo, pin, unidad, proyecto, protocol, config } = req.body;
 
     if (!proyecto) {
       return res.status(400).json({ msg: 'El ID del proyecto es obligatorio.' });
@@ -14,6 +14,8 @@ exports.crearSensor = async (req, res) => {
       pin,
       unidad,
       proyecto,
+      protocol,
+      config,
       usuario: req.usuarioId
     });
 
@@ -49,5 +51,18 @@ exports.eliminarSensoresPorProyecto = async (req, res) => {
   } catch (err) {
     console.error("❌ Error al eliminar sensores del proyecto:", err);
     res.status(500).json({ msg: 'Error al eliminar sensores del proyecto' });
+  }
+};
+
+exports.obtenerSensorPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sensor = await Sensor.findById(id);
+    if (!sensor) return res.status(404).json({ msg: 'Sensor no encontrado' });
+
+    res.status(200).json(sensor);
+  } catch (err) {
+    console.error("❌ Error al obtener sensor por ID:", err);
+    res.status(500).json({ msg: 'Error al obtener sensor' });
   }
 };

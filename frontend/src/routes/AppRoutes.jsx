@@ -5,7 +5,6 @@ import Home from '../pages/dashboard/Home';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Ayuda from '../pages/ayuda/Ayuda';
-import Logs from '../pages/dashboard/Logs';
 
 /* ─ Páginas privadas comunes ─ */
 import Proyectos from '../pages/proyectos/Proyectos';
@@ -17,7 +16,8 @@ import NuevoDispositivo from '../pages/dispositivos/Wizard';
 import NuevoThing from '../pages/proyectos/NuevoThing';
 import Notificaciones from '../pages/notificaciones/Notificaciones';
 import Perfil from '../pages/user/Perfil';
-import ThingBuilder from '../pages/sensor/ThingBuilder';
+import Logs from '../pages/dashboard/Logs';
+import DeviceConfigLayout from '../layouts/DeviceConfigLayout';
 
 /* ─ Páginas de administración ─ */
 import DashboardAdmin from '../pages/admin/DashboardAdmin';
@@ -110,11 +110,12 @@ export default function AppRoutes({ token, rol }) {
           </PrivateRoute>
         }
       />
+      {/* NOTA: sacamos esta ruta fuera del AppLayout, por eso va sin layout extra */}
       <Route
         path="/configurar-dispositivo/:id"
         element={
           <PrivateRoute token={token}>
-            <ThingBuilder />
+            <DeviceConfigLayout />
           </PrivateRoute>
         }
       />

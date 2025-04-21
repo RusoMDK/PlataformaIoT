@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth.middleware');
-const { crearSensor, obtenerSensores, eliminarSensoresPorProyecto } = require('../controllers/sensor.controller');
+const { crearSensor, obtenerSensores, eliminarSensoresPorProyecto, obtenerSensorPorId} = require('../controllers/sensor.controller');
 
 
 /**
@@ -57,5 +57,7 @@ router.post('/', auth, crearSensor);
 router.get('/', auth, obtenerSensores); // <-- 🔥 Este es el que te falta
 
 router.delete('/proyecto/:proyectoId', auth, eliminarSensoresPorProyecto);
+
+router.get('/:id', auth, obtenerSensorPorId);
 
 module.exports = router;
