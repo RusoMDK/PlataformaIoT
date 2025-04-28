@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { getCsrfToken } from '../../api/auth.api'; // 🔥 Importamos para pedir CSRF
 
 export default function Register() {
   const navigate = useNavigate();
@@ -10,6 +11,19 @@ export default function Register() {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
+  const [csrfToken, setCsrfToken] = useState(''); // 🔥 Estado CSRF
+
+  useEffect(() => {
+    const cargarCsrf = async () => {
+      try {
+        const csrf = await getCsrfToken();
+        setCsrfToken(csrf);
+      } catch (err) {
+        console.error('❌ Error obteniendo CSRF token:', err.message);
+      }
+    };
+    cargarCsrf();
+  }, []);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -63,7 +77,12 @@ export default function Register() {
     }
 
     try {
-      await axios.post('/api/auth/register', form);
+      await axios.post('/api/auth/register', form, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken, // 🔥 Enviamos CSRF aquí
+        },
+      });
       navigate('/login');
     } catch (err) {
       console.error('❌ Error al registrarse:', err);
@@ -156,7 +175,9 @@ export default function Register() {
           <>
             <div className="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-300 ${colores[fortaleza - 1] || 'bg-transparent'}`}
+                className={`h-full transition-all duration-300 ${
+                  colores[fortaleza - 1] || 'bg-transparent'
+                }`}
                 style={{ width: `${(fortaleza / 5) * 100}%` }}
               />
             </div>

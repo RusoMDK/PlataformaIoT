@@ -59,6 +59,7 @@
     "admin": "Admin",
     "logsGlobales": "Logs globales",
     "exportar": "Exportar",
+    "agentesConectados": "Agentes conectados",
     "cerrarSesion": "Cerrar sesión"
   },
 
@@ -160,5 +161,16 @@
         "description": "Ocurrió un error al procesar la solicitud."
       }
     }
-  }
+  },
+
+  "preference": {
+  "interfaceTheme": "Tema de la interfaz",
+  "platformLanguage": "Idioma de la plataforma",
+  "notifications": "Notificaciones",
+  "enableNotifications": "Activar notificaciones",
+  "savePreferences": "Guardar preferencias",
+  "saving": "Guardando...",
+  "preferencesSaved": "Preferencias guardadas correctamente",
+  "errorSavingPreferences": "Error al guardar preferencias"
+}
 }

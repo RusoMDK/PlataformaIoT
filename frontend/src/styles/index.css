@@ -1,30 +1,39 @@
+/* src/styles/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE layer: resets y estilos globales
+───────────────────────────────────────────────────────────────────────────── */
 @layer base {
   html, body, #root {
     @apply min-h-screen w-full overflow-x-hidden scroll-smooth;
   }
-
   body {
     font-family: 'Inter', sans-serif;
     @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
   }
-
   a {
     @apply text-primary hover:text-primary-hover dark:text-primary-dark dark:hover:text-primary;
   }
-
   h1, h2, h3, h4 {
     @apply font-semibold text-light-text dark:text-white;
   }
-
   /* Scrollbar personalizado */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
+  /* src/index.css */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
   ::-webkit-scrollbar-thumb {
     @apply bg-light-muted dark:bg-dark-muted rounded-full;
   }
@@ -33,43 +42,49 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   COMPONENTS layer: clases de componentes reutilizables
+───────────────────────────────────────────────────────────────────────────── */
 @layer components {
   .navbar {
-    @apply fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-dark-surface/80 border-b border-light-border dark:border-dark-border px-6 py-4 shadow-md transition-all;
+    @apply fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-dark-surface/80
+           border-b border-light-border dark:border-dark-border px-6 py-4 shadow-md transition-all;
   }
-
-  .navbar-logo {
-    @apply flex items-center gap-3 text-primary font-bold tracking-tight;
-  }
-
-  .navbar-icon-button {
-    @apply text-light-muted dark:text-dark-muted hover:text-primary dark:hover:text-primary-dark transition;
-  }
-
-  .navbar-user-info {
-    @apply text-sm font-medium text-light-text dark:text-dark-text;
-  }
-
-  .navbar-link {
-    @apply text-sm text-primary hover:underline dark:text-primary-dark dark:hover:text-primary;
-  }
-
-  .navbar-notification-badge {
-    @apply absolute -top-2 -right-2 bg-danger text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold text-white;
-  }
-
-  .card {
-    @apply bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl shadow-sm p-6 transition-all;
-  }
-
-  .input {
-    @apply w-full border border-light-border dark:border-dark-border bg-white dark:bg-dark-bg text-light-text dark:text-dark-text rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
-  }
+  /* Aquí puedes agregar más componentes globales si los tienes */
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   UTILITIES layer: utilidades y animaciones personalizadas
+───────────────────────────────────────────────────────────────────────────── */
 @layer utilities {
+  /* -------------------------------------------------------------------
+     1) Contenedor de Sonner Toaster posicionado debajo del navbar,
+        a la derecha (dejando espacio para el sidebar cerrado).
+     ------------------------------------------------------------------- */
+  section[aria-label^="Notifications"] {
+    @apply fixed z-[10000] flex flex-col gap-2 !important;
+    top: 4rem    !important; /* ajusta según altura real de tu navbar */
+    right: 1rem  !important; /* deja espacio para sidebar cerrado */
+    bottom: auto !important;
+    left:   auto !important;
+    pointer-events: none;    /* que no bloqueen clicks fuera de toasts */
+  }
+
+  /* -------------------------------------------------------------------
+     2) Animaciones de cada toast: entrar/salir desde/hacia la derecha
+     ------------------------------------------------------------------- */
+  [data-sonner-toast][data-state="open"] {
+    animation: slide-in-from-right 0.3s ease-out forwards !important;
+  }
+  [data-sonner-toast][data-state="closed"] {
+    animation: slide-out-to-right 0.2s ease-in forwards !important;
+  }
+
+  /* -------------------------------------------------------------------
+     3) Resto de utilidades existentes
+     ------------------------------------------------------------------- */
   .fade-in-down {
-    animation: fade-in-down 0.3s ease-out both;
+    @apply animate-fade-in-down;
   }
 
   .no-scrollbar {
@@ -85,11 +100,27 @@
   }
 
   .glass {
-    @apply backdrop-blur-md bg-white/30 dark:bg-dark-surface/30 border border-white/20 dark:border-dark-border rounded-lg;
+    @apply backdrop-blur-md bg-white/30 dark:bg-dark-surface/30 border rounded-lg;
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   KEYFRAMES para las animaciones personalizadas
+───────────────────────────────────────────────────────────────────────────── */
+/* Fade in desde arriba (ya lo tenías) */
 @keyframes fade-in-down {
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Deslizar desde la derecha */
+@keyframes slide-in-from-right {
+  0%   { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0);   opacity: 1; }
+}
+
+/* Deslizar hacia la derecha */
+@keyframes slide-out-to-right {
+  0%   { transform: translateX(0);   opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
 }

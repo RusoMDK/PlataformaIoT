@@ -20,12 +20,16 @@ const buttonVariants = cva(
           'bg-transparent text-light-text hover:bg-light-muted/10 dark:text-white dark:hover:bg-dark-muted/10',
       },
       size: {
-        sm: 'px-3 py-1.5 text-sm',
-        md: 'px-4 py-2 text-sm',
-        lg: 'px-6 py-3 text-base',
+        sm: 'h-9 px-3 text-sm',
+        md: 'h-10 px-4 text-sm',
+        lg: 'h-12 px-6 text-base',
       },
       fullWidth: {
         true: 'w-full',
+        false: '',
+      },
+      compact: {
+        true: 'px-2 py-1 text-sm h-8', // 🔥 Compacto para tarjetas
         false: '',
       },
     },
@@ -33,19 +37,22 @@ const buttonVariants = cva(
       variant: 'primary',
       size: 'md',
       fullWidth: false,
+      compact: false,
     },
   }
 );
 
-const Button = React.forwardRef(({ className, variant, size, fullWidth, ...props }, ref) => {
-  return (
-    <button
-      ref={ref}
-      className={cn(buttonVariants({ variant, size, fullWidth, className }))}
-      {...props}
-    />
-  );
-});
+const Button = React.forwardRef(
+  ({ className, variant, size, fullWidth, compact, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size, fullWidth, compact, className }))}
+        {...props}
+      />
+    );
+  }
+);
 
 Button.displayName = 'Button';
 

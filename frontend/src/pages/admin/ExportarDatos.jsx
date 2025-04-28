@@ -1,18 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import Button from '../../components/ui/Button';
 import { FileDown, DownloadCloud } from 'lucide-react';
+import { getCsrfToken } from '../../api/auth.api'; // 🔥 Importamos para pedir CSRF token
 
 export default function ExportarDatos() {
   const [sensorId, setSensorId] = useState('');
   const [tipo, setTipo] = useState('usuarios');
   const [formato, setFormato] = useState('csv');
+  const [csrfToken, setCsrfToken] = useState(''); // 🔥 Estado CSRF token
 
   const token = localStorage.getItem('token');
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
-    responseType: 'blob',
-  };
+  const config = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-csrf-token': csrfToken,
+      },
+      responseType: 'blob',
+    }),
+    [token, csrfToken]
+  );
+
+  useEffect(() => {
+    const cargarCsrf = async () => {
+      try {
+        const csrf = await getCsrfToken();
+        setCsrfToken(csrf);
+      } catch (err) {
+        console.error('❌ Error obteniendo CSRF token:', err.message);
+      }
+    };
+    cargarCsrf();
+  }, []);
 
   const manejarExportacion = async () => {
     try {
@@ -109,9 +129,7 @@ export default function ExportarDatos() {
         )}
 
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-white">
-            Formato
-          </label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-white">Formato</label>
           <select
             value={formato}
             onChange={e => setFormato(e.target.value)}

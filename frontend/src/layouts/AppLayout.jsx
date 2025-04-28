@@ -1,88 +1,113 @@
+// src/layouts/AppLayout.jsx
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Outlet, useNavigate } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import Sidebar from '../components/shared/Sidebar';
 import SidebarDispositivos from '../components/shared/DispositivosSidebar';
-import AppRoutes from '../routes/AppRoutes';
-import { ToastViewport } from '../components/ui/Toast';
+import { logout } from '../api/auth.api';
+import { fetchUserProfile } from '../api/auth.api';
 
 export default function AppLayout() {
-  const token = localStorage.getItem('token');
-  const rol = localStorage.getItem('rol');
   const location = useLocation();
+  const navigate = useNavigate();
   const [hoverSidebar, setHoverSidebar] = useState(false);
   const [hoverSidebarRight, setHoverSidebarRight] = useState(false);
   const [dispositivos, setDispositivos] = useState([]);
 
-  const mostrarLayout = !['/login', '/register'].includes(location.pathname);
+  // estado de autenticación: undefined = cargando, null = no auth, object = usuario
+  const [usuario, setUsuario] = useState(undefined);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/';
-  };
+  // rutas públicas donde ocultamos TODO (navbar sigue igual)
+  const rutasSinLayout = ['/login', '/register'];
+  const mostrarLayout = !rutasSinLayout.includes(location.pathname);
 
+  // al iniciar, validamos user
   useEffect(() => {
-    const sidebar = document.getElementById('sidebar-hover');
-    if (!sidebar) return;
+    (async () => {
+      try {
+        const user = await fetchUserProfile();
+        setUsuario(user);
+      } catch {
+        setUsuario(null);
+      }
+    })();
+  }, []);
+
+  // hover sidebar
+  useEffect(() => {
+    const sidebarEl = document.getElementById('sidebar-hover');
+    if (!sidebarEl) return;
     const enter = () => setHoverSidebar(true);
     const leave = () => setHoverSidebar(false);
-    sidebar.addEventListener('mouseenter', enter);
-    sidebar.addEventListener('mouseleave', leave);
+    sidebarEl.addEventListener('mouseenter', enter);
+    sidebarEl.addEventListener('mouseleave', leave);
     return () => {
-      sidebar.removeEventListener('mouseenter', enter);
-      sidebar.removeEventListener('mouseleave', leave);
+      sidebarEl.removeEventListener('mouseenter', enter);
+      sidebarEl.removeEventListener('mouseleave', leave);
     };
-  }, []);
+  }, [usuario]);
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // borra la cookie
+    } catch (err) {
+      console.error('Error en logout:', err);
+    }
+    setUsuario(null);
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text min-h-screen transition-colors duration-300">
       {mostrarLayout && (
         <>
-          {/* Navbar glass y sombra */}
+          {/* Navbar siempre */}
           <div className="fixed top-0 left-0 right-0 z-40 shadow-sm glass">
             <Navbar onOpenDispositivos={() => setHoverSidebarRight(true)} />
           </div>
 
-          {/* Sidebar izquierdo con expansión hover */}
-          <div
-            id="sidebar-hover"
-            className={`fixed top-[80px] bottom-[60px] left-0 z-40 transition-all duration-300 ease-in-out ${
-              hoverSidebar ? 'w-64' : 'w-16'
-            }`}
-          >
-            <Sidebar onLogout={handleLogout} />
-          </div>
+          {/* Sidebar izquierdo SOLO si auth y ya cargado */}
+          {usuario && (
+            <div
+              id="sidebar-hover"
+              className={`fixed top-[80px] bottom-[60px] left-0 z-40 transition-all duration-300 ease-in-out ${
+                hoverSidebar ? 'w-64' : 'w-16'
+              }`}
+            >
+              <Sidebar onLogout={handleLogout} />
+            </div>
+          )}
 
-          {/* Footer fijo abajo */}
+          {/* Footer */}
           <div className="fixed bottom-0 left-0 right-0 z-40">
             <Footer />
           </div>
 
-          {/* Sidebar derecho (Dispositivos) */}
-          <SidebarDispositivos
-            hover={hoverSidebarRight}
-            onHoverChange={setHoverSidebarRight}
-            dispositivos={dispositivos}
-            setDispositivos={setDispositivos}
-          />
+          {/* Sidebar dispositivos SOLO si auth */}
+          {usuario && (
+            <SidebarDispositivos
+              hover={hoverSidebarRight}
+              onHoverChange={setHoverSidebarRight}
+              dispositivos={dispositivos}
+              setDispositivos={setDispositivos}
+            />
+          )}
         </>
       )}
 
-      {/* Contenido principal ajustado al layout */}
+      {/* Contenido: ajustar margenes sólo si auth */}
       <div
         className={`
           transition-[margin] duration-300 ease-in-out min-h-screen pt-[80px] pb-[60px] px-4
-          ${mostrarLayout ? (hoverSidebar ? 'ml-64' : 'ml-16') : ''}
-          ${mostrarLayout ? (hoverSidebarRight ? 'mr-64' : 'mr-16') : ''}
+          ${mostrarLayout && usuario ? (hoverSidebar ? 'ml-64' : 'ml-16') : ''}
+          ${mostrarLayout && usuario ? (hoverSidebarRight ? 'mr-64' : 'mr-16') : ''}
         `}
       >
         <main className="transition-all duration-300 ease-in-out">
-          <AppRoutes token={token} rol={rol} />
+          <Outlet />
         </main>
       </div>
-
-      <ToastViewport />
     </div>
   );
 }

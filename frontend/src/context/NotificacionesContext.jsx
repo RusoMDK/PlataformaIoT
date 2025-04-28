@@ -14,10 +14,19 @@ export const NotificacionesProvider = ({ children }) => {
       const res = await axios.get('/api/notificaciones', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const noLeidasCount = res.data.filter(n => !n.leida).length;
-      setNoLeidas(noLeidasCount);
+
+      console.log('📥 Notificaciones recibidas:', res.data);
+
+      if (Array.isArray(res.data)) {
+        const nuevas = res.data.filter(n => !n.leida);
+        setNoLeidas(nuevas.length);
+      } else {
+        console.warn('⚠️ Las notificaciones recibidas NO son un array:', res.data);
+        setNoLeidas(0);
+      }
     } catch (err) {
-      console.error('Error al obtener notificaciones:', err);
+      console.error('❌ Error al obtener notificaciones:', err);
+      setNoLeidas(0);
     }
   };
 

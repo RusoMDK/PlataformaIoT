@@ -17,21 +17,26 @@ export default function EditarThing() {
     sensores: [],
   });
 
+  const token = localStorage.getItem('token');
+  const csrfToken = localStorage.getItem('csrfToken'); // 👈 CSRF token
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-csrf-token': csrfToken,
+    },
+  };
+
   useEffect(() => {
     const fetchProyecto = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-        const [resProyecto, resSensores] = await Promise.all([
-          axios.get(`/api/proyectos/${id}`, { headers }),
-          axios.get(`/api/sensores?proyecto=${id}`, { headers }),
-        ]);
-        const { nombre, descripcion, dispositivoId } = resProyecto.data;
+        const { data: proyecto } = await axios.get(`/api/proyectos/${id}`, config);
+        const { data: sensores } = await axios.get(`/api/sensores?proyecto=${id}`, config);
+        const { nombre, descripcion, dispositivoId } = proyecto;
         setForm({
           nombre,
           descripcion,
           dispositivoId: dispositivoId || '',
-          sensores: resSensores.data || [],
+          sensores: sensores || [],
         });
       } catch (err) {
         console.error('❌ Error al cargar proyecto:', err);
@@ -42,10 +47,8 @@ export default function EditarThing() {
   }, [id]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
     axios
-      .get('/api/dispositivos', { headers })
+      .get('/api/dispositivos', config)
       .then(res => setDispositivos(res.data))
       .catch(err => console.error('❌ Error al cargar dispositivos:', err));
   }, []);
@@ -77,9 +80,7 @@ export default function EditarThing() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const usuarioId = localStorage.getItem('usuarioId'); // 👈 debe existir
-      const headers = { Authorization: `Bearer ${token}` };
+      const usuarioId = localStorage.getItem('usuarioId');
 
       await axios.put(
         `/api/proyectos/${id}`,
@@ -89,10 +90,10 @@ export default function EditarThing() {
           placa: 'desconocida',
           dispositivoId: form.dispositivoId,
         },
-        { headers }
+        config
       );
 
-      await axios.delete(`/api/sensores/proyecto/${id}`, { headers });
+      await axios.delete(`/api/sensores/proyecto/${id}`, config);
 
       await Promise.all(
         form.sensores.map(sensor =>
@@ -104,9 +105,9 @@ export default function EditarThing() {
               unidad: sensor.unidad,
               pin: sensor.pin,
               proyecto: id,
-              usuario: usuarioId, // ✅ Agregado
+              usuario: usuarioId,
             },
-            { headers }
+            config
           )
         )
       );
@@ -115,7 +116,7 @@ export default function EditarThing() {
       navigate(`/proyectos/${id}`);
     } catch (err) {
       console.error('❌ Error actualizando thing:', err);
-      toast.error('Error al guardar los cambios');
+      toast.error('Error al guardar los cambios.');
     }
   };
 
@@ -125,14 +126,12 @@ export default function EditarThing() {
     )
       return;
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      await axios.delete(`/api/proyectos/${id}`, { headers });
+      await axios.delete(`/api/proyectos/${id}`, config);
       toast.success('🗑️ Thing eliminado correctamente');
       navigate('/proyectos');
     } catch (err) {
       console.error('❌ Error eliminando thing:', err);
-      toast.error('Error al eliminar el Thing');
+      toast.error('Error al eliminar el Thing.');
     }
   };
 
@@ -169,6 +168,7 @@ export default function EditarThing() {
           </div>
         </div>
 
+        {/* Dispositivos */}
         <div>
           <label className="block text-sm font-medium mb-2 text-light-text dark:text-dark-text">
             Dispositivo asociado
@@ -203,6 +203,7 @@ export default function EditarThing() {
           </div>
         </div>
 
+        {/* Sensores */}
         <div>
           <label className="block text-sm font-medium mb-2 text-light-text dark:text-dark-text">
             Sensores
@@ -248,6 +249,7 @@ export default function EditarThing() {
           </div>
         </div>
 
+        {/* Acciones */}
         <div className="flex justify-between pt-6">
           <Button variant="danger" onClick={handleEliminarThing}>
             🗑️ Eliminar Thing

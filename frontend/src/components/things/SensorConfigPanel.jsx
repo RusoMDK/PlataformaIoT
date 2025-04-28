@@ -1,89 +1,115 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 
-export default function SensorConfigPanel({ sensor, onClose, onSave }) {
-  const [nombre, setNombre] = useState(sensor?.nombre || '');
-  const [pin, setPin] = useState(sensor?.pin || '');
-  const [parametros, setParametros] = useState(sensor?.parametros || {});
+export default function SensorConfigPanel({ sensor, selectedPin, onSave }) {
+  const [nombre, setNombre] = useState('');
+  const [pin, setPin] = useState('');
+  const [color, setColor] = useState('#facc15');
+  const [parametros, setParametros] = useState({});
 
   useEffect(() => {
-    if (sensor?.pin && sensor.pin !== pin) {
-      setPin(sensor.pin);
+    setNombre(sensor?.nombre || '');
+    setPin(sensor?.pin || selectedPin || '');
+    setColor(sensor?.color || '#facc15');
+    setParametros(sensor?.parametros || {});
+  }, [sensor]);
+
+  useEffect(() => {
+    if (selectedPin && selectedPin !== pin) {
+      setPin(selectedPin);
     }
-  }, [sensor?.pin]);
+  }, [selectedPin]);
 
   const handleSave = () => {
+    if (!sensor) return; // No guardar si no hay sensor
     const configuracionFinal = {
       ...sensor,
       nombre,
-      pin,
+      pin: pin || selectedPin || '',
+      color,
       parametros,
     };
     onSave(configuracionFinal);
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 w-full space-y-6">
-      {/* Cabecera */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Configurar Sensor</h2>
-        <button onClick={onClose}>
-          <X className="text-gray-500 hover:text-red-500" />
-        </button>
-      </div>
+    <div className="w-full space-y-6 min-h-[260px] border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900 shadow">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Configurar sensor</h2>
 
-      {/* Información general del sensor */}
-      <div className="flex items-start gap-4">
-        {sensor?.imagen && (
-          <img
-            src={sensor.imagen}
-            alt={sensor.nombre}
-            className="w-20 h-20 object-contain rounded-lg bg-gray-100 dark:bg-gray-800 p-1 border border-gray-300 dark:border-gray-700"
-          />
-        )}
-
-        <div className="flex-1 space-y-1">
-          <h3 className="text-md font-bold text-gray-800 dark:text-white">{sensor?.nombre}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            <strong>Tipo:</strong> {sensor?.tipo || 'N/A'}
-            <br />
-            <strong>Unidad:</strong> {sensor?.unidad || 'N/A'}
-            <br />
-            <strong>Categoría:</strong> {sensor?.categoria || 'General'}
-          </p>
+      {/* 📸 Info sensor o aviso */}
+      {!sensor ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+          Selecciona un sensor del catálogo para comenzar.
+        </p>
+      ) : (
+        <div className="flex items-start gap-4">
+          {sensor.imagen && (
+            <img
+              src={sensor.imagen}
+              alt={sensor.nombre}
+              className="w-16 h-16 object-contain rounded-md bg-gray-100 dark:bg-gray-800 p-1 border border-gray-300 dark:border-gray-700"
+            />
+          )}
+          <div className="flex-1 space-y-1 text-sm">
+            <div className="font-medium text-gray-800 dark:text-white">{sensor.nombre}</div>
+            <p className="text-gray-600 dark:text-gray-300 leading-snug">
+              <strong>Tipo:</strong> {sensor.tipo || 'N/A'} <br />
+              <strong>Unidad:</strong> {sensor.unidad || 'N/A'} <br />
+              <strong>Categoría:</strong> {sensor.categoria || 'General'}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Formulario de configuración */}
+      {/* 🧩 Formulario (siempre visible) */}
       <div className="space-y-4">
         <div>
-          <label className="text-sm text-gray-600 dark:text-gray-300">Nombre personalizado</label>
+          <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+            Nombre personalizado
+          </label>
           <input
-            className="w-full mt-1 rounded-lg border px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 dark:text-white"
+            type="text"
+            className="w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={nombre}
             onChange={e => setNombre(e.target.value)}
-            placeholder="Ej: Sensor suelo 1"
+            placeholder="Ej: Sensor de luz 1"
+            disabled={!sensor}
           />
         </div>
 
         <div>
-          <label className="text-sm text-gray-600 dark:text-gray-300">Pin asignado</label>
+          <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+            Pin asignado
+          </label>
           <input
-            className="w-full mt-1 rounded-lg border px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 dark:text-white"
-            value={pin || ''}
+            type="text"
+            className="w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={pin}
             onChange={e => setPin(e.target.value)}
-            placeholder="Ej: A0, D4, etc."
+            placeholder="Ej: A0, D4..."
+            disabled={!sensor}
           />
         </div>
 
-        {/* Campos adicionales si se desea extender luego */}
-        {/* Agregar parámetros específicos aquí si existen */}
+        <div>
+          <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+            Color de pin en placa
+          </label>
+          <input
+            type="color"
+            className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-700 cursor-pointer"
+            value={color}
+            onChange={e => setColor(e.target.value)}
+            disabled={!sensor}
+          />
+        </div>
       </div>
 
-      <div className="pt-4">
+      {/* 💾 Botón guardar */}
+      <div className="pt-2">
         <button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-semibold"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-40"
           onClick={handleSave}
+          disabled={!sensor}
         >
           Guardar configuración
         </button>

@@ -141,21 +141,6 @@ export default function PasoSubirCodigo({ formData, onNext, onBack }) {
           </button>
         </div>
       </div>
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onBack}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded transition"
-        >
-          Atrás
-        </button>
-        <button
-          onClick={onNext}
-          className="bg-primary hover:bg-primaryHover text-white px-5 py-2 rounded transition"
-        >
-          Siguiente
-        </button>
-      </div>
     </motion.div>
   );
 }

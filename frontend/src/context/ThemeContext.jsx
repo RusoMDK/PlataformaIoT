@@ -3,23 +3,33 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [modoOscuro, setModoOscuro] = useState(false);
+  const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
 
   useEffect(() => {
-    const modoGuardado = localStorage.getItem('modoOscuro') === 'true';
-    setModoOscuro(modoGuardado);
-    document.documentElement.classList.toggle('dark', modoGuardado);
+    const storedTheme = localStorage.getItem('theme') || 'system';
+    setTheme(storedTheme);
+    applyTheme(storedTheme);
   }, []);
 
-  const toggleModoOscuro = () => {
-    const nuevoModo = !modoOscuro;
-    setModoOscuro(nuevoModo);
-    localStorage.setItem('modoOscuro', nuevoModo);
-    document.documentElement.classList.toggle('dark', nuevoModo);
+  const applyTheme = themeValue => {
+    if (themeValue === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else if (themeValue === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (themeValue === 'system') {
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', systemPrefersDark);
+    }
+  };
+
+  const changeTheme = newTheme => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ modoOscuro, toggleModoOscuro }}>
+    <ThemeContext.Provider value={{ theme, setTheme: changeTheme }}>
       {children}
     </ThemeContext.Provider>
   );

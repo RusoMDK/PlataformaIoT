@@ -2,17 +2,31 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Button from '../../components/ui/Button';
 import { useTranslation } from 'react-i18next';
+import { getCsrfToken } from '../../api/auth.api'; // 👈 Añadimos esto
 
 export default function Notificaciones() {
   const { t } = useTranslation();
   const [notificaciones, setNotificaciones] = useState([]);
   const [filtro, setFiltro] = useState('');
   const [error, setError] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(''); // 👈 nuevo estado
 
   const token = localStorage.getItem('token');
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
+
+  useEffect(() => {
+    fetchNotificaciones();
+  }, [filtro]);
+
+  useEffect(() => {
+    const fetchCsrf = async () => {
+      const token = await getCsrfToken();
+      setCsrfToken(token);
+    };
+    fetchCsrf();
+  }, []);
 
   const fetchNotificaciones = async () => {
     try {
@@ -36,13 +50,18 @@ export default function Notificaciones() {
     }
   };
 
-  useEffect(() => {
-    fetchNotificaciones();
-  }, [filtro]);
-
   const marcarLeida = async id => {
     try {
-      await axios.patch(`/api/notificaciones/${id}/leida`, {}, config);
+      await axios.patch(
+        `/api/notificaciones/${id}/leida`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'X-CSRF-Token': csrfToken, // 👈 aquí lo ponemos
+          },
+        }
+      );
       fetchNotificaciones();
     } catch (err) {
       console.error('❌ Error al marcar como leída:', err);

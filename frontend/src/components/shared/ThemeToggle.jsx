@@ -11,7 +11,7 @@ export default function ThemeToggle() {
       className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-darkMuted transition"
       title="Cambiar tema"
     >
-      {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
     </button>
   );
 }

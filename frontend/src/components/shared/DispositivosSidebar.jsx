@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BadgeCheck, AlertCircle, Plus, Cpu, Wrench, CheckCircle } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance'; // 🔥 Usar instancia que ya manda cookies
+import { format } from 'date-fns';
+import { fetchUserProfile } from '../../api/auth.api'; // 🔥 Nuevo import
 
 export default function SidebarDispositivos({
   hover,
@@ -10,14 +12,29 @@ export default function SidebarDispositivos({
   setDispositivos,
 }) {
   const navigate = useNavigate();
+  const [usuario, setUsuario] = useState(null); // 🔥 Nuevo estado para saber si hay sesión
+
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        const user = await fetchUserProfile();
+        setUsuario(user);
+      } catch (err) {
+        console.warn('⚠️ Usuario no autenticado en SidebarDispositivos');
+        setUsuario(null);
+      }
+    };
+
+    cargarUsuario();
+  }, []);
 
   const fetchDispositivos = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const { data } = await axios.get('http://localhost:4000/api/dispositivos', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setDispositivos(Array.isArray(data) ? data : []);
+      const { data } = await axiosInstance.get('/api/dispositivos');
+
+      // ✅ Filtramos duplicados por UID (por si acaso)
+      const unicos = Array.from(new Map(data.map(d => [d.uid, d])).values());
+      setDispositivos(unicos);
     } catch (err) {
       console.error('❌ Error cargando dispositivos:', err);
       setDispositivos([]);
@@ -25,15 +42,18 @@ export default function SidebarDispositivos({
   };
 
   useEffect(() => {
+    if (!usuario) return; // 🔥 No busques si no hay usuario autenticado
     fetchDispositivos();
     const id = setInterval(fetchDispositivos, 8000);
     return () => clearInterval(id);
-  }, []);
+  }, [usuario]);
+
+  if (!usuario) return null; // 🔥 Si no está logueado, no renderizar nada
 
   return (
     <div
       id="sidebar-dispositivos"
-      className={`fixed top-[64px] right-0 z-30 h-[calc(91.5vh-64px)] transition-all duration-300 ease-in-out ${
+      className={`fixed top-[65px] bottom-[60px] right-0 z-30 transition-all duration-300 ease-in-out ${
         hover ? 'w-64' : 'w-16'
       } group`}
       onMouseEnter={() => onHoverChange(true)}
@@ -66,11 +86,13 @@ export default function SidebarDispositivos({
               const online = Date.now() - new Date(d.ultimaConexion).getTime() < 10000;
               const file = (d.imagen || 'generic.png').split('/').pop();
               const imgSrc = `/images/conexion/${file}`;
-              const sensoresConfigurados = Array.isArray(d.sensores) && d.sensores.length > 0;
+              const estaConfigurado = d.configurado === true;
+              const fechaCreacion = format(new Date(d.creadoEn), 'dd MMM yyyy HH:mm');
 
               return (
                 <div
                   key={d.uid}
+                  title={`Creado el ${fechaCreacion}`}
                   onClick={() =>
                     navigate(`/configurar-dispositivo/${d.uid}`, {
                       state: { from: window.location.pathname },
@@ -91,27 +113,24 @@ export default function SidebarDispositivos({
                     </p>
                   </div>
 
-                  {/* Indicadores alineados */}
+                  {/* Indicadores */}
                   <div className="flex flex-col gap-1 items-center justify-center">
                     {online ? (
                       <BadgeCheck className="w-5 h-5 text-green-500" title="En línea" />
                     ) : (
                       <AlertCircle className="w-5 h-5 text-red-500" title="Offline" />
                     )}
+
                     {hover && (
                       <div
                         className={`p-1 rounded-full ${
-                          sensoresConfigurados
+                          estaConfigurado
                             ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
                             : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300'
                         }`}
-                        title={
-                          sensoresConfigurados
-                            ? 'Sensores configurados'
-                            : 'Aún sin sensores configurados'
-                        }
+                        title={estaConfigurado ? 'Dispositivo configurado' : 'Aún no configurado'}
                       >
-                        {sensoresConfigurados ? <CheckCircle size={16} /> : <Wrench size={16} />}
+                        {estaConfigurado ? <CheckCircle size={16} /> : <Wrench size={16} />}
                       </div>
                     )}
                   </div>
@@ -124,7 +143,7 @@ export default function SidebarDispositivos({
             </p>
           )}
 
-          {/* ➕ Botón de nuevo dispositivo */}
+          {/* ➕ Botón nuevo */}
           {hover && (
             <div
               onClick={() => navigate('/nuevo-dispositivo')}

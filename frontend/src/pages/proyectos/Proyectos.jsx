@@ -1,28 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'sonner';
 import Button from '../../components/ui/Button';
-import Wizard from '../dispositivos/Wizard';
 import { PlusCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function Proyectos() {
   const { t } = useTranslation();
   const [proyectos, setProyectos] = useState([]);
-  const [mostrarWizard, setMostrarWizard] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem('token');
+  const csrfToken = localStorage.getItem('csrfToken');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-csrf-token': csrfToken,
+    },
+  };
 
   useEffect(() => {
     document.title = 'IoT Platform | ' + t('proyectos.titulo');
 
     const fetchProyectos = async () => {
       try {
-        const res = await axios.get('/api/proyectos', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        const res = await axios.get('/api/proyectos', config);
 
         if (Array.isArray(res.data)) {
           setProyectos(res.data);
@@ -33,6 +37,7 @@ export default function Proyectos() {
       } catch (err) {
         console.error('❌ Error al cargar proyectos:', err);
         setError('Ocurrió un error al cargar los proyectos.');
+        toast.error('❌ Error al cargar los proyectos');
       }
     };
 
@@ -51,7 +56,7 @@ export default function Proyectos() {
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => setMostrarWizard(true)}>
+          <Button variant="outline" onClick={() => navigate('/nuevo-dispositivo')}>
             <PlusCircle size={16} className="mr-2" />
             {t('proyectos.nuevoDispositivo')}
           </Button>
@@ -92,26 +97,6 @@ export default function Proyectos() {
         <div className="text-center py-20 text-gray-500 dark:text-gray-400">
           <p className="text-lg mb-2">{t('proyectos.sinProyectos')}</p>
           <p className="text-sm">{t('proyectos.instruccion')}</p>
-        </div>
-      )}
-
-      {/* 🧙 Nuevo dispositivo wizard */}
-      {mostrarWizard && (
-        <div className="fixed inset-0 z-50 bg-black -translate-y-8 dark:bg-darkBg p-6 h-[100vh]  overflow-y-auto transition-colors">
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => setMostrarWizard(false)}
-              className="text-sm text-gray-500 dark:text-gray-300 hover:text-red-500 transition"
-            >
-              {t('proyectos.cerrar')}
-            </button>
-          </div>
-          <Wizard
-            onFinish={() => {
-              setMostrarWizard(false);
-              window.location.reload();
-            }}
-          />
         </div>
       )}
     </div>

@@ -1,7 +1,6 @@
-// src/pages/Lecturas.jsx
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -26,8 +25,12 @@ export default function Lecturas() {
   const [hasta, setHasta] = useState('');
 
   const token = localStorage.getItem('token');
+  const csrfToken = localStorage.getItem('csrfToken');
   const config = {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-csrf-token': csrfToken,
+    },
   };
 
   const fetchSensores = async () => {
@@ -36,7 +39,7 @@ export default function Lecturas() {
       setSensores(res.data);
       if (res.data.length > 0) setSensorId(res.data[0]._id);
     } catch (err) {
-      console.error('Error al obtener sensores:', err);
+      console.error('❌ Error al obtener sensores:', err);
     }
   };
 
@@ -60,7 +63,7 @@ export default function Lecturas() {
       setLecturas(res.data.lecturas);
       setTotalPaginas(res.data.paginas);
     } catch (err) {
-      console.error('Error al obtener lecturas:', err);
+      console.error('❌ Error al obtener lecturas:', err);
     }
   };
 
@@ -75,24 +78,24 @@ export default function Lecturas() {
   const exportarExcel = async () => {
     try {
       const res = await axios.get(`/api/exportar/excel?sensor=${sensorId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        ...config,
         responseType: 'blob',
       });
       saveAs(new Blob([res.data]), 'lecturas.xlsx');
     } catch (err) {
-      console.error('Error al exportar Excel:', err);
+      console.error('❌ Error al exportar Excel:', err);
     }
   };
 
   const exportarPDF = async () => {
     try {
       const res = await axios.get(`/api/exportar/pdf?sensor=${sensorId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        ...config,
         responseType: 'blob',
       });
       saveAs(new Blob([res.data]), 'lecturas.pdf');
     } catch (err) {
-      console.error('Error al exportar PDF:', err);
+      console.error('❌ Error al exportar PDF:', err);
     }
   };
 
@@ -109,6 +112,7 @@ export default function Lecturas() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6 bg-light-bg dark:bg-dark-bg rounded-xl transition-colors">
+      {/* Encabezado */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">📊 Lecturas de Sensor</h1>
         <div className="flex gap-2">
@@ -121,6 +125,7 @@ export default function Lecturas() {
         </div>
       </div>
 
+      {/* Filtros */}
       <div className="flex flex-wrap gap-4 items-end">
         <div>
           <label className="block text-sm font-medium text-light-text dark:text-dark-text mb-1">
@@ -173,6 +178,7 @@ export default function Lecturas() {
         </div>
       </div>
 
+      {/* Contenido */}
       {lecturas.length > 0 ? (
         <>
           <ResponsiveContainer width="100%" height={300}>

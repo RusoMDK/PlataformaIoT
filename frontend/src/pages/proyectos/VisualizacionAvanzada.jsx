@@ -1,4 +1,3 @@
-// src/pages/VisualizacionAvanzada.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -9,6 +8,7 @@ import VisualizacionCard from '../../components/visualizaciones/VisualizacionCar
 import FormularioVisualizacion from '../../components/visualizaciones/FormularioVisualizacion';
 import Swal from 'sweetalert2';
 import Button from '../../components/ui/Button';
+import { toast } from 'sonner';
 
 export default function VisualizacionAvanzada() {
   const { id } = useParams();
@@ -18,8 +18,12 @@ export default function VisualizacionAvanzada() {
   const [visualizacionEditando, setVisualizacionEditando] = useState(null);
 
   const token = localStorage.getItem('token');
+  const csrfToken = localStorage.getItem('csrfToken');
   const config = {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-csrf-token': csrfToken,
+    },
   };
 
   useEffect(() => {
@@ -33,6 +37,7 @@ export default function VisualizacionAvanzada() {
       setVisualizaciones(res.data);
     } catch (err) {
       console.error('❌ Error al obtener visualizaciones:', err);
+      toast.error('Error al obtener visualizaciones');
     }
   };
 
@@ -42,6 +47,7 @@ export default function VisualizacionAvanzada() {
       setSensores(res.data);
     } catch (err) {
       console.error('❌ Error al obtener sensores:', err);
+      toast.error('Error al obtener sensores');
     }
   };
 
@@ -60,6 +66,7 @@ export default function VisualizacionAvanzada() {
         }
       } catch (err) {
         console.error('❌ Error al actualizar orden:', err);
+        toast.error('Error al actualizar orden de visualizaciones');
       }
     }
   };

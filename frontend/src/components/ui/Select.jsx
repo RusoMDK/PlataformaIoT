@@ -12,12 +12,11 @@ export default function Select({ value, onChange, options = [], label, className
           {label}
         </label>
       )}
-
       <Listbox value={value} onChange={onChange}>
         <div className="relative">
           <Listbox.Button
             className={cn(
-              'relative w-full cursor-default rounded-xl border px-4 py-2 pr-10 text-left shadow-sm sm:text-sm',
+              'relative w-full cursor-default rounded-xl border px-3 py-2 h-10 pr-10 text-left shadow-sm sm:text-sm',
               'bg-light-surface border-light-border text-light-text placeholder-muted',
               'dark:bg-dark-bg dark:text-white dark:border-dark-border dark:placeholder-dark-muted',
               'focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary-dark'

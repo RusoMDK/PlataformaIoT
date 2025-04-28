@@ -1,7 +1,8 @@
+// src/components/wizard/PasoVerificarConexion.jsx
 import { motion } from 'framer-motion';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/axios';
 
 export default function PasoVerificarConexion({ formData, onNext, onBack }) {
   const [estado, setEstado] = useState('verificando'); // verificando | exito | error
@@ -10,7 +11,7 @@ export default function PasoVerificarConexion({ formData, onNext, onBack }) {
     const verificarConexion = async () => {
       setEstado('verificando');
 
-      const uid = formData?.uid || formData?.dispositivo?.uid || formData?.dispositivo?.UID; // por si algún campo lo devuelve diferente
+      const uid = formData?.uid || formData?.dispositivo?.uid || formData?.dispositivo?.UID;
 
       if (!uid) {
         console.warn('⚠️ UID del dispositivo no disponible.');
@@ -21,7 +22,7 @@ export default function PasoVerificarConexion({ formData, onNext, onBack }) {
       console.log('🔎 Verificando conexión con UID:', uid);
 
       try {
-        const res = await axios.get(`http://localhost:3000/api/dispositivos/verificar/${uid}`);
+        const res = await api.get(`/dispositivos/verificar/${uid}`); // 👈 usando axios con baseURL
 
         if (res.data?.conectado) {
           setEstado('exito');

@@ -1,19 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import TablaPro from '../../components/ui/TablaPro';
 import { ScrollText } from 'lucide-react';
+import { getCsrfToken } from '../../api/auth.api'; // 🔥 Importamos para pedir CSRF token
 
 export default function LogsGlobales() {
   const [logs, setLogs] = useState([]);
   const [seleccionados, setSeleccionados] = useState([]);
   const [filtro, setFiltro] = useState('');
+  const [csrfToken, setCsrfToken] = useState(''); // 🔥 Estado para CSRF
 
   const token = localStorage.getItem('token');
-  const config = { headers: { Authorization: `Bearer ${token}` } };
+  const config = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-csrf-token': csrfToken,
+      },
+    }),
+    [token, csrfToken]
+  );
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
+        const csrf = await getCsrfToken();
+        setCsrfToken(csrf);
+
         const res = await axios.get('/api/logs/globales', config);
         setLogs(res.data);
       } catch (err) {
@@ -21,7 +34,7 @@ export default function LogsGlobales() {
       }
     };
     fetchLogs();
-  }, []);
+  }, [token, csrfToken]);
 
   const eliminarLogsSeleccionados = async ids => {
     const confirmar = window.confirm('¿Seguro que deseas eliminar los logs seleccionados?');

@@ -1,10 +1,9 @@
-// src/pages/NuevoThing.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toastEasy } from '../../hooks/toastEasy';
 import axios from 'axios';
 import Button from '../../components/ui/Button';
 import SensorAutocomplete from '../../components/things/SensorAutocomplete';
+import { toast } from 'sonner';
 
 export default function NuevoThing() {
   const navigate = useNavigate();
@@ -17,24 +16,31 @@ export default function NuevoThing() {
   });
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
+  const token = localStorage.getItem('token');
+  const csrfToken = localStorage.getItem('csrfToken');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-csrf-token': csrfToken,
+    },
+  };
 
-    axios
-      .get('/api/dispositivos', { headers })
-      .then(res => {
+  useEffect(() => {
+    const fetchDispositivos = async () => {
+      try {
+        const res = await axios.get('/api/dispositivos', config);
         if (Array.isArray(res.data)) {
           setDispositivos(res.data);
         } else {
           setDispositivos([]);
           setError('Error al cargar los dispositivos: respuesta inesperada.');
         }
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('❌ Error al cargar dispositivos:', err);
         setError('Error al cargar dispositivos');
-      });
+      }
+    };
+    fetchDispositivos();
   }, []);
 
   const handleAgregarSensor = () => {
@@ -60,19 +66,16 @@ export default function NuevoThing() {
     const errores = form.sensores.filter(s => !s.nombre || !s.tipo || !s.unidad || !s.pin);
 
     if (!form.nombre || !form.descripcion) {
-      toastEasy('Debes completar todos los campos del proyecto', 'error');
+      toast.error('Debes completar todos los campos del proyecto');
       return;
     }
 
     if (errores.length > 0) {
-      toastEasy('Todos los sensores deben tener nombre, tipo, unidad y pin.', 'error');
+      toast.error('Todos los sensores deben tener nombre, tipo, unidad y pin.');
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       const res = await axios.post(
         '/api/proyectos',
         {
@@ -81,7 +84,7 @@ export default function NuevoThing() {
           placa: 'desconocida',
           dispositivoId: form.dispositivoId,
         },
-        { headers }
+        config
       );
 
       const proyectoId = res.data._id;
@@ -96,20 +99,21 @@ export default function NuevoThing() {
             pin: sensor.pin,
             proyecto: proyectoId,
           },
-          { headers }
+          config
         );
       }
 
-      toastEasy('Thing creado correctamente ✅', 'success');
+      toast.success('✅ Thing creado correctamente');
       navigate('/proyectos');
     } catch (err) {
       console.error('❌ Error creando Thing:', err);
-      toastEasy('Error al crear el proyecto', 'error');
+      toast.error('Error al crear el proyecto');
     }
   };
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-8 bg-light-bg dark:bg-dark-bg rounded-xl transition-colors">
+      {/* Encabezado */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-light-text dark:text-dark-text">
           Crear nuevo Thing
@@ -121,6 +125,7 @@ export default function NuevoThing() {
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
+      {/* Formulario */}
       <div className="space-y-6 bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-xl p-6 shadow transition-colors">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -244,7 +249,7 @@ export default function NuevoThing() {
           </div>
         </div>
 
-        {/* Crear */}
+        {/* Botón crear */}
         <div className="pt-4 text-right">
           <Button onClick={handleCrearThing}>✅ Crear Thing</Button>
         </div>

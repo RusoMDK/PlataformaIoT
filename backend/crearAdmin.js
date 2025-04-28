@@ -1,7 +1,7 @@
 // crearAdmin.js
 require('dotenv').config(); // 👈 Asegura que se cargue .env
-const mongoose = require('./config/db');
-const Usuario = require('./models/Usuario');
+const mongoose = require('./src/config/db');
+const Usuario = require('./src/models/Usuario');
 
 async function crearAdmin() {
   try {

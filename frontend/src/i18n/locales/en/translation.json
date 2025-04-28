@@ -59,6 +59,7 @@
     "admin": "Admin",
     "logsGlobales": "Global Logs",
     "exportar": "Export",
+    "agentesConectados": "Connected agents",
     "cerrarSesion": "Log out"
   },
 
@@ -160,5 +161,16 @@
         "description": "An error occurred while processing the request."
       }
     }
+  },
+  
+  "preference": {
+    "interfaceTheme": "Interface Theme",
+    "platformLanguage": "Platform Language",
+    "notifications": "Notifications",
+    "enableNotifications": "Enable notifications",
+    "savePreferences": "Save Preferences",
+    "saving": "Saving...",
+    "preferencesSaved": "Preferences saved successfully",
+    "errorSavingPreferences": "Error saving preferences"
   }
 }
