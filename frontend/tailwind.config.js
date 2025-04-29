@@ -70,6 +70,10 @@ export default {
           '0%': { opacity: 1 },
           '100%': { opacity: 0 },
         },
+        fadeInScale: {
+          '0%': { opacity: 0, transform: 'scale(0.95)' },
+          '100%': { opacity: 1, transform: 'scale(1)' },
+        },
         
       },
       animation: {
@@ -78,6 +82,7 @@ export default {
         fadeOut: 'fadeOut 0.3s ease-in-out',
         'slide-in-from-right': 'slide-in-from-right 0.3s ease-out forwards',
         'slide-out-to-right':  'slide-out-to-right 0.2s ease-in forwards',
+        fadeInScale: 'fadeInScale 0.25s ease-out',
       },
     },
   },

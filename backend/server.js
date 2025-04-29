@@ -43,6 +43,7 @@ app.use('/api/proyectos', csrfProtection,            require('./src/routes/proye
 app.use('/api/sensores', csrfProtection,             require('./src/routes/sensor.routes'));
 app.use('/api/lecturas', csrfProtection,             require('./src/routes/lectura.routes'));
 app.use('/api/admin', csrfProtection,                require('./src/routes/admin.routes'));
+app.use('/api/auth2fa', csrfProtection,              require('./src/routes/auth2fa.routes'));
 app.use('/api/exportar', csrfProtection,             require('./src/routes/export.routes'));
 app.use('/api/alertas', csrfProtection,              require('./src/routes/alerta.routes'));
 app.use('/api/alertas/historial', csrfProtection,    require('./src/routes/alertaHistorial.routes'));

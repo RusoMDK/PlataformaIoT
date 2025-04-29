@@ -1,3 +1,4 @@
+// src/models/Usuario.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -49,6 +50,11 @@ const usuarioSchema = new mongoose.Schema({
     notificaciones:  { type: Boolean, default: true },
   },
 
+  // 🔥 CAMPOS DE 2FA 🔥
+  twoFactorTempSecret: { type: String },
+  twoFactorSecret: { type: String },
+  is2FAEnabled: { type: Boolean, default: false }, // Nuevo campo real de estado
+
   actividadReciente: [{ accion: String, fecha: Date, ip: String }],
   ultimoLogin:      { type: Date },
   ipUltimoLogin:    { type: String },
@@ -56,8 +62,10 @@ const usuarioSchema = new mongoose.Schema({
 
   resetPasswordToken:   String,
   resetPasswordExpires: Date,
+
 });
 
+// 🔥 Hash automático del password si cambia
 usuarioSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(12);
@@ -65,6 +73,7 @@ usuarioSchema.pre('save', async function(next) {
   next();
 });
 
+// 🔥 Método para comparar passwords
 usuarioSchema.methods.compararPassword = function(pass) {
   return bcrypt.compare(pass, this.password);
 };
