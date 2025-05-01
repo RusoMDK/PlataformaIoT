@@ -4,6 +4,7 @@ const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const csrfProtection = require('../middlewares/csrfProtection');
 const authMiddleware = require('../middlewares/auth.middleware');
+const tempAuthMiddleware = require('../middlewares/tempAuth.middleware')
 
 // Registro de usuario
 router.post('/register', authController.registrar);

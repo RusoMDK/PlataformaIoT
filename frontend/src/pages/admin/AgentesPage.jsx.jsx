@@ -20,6 +20,8 @@ export default function AgentesPage() {
   const [loadingDispositivos, setLoadingDispositivos] = useState(false);
   const [csrfToken, setCsrfToken] = useState(''); // 🔥 Nuevo estado para CSRF token
 
+  console.log('ara;ame')
+
   const token = localStorage.getItem('token');
   const cfg = useMemo(
     () => ({

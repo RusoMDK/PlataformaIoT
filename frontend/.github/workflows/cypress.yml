@@ -1,0 +1,55 @@
+name: 📦 CI / Cypress E2E
+
+# Se dispara en cada push o PR contra main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      ── # 1) Extrae tu código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      ── # 2) Instala Node y cachea npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      ── # 3) Instala dependencias
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      ── # 4) Arranca tu servidor Vite y espera a que responda
+      - name: Start Vite server
+        run: npm run dev
+        working-directory: ./frontend
+        # Arrancamos en background y esperamos
+        # (required by cypress-io/github-action)
+        &start-server
+        run: |
+          npm run dev &
+          npx wait-on http://localhost:5173
+
+      ── # 5) Ejecuta Cypress y graba en Cypress Cloud
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run dev
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 120_000   # hasta 2 min esperando
+          browser: chrome
+          record: true
+          parallel: true              # opcional, si quieres paralelizar
+        env:
+          # Lee tus secrets que pegaste en Settings → Secrets → Actions
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
