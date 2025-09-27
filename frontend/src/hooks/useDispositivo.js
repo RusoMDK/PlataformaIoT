@@ -1,6 +1,7 @@
 // hooks/useDispositivo.js
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
+import { getCsrfToken } from '../api/auth.api';
 
 export function useDispositivo(uid) {
   const [dispositivo, setDispositivo] = useState(null);
@@ -13,9 +14,12 @@ export function useDispositivo(uid) {
     const fetchDispositivo = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get(`http://localhost:4000/api/dispositivos/${uid}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const csrfToken = await getCsrfToken();
+        const { data } = await axiosInstance.get(`/dispositivos/${uid}`, {
+          headers: {
+            'x-csrf-token': csrfToken,
+          },
+          withCredentials: true,
         });
         setDispositivo(data);
       } catch (err) {
@@ -29,5 +33,7 @@ export function useDispositivo(uid) {
     fetchDispositivo();
   }, [uid]);
 
-  return { dispositivo, loading, error };
+  const sensores = dispositivo?.sensores || [];
+
+  return { dispositivo, sensores, loading, error };
 }

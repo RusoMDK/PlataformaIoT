@@ -99,10 +99,20 @@ exports.guardarSensoresDispositivo = async (req, res) => {
       return res.status(400).json({ msg: "Se espera un array de sensores" });
     }
 
+    const sensoresValidados = sensores.map((s, i) => ({
+      id: s.id || crypto.randomUUID(),
+      nombre: s.nombre || `Sensor ${i + 1}`,
+      tipo: s.tipo || 'desconocido',
+      unidad: s.unidad || '',
+      pin: s.pin || '',
+      configuracion: s.parametros || s.configuracion || {},
+      color: s.color || '#cccccc',
+    }));
+
     const dispositivo = await Dispositivo.findOneAndUpdate(
       { uid, usuario: new Types.ObjectId(req.usuarioId) },
       {
-        sensores,
+        sensores: sensoresValidados,
         configurado: true,
         ultimaConexion: new Date(),
       },

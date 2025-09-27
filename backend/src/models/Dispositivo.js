@@ -7,8 +7,14 @@ const dispositivoSchema = new mongoose.Schema({
   path: { type: String },
   chip: { type: String },
   vendorId: { type: String },
+  ipUltimaConexion: { type: String },
   productId: { type: String },
   imagen: { type: String, default: "generic.png" },
+
+  mqttServer: { type: String },
+  mqttPort: { type: Number },
+  mqttUser: { type: String },
+  mqttPass: { type: String },
 
   usuario: {
     type: mongoose.Schema.Types.ObjectId,

@@ -1,16 +1,24 @@
 import axiosInstance from './axiosInstance';
 
-// 🔥 Pedir el CSRF Token (¡ahora sí correcto!)
+// ✅ Leer el token directamente desde la cookie que csurf expone para el frontend
 export const getCsrfToken = async () => {
-  const { data } = await axiosInstance.get('/csrf/csrf-token', {
+  const res = await axiosInstance.get('/csrf/csrf-token', {
     withCredentials: true,
   });
-  return data.csrfToken;
+
+  // Lee el XSRF-TOKEN desde cookie (lo que el frontend puede acceder)
+  const csrfFromCookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('XSRF-TOKEN='))
+    ?.split('=')[1];
+
+  return csrfFromCookie || res.data.csrfToken;
 };
 
-// 🔐 Login
-export const login = async (email, password) => {
-  const csrfToken = await getCsrfToken();
+
+
+// ✅ Login: recibe el token como argumento
+export const login = async (email, password, csrfToken) => {
   const { data } = await axiosInstance.post(
     '/auth/login',
     { email, password },
@@ -19,23 +27,24 @@ export const login = async (email, password) => {
       withCredentials: true,
     }
   );
-  return data.usuario;
+
+  return data;
 };
 
-// logout real
+// ✅ Logout con CSRF también
 export const logout = async () => {
   const csrfToken = await getCsrfToken();
   await axiosInstance.post(
     '/auth/logout',
     {},
     {
-      headers:      { 'x-csrf-token': csrfToken },
+      headers: { 'x-csrf-token': csrfToken },
       withCredentials: true,
     }
   );
 };
 
-// Obtener perfil de auth (si lo necesitas)
+// ✅ Perfil autenticado
 export const fetchUserProfile = async () => {
   const { data } = await axiosInstance.get('/auth/perfil', {
     withCredentials: true,

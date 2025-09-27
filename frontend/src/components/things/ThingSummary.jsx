@@ -20,10 +20,15 @@ export default function ThingSummary({ sensores = [] }) {
 
   const handleConfirm = async () => {
     try {
-      await axios.patch(`/api/dispositivos/${uid}/configurado`, {}, config);
+      // 🔥 1. Guardar sensores
+      await axios.patch(`/api/dispositivos/${uid}/sensores`, { sensores }, config);
+      toast.success('📦 Sensores guardados correctamente');
 
-      toast.success('✅ Configuración guardada exitosamente');
-      navigate('/proyectos'); // o donde prefieras
+      // ✅ 2. Marcar como configurado (opcional si backend ya lo hace)
+      await axios.patch(`/api/dispositivos/${uid}/configurado`, {}, config);
+      toast.success('✅ Dispositivo marcado como configurado');
+
+      navigate('/proyectos');
     } catch (err) {
       console.error('❌ Error al guardar configuración:', err);
       toast.error('❌ Error al guardar configuración. Intenta de nuevo.');

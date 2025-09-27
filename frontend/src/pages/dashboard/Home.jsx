@@ -10,6 +10,18 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'IoT Platform | ' + t('home.titulo');
+    fetch('http://localhost:4000/api/auth/jwt-token', { credentials: 'include' })
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!data?.token) return;
+        return fetch('http://localhost:3001/api/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: data.token }),
+        });
+      })
+      .then(() => console.log('✅ Token sincronizado desde Home'))
+      .catch(() => {});
   }, [t]);
 
   return (

@@ -30,9 +30,8 @@ export default function SidebarDispositivos({
 
   const fetchDispositivos = async () => {
     try {
-      const { data } = await axiosInstance.get('/api/dispositivos');
-
-      // ✅ Filtramos duplicados por UID (por si acaso)
+      const { data } = await axiosInstance.get('/dispositivos');
+      console.log('📦 Dispositivos recibidos:', data); // ✅ Filtramos duplicados por UID (por si acaso)
       const unicos = Array.from(new Map(data.map(d => [d.uid, d])).values());
       setDispositivos(unicos);
     } catch (err) {

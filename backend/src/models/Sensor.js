@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 
 const sensorSchema = new mongoose.Schema({
+  id: { type: String, required: true }, // <-- Este es clave
   nombre: { type: String, required: true },
   tipo: { type: String, required: true },
   pin: { type: String, required: true },

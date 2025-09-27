@@ -1,31 +1,39 @@
 // vite.config.js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// https://vite.dev/config/
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+
 export default defineConfig({
   plugins: [react(), svgr()],
   server: {
+    https: {
+      key: fs.readFileSync(path.resolve(__dirname, './certs/agente.key')),
+      cert: fs.readFileSync(path.resolve(__dirname, './certs/agente.crt')),
+    },
     proxy: {
-      // Proxy para todas las llamadas REST REST
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'https://localhost:4443',
         changeOrigin: true,
-        secure: false
+        secure: false,
       },
-      // Proxy para WebSocket de socket.io
       '/socket.io': {
-        target: 'ws://localhost:4000',
+        target: 'https://localhost:4443',
         ws: true,
         changeOrigin: true,
+        secure: false,
       },
-      // Proxy a tu endpoint de dispositivo conectado (Electron)
       '/dispositivo-conectado': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        secure: false
-      }
+        secure: false,
+      },
     },
   },
-})
+});

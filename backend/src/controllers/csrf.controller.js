@@ -1,12 +1,12 @@
-// src/controllers/csrf.controller.js
+// backend/src/controllers/csrf.controller.js
 exports.getCsrfToken = (req, res) => {
-    const token = req.csrfToken();
-  
-    res.cookie('XSRF-TOKEN', token, {
-      httpOnly: false,    // 🔥 Importante que sea false para que axios pueda leerlo
-      secure: false,      // 🔥 Pon 'true' solo si usas HTTPS (en local debe ser false)
-      sameSite: 'Lax',    // 🔥 Lax para localhost (no Strict)
-    });
-  
-    res.json({ csrfToken: token });
-  };
+  const token = req.csrfToken(); // 👈 SOLO lo generas una vez
+
+  res.cookie('XSRF-TOKEN', token, {
+    httpOnly: false,   // debe ser false para que el navegador lo lea
+    sameSite: 'Lax',
+    secure: true,      // true si estás usando HTTPS
+  });
+
+  res.json({ csrfToken: token }); // 👈 el mismo que mandaste por cookie
+};

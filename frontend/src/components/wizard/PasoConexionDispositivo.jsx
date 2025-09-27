@@ -1,15 +1,16 @@
+// src/components/wizard/PasoConexionDispositivo.jsx
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-const PasoConexionDispositivo = ({
+export default function PasoConexionDispositivo({
   formData,
   setFormData,
   onDetectadoYaRegistrado,
   triggerAlertaManual,
-}) => {
+}) {
   const [dispositivo, setDispositivo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [invalido, setInvalido] = useState(false);
@@ -24,29 +25,26 @@ const PasoConexionDispositivo = ({
     return 'otro';
   };
 
-  const verificarSiRegistrado = async uid => {
+  const verificarSiRegistrado = async (uid, completo, tipoDetectado) => {
     const token = localStorage.getItem('token');
     if (!token || !uid) return;
 
     try {
       const { data } = await axios.get(
         `http://localhost:4000/api/dispositivos/${uid.toLowerCase()}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (data?.uid?.toLowerCase() === uid.toLowerCase()) {
         if (!mostradoToast) {
-          toast.warning('⚠️ Este dispositivo ya está registrado.');
+          toast.warning('⚠️ ¡Ya habías registrado esta placa antes!');
           setMostradoToast(true);
         }
-
         setFormData(prev => ({
           ...prev,
-          dispositivo: { ...prev.dispositivo, _id: data._id },
+          dispositivo: { ...completo, _id: data._id },
+          placa: prev.placa || tipoDetectado,
+          uid: uid.toLowerCase(),
         }));
-
         onDetectadoYaRegistrado?.(true);
       } else {
         onDetectadoYaRegistrado?.(false);
@@ -54,7 +52,7 @@ const PasoConexionDispositivo = ({
     } catch (err) {
       onDetectadoYaRegistrado?.(false);
       if (err.response?.status !== 404) {
-        console.error('❌ Error al verificar dispositivo existente:', err.message);
+        console.error('❌ Error verificando registro:', err.message);
       }
     }
   };
@@ -63,28 +61,21 @@ const PasoConexionDispositivo = ({
     try {
       const res = await axios.get('http://localhost:3001/dispositivo-conectado');
       const disp = res.data;
-
       const tipoDetectado = detectarTipoDesdeNombre(disp.nombre || '');
       const coincide = formData.placa === tipoDetectado;
 
-      const completo = {
-        ...disp,
-        tipo: tipoDetectado,
-      };
-
+      const completo = { ...disp, tipo: tipoDetectado };
       setInvalido(!coincide);
       setDispositivo(completo);
-
       setFormData(prev => ({
         ...prev,
         dispositivo: completo,
         placa: prev.placa || tipoDetectado,
         uid: disp.uid.toLowerCase(),
       }));
-
-      await verificarSiRegistrado(disp.uid);
+      await verificarSiRegistrado(disp.uid, completo, tipoDetectado);
     } catch (error) {
-      console.error('❌ Error al obtener el dispositivo:', error.message);
+      console.error('❌ No pudimos leer tu placa:', error.message);
       setDispositivo(null);
       setInvalido(false);
     } finally {
@@ -99,12 +90,8 @@ const PasoConexionDispositivo = ({
   }, []);
 
   useEffect(() => {
-    if (triggerAlertaManual && formData?.dispositivo?._id && !invalido) {
-      setMostrarAdvertencia(true);
-    } else {
-      setMostrarAdvertencia(false);
-    }
-  }, [triggerAlertaManual, invalido]);
+    setMostrarAdvertencia(triggerAlertaManual && formData.dispositivo?._id && !invalido);
+  }, [triggerAlertaManual, invalido, formData.dispositivo]);
 
   return (
     <motion.div
@@ -115,40 +102,48 @@ const PasoConexionDispositivo = ({
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-light-text dark:text-white">
-          2. Conecta tu dispositivo
-        </h2>
-        <p className="text-sm text-light-muted dark:text-dark-muted">
-          Conecta tu placa al computador. El sistema la detectará automáticamente.
+      {/* Header más amigable */}
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">¡Enchufa tu placa!</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+          Conecta tu placa al USB y déjala que hable con nuestro Agente. Nosotros nos encargamos del
+          resto.
         </p>
       </div>
 
+      {/* Mini‑tutorial */}
+      <div className="max-w-md mx-auto text-sm text-gray-700 dark:text-gray-300 space-y-1">
+        <p className="font-medium">¿Por qué esto es importante?</p>
+        <ul className="list-disc list-inside">
+          <li>Detectaremos tu placa al instante.</li>
+          <li>Podrás continuar sin configuraciones manuales extra.</li>
+        </ul>
+      </div>
+
+      {/* Estado de detección */}
       {loading ? (
         <p className="text-center text-gray-500 dark:text-gray-400 animate-pulse">
-          🔍 Buscando dispositivo conectado...
+          🔄 Buscando tu placa...
         </p>
       ) : dispositivo ? (
         <>
           <div
-            className={`border-2 rounded-xl p-6 transition shadow max-w-md mx-auto ${
-              invalido
-                ? 'border-red-400 bg-red-50 dark:bg-red-900/20'
-                : 'border-primary/50 hover:border-primary bg-blue-50 dark:bg-dark-muted/20'
-            }`}
+            className={`mx-auto max-w-md border-2 rounded-xl p-6 shadow-md transition-colors
+              ${
+                invalido
+                  ? 'border-red-400 bg-red-50 dark:bg-red-900/20'
+                  : 'border-primary bg-primary/10 dark:bg-primary/20'
+              }`}
           >
             <img
               src={`/images/conexion/${dispositivo.imagen}`}
               alt={dispositivo.nombre}
               className="w-24 h-24 mx-auto mb-4 object-contain"
             />
-            <h3 className="text-xl font-bold text-center text-light-text dark:text-white mb-2">
-              {dispositivo.nombre || 'Dispositivo conectado'}
+            <h3 className="text-xl font-semibold text-center text-gray-900 dark:text-white mb-2">
+              {dispositivo.nombre}
             </h3>
-            <div className="text-sm text-light-muted dark:text-dark-muted space-y-1 text-center">
-              <p>
-                <strong>Fabricante:</strong> {dispositivo.fabricante || 'Desconocido'}
-              </p>
+            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 text-center">
               <p>
                 <strong>Puerto:</strong> {dispositivo.path}
               </p>
@@ -163,31 +158,27 @@ const PasoConexionDispositivo = ({
               </p>
             </div>
             {invalido && (
-              <p className="mt-4 text-red-600 dark:text-red-400 font-medium text-sm">
-                ⚠️ La placa detectada no coincide con la seleccionada.
+              <p className="mt-4 text-red-600 dark:text-red-400 font-medium">
+                ⚠️ Ups, esta placa no coincide con la que elegiste.
               </p>
             )}
           </div>
 
           {mostrarAdvertencia && !invalido && (
-            <div className="mt-6 bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700 rounded-lg px-4 py-3 max-w-md mx-auto">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="text-yellow-600" size={20} />
-                <p className="text-sm text-yellow-800 dark:text-yellow-100">
-                  ⚠️ Este dispositivo ya está registrado. Si continúas, se sobreescribirá su
-                  configuración anterior.
-                </p>
-              </div>
+            <div className="mx-auto max-w-md mt-6 p-4 flex items-center gap-2 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700">
+              <AlertCircle className="text-yellow-600 dark:text-yellow-200" size={20} />
+              <p className="text-sm text-yellow-800 dark:text-yellow-100">
+                ⚠️ ¡Esta placa ya está registrada! Continuar sobreescribirá su anterior
+                configuración.
+              </p>
             </div>
           )}
         </>
       ) : (
         <p className="text-center text-red-500 dark:text-red-400 font-medium">
-          ❌ No se detectó ningún dispositivo. Verifica la conexión USB.
+          ❌ No encontramos ninguna placa. ¿Está bien conectada?
         </p>
       )}
     </motion.div>
   );
-};
-
-export default PasoConexionDispositivo;
+}

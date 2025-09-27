@@ -19,7 +19,7 @@ export async function activar2FA(otp) {
   const csrfToken = await getCsrfToken();
   const res = await axiosInstance.post(
     '/auth2fa/verify-2fa',
-    { otp }, // 👈🏼 ENVIAMOS CORRECTAMENTE "otp" (no token, no secret)
+    { otp },
     {
       headers: { 'x-csrf-token': csrfToken },
       withCredentials: true,
@@ -42,28 +42,33 @@ export async function desactivar2FA() {
 }
 
 export async function reset2FA() {
-    const csrfToken = await getCsrfToken();
-    const res = await axiosInstance.post(
-      '/auth2fa/reset-2fa',
-      {},
-      {
-        headers: { 'x-csrf-token': csrfToken },
-        withCredentials: true,
-      }
-    );
-    return res.data;
-  }
+  const csrfToken = await getCsrfToken();
+  const res = await axiosInstance.post(
+    '/auth2fa/reset-2fa',
+    {},
+    {
+      headers: { 'x-csrf-token': csrfToken },
+      withCredentials: true,
+    }
+  );
+  return res.data;
+}
 
-  export async function verifyOTPLogin(otp) {
+export async function verifyOTPLogin(otp) {
     const csrfToken = await getCsrfToken();
-    const tempToken = localStorage.getItem('temp_token'); // 👈 agrega este temporal
+    const tempToken = localStorage.getItem('temp_token');
+  
+    if (!tempToken) {
+      throw new Error("Token temporal no encontrado para la verificación 2FA");
+    }
+  
     const res = await axiosInstance.post(
       '/auth/verify-otp-login',
       { otp },
       {
         headers: {
           'x-csrf-token': csrfToken,
-          'Authorization': `Bearer ${tempToken}`, // 🔥 manda el temp token
+          'Authorization': `Bearer ${tempToken}`,
         },
         withCredentials: true,
       }
