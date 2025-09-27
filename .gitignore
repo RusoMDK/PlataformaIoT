@@ -66,3 +66,6 @@ frontend/certs/
 **/*.uf2
 **/*.map
 **/*.eep
+
+# Archivos de utilidad que no deben ir al repo
+backend/crearAdmin.js
