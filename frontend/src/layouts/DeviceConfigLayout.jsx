@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+// DeviceConfigLayout.jsx
+import { useState, useEffect } from 'react';
+import { useParams, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import Navbar from '../components/shared/Navbar';
 import Footer from '../components/shared/Footer';
 import PlacaESP32Interactiva from '../components/things/PlacaESP32Interactiva';
@@ -7,26 +8,41 @@ import SensorListEditor from '../components/things/SensorListEditor';
 import SensorCatalogPanel from '../components/things/SensorCatalogPanel';
 import SensorConfigPanel from '../components/things/SensorConfigPanel';
 import ThingSummary from '../components/things/ThingSummary';
-import axios from 'axios';
+import { useDispositivo } from '../hooks/useDispositivo';
+import axiosInstance from '../api/axiosInstance';
 
 export default function DeviceConfigLayout() {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { dispositivo, loading } = useDispositivo(id);
   const [sensorSeleccionado, setSensorSeleccionado] = useState(null);
   const [sensoresAsignados, setSensoresAsignados] = useState([]);
   const [pinSeleccionado, setPinSeleccionado] = useState(null);
   const [verResumen, setVerResumen] = useState(false);
 
+  useEffect(() => {
+    if (dispositivo?.sensores?.length > 0) {
+      setSensoresAsignados(dispositivo.sensores);
+    }
+  }, [dispositivo]);
+
   const handleGuardarSensor = sensorConfig => {
     const finalPin = sensorConfig.pin || pinSeleccionado;
     if (!finalPin) return;
-    const actualizado = { ...sensorConfig, pin: finalPin };
+
+    const actualizado = {
+      ...sensorConfig,
+      pin: finalPin,
+      id: sensorConfig.id || crypto.randomUUID(), // ✅ asegura ID único
+    };
+
     setSensoresAsignados(prev => {
       const existentes = prev.filter(s => s.id !== actualizado.id);
       return [...existentes, actualizado];
     });
+
     setSensorSeleccionado(null);
     setPinSeleccionado(null);
   };
@@ -38,10 +54,12 @@ export default function DeviceConfigLayout() {
 
   const handleFinalizar = async () => {
     try {
-      await axios.patch(`/api/dispositivos/${id}/configurado`);
+      await axiosInstance.patch(`/dispositivos/${id}/sensores`, {
+        sensores: sensoresAsignados,
+      });
       navigate('/');
     } catch (error) {
-      console.error('Error guardando la configuración', error);
+      console.error('❌ Error guardando la configuración:', error);
     }
   };
 
@@ -77,12 +95,13 @@ export default function DeviceConfigLayout() {
       : digitales.includes(pin);
   };
 
+  if (loading) {
+    return <div className="p-10 text-center text-gray-500">⏳ Cargando dispositivo...</div>;
+  }
+
   return (
     <div className="flex flex-col min-h-screen dark:bg-gray-950">
-      {/* 🧭 Navbar global */}
       <Navbar />
-
-      {/* 🔒 Header */}
       <header className="sticky top-[64px] z-40 px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-[72px] flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-800 dark:text-white">
@@ -90,7 +109,6 @@ export default function DeviceConfigLayout() {
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">UID: {id}</p>
         </div>
-
         <div className="flex gap-3">
           <button
             onClick={() => setVerResumen(true)}
@@ -107,14 +125,10 @@ export default function DeviceConfigLayout() {
         </div>
       </header>
 
-      {/* 🔧 Contenido principal */}
-      {verResumen ? (
-        <main className="flex-1 p-6">
-          <ThingSummary sensores={sensoresAsignados} onConfirm={handleFinalizar} />
-        </main>
-      ) : (
+      <Outlet />
+
+      {!verResumen ? (
         <main className="flex flex-1 overflow-hidden mt-[50px]">
-          {/* Sección 1 - Placa */}
           <section className="flex-none w-[36%] min-w-[320px] border-r border-gray-200 dark:border-gray-800 overflow-auto">
             <div className="w-full h-full p-0 m-0">
               <div className="w-full h-full bg-white dark:bg-gray-900 border dark:border-gray-800 shadow rounded-2xl p-4">
@@ -135,7 +149,6 @@ export default function DeviceConfigLayout() {
             </div>
           </section>
 
-          {/* Sección 2 - Config + carrusel */}
           <section className="flex-1 min-w-[320px] max-w-[calc(100%-380px)] flex flex-col gap-6 px-6 py-6 overflow-hidden">
             <div className="min-h-[260px]">
               <SensorConfigPanel
@@ -149,14 +162,11 @@ export default function DeviceConfigLayout() {
               <SensorListEditor
                 sensores={sensoresAsignados}
                 onEdit={setSensorSeleccionado}
-                onRemove={index => {
-                  setSensoresAsignados(prev => prev.filter((_, i) => i !== index));
-                }}
+                onRemove={index => setSensoresAsignados(prev => prev.filter((_, i) => i !== index))}
               />
             </div>
           </section>
 
-          {/* Sección 3 - Catálogo */}
           <aside className="w-[380px] h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-xl flex flex-col">
             <div className="flex-1 overflow-y-auto">
               <SensorCatalogPanel
@@ -165,15 +175,22 @@ export default function DeviceConfigLayout() {
                     alert('Este sensor no es compatible con el pin seleccionado.');
                     return;
                   }
-                  setSensorSeleccionado({ ...sensor, pin: pinSeleccionado || '' });
+                  setSensorSeleccionado({
+                    ...sensor,
+                    pin: pinSeleccionado || '',
+                    id: crypto.randomUUID(), // ⚠️ Generar ID para nuevo sensor
+                  });
                 }}
               />
             </div>
           </aside>
         </main>
+      ) : (
+        <main className="flex-1 p-6">
+          <ThingSummary sensores={sensoresAsignados} onConfirm={handleFinalizar} />
+        </main>
       )}
 
-      {/* 🦶 Footer */}
       <div className="fixed bottom-0 left-0 right-0 z-40">
         <Footer />
       </div>

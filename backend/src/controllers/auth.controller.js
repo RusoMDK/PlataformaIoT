@@ -52,7 +52,7 @@ exports.registrar = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(`🔐 Login intento: ${email}`);
+    console.log(`🔐 Intento de login: ${email}`);
 
     if (!email || !password) {
       return res.status(400).json({ msg: 'Email y contraseña requeridos' });
@@ -65,103 +65,68 @@ exports.login = async (req, res) => {
       return res.status(400).json({ msg: 'Credenciales inválidas' });
     }
 
-    if (usuario.activo === false) {
+    if (!usuario.activo) {
       console.warn('🚫 Usuario desactivado:', email);
       return res.status(403).json({ msg: 'Tu cuenta está desactivada' });
     }
 
     const passwordValido = await usuario.compararPassword(password);
     if (!passwordValido) {
-      console.warn('❌ Contraseña incorrecta para:', email);
+      console.warn('❌ Contraseña incorrecta:', email);
       return res.status(400).json({ msg: 'Credenciales inválidas' });
     }
 
-    // 🛡️ Si el usuario tiene 2FA activo, NO emitir token todavía
+    // 2FA requerido
     if (usuario.is2FAEnabled) {
-      console.log('🔒 Usuario requiere verificación 2FA');
+      const tempToken = jwt.sign(
+        { id: usuario._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      console.log('🔒 Usuario con 2FA, esperando código OTP');
+
       return res.status(200).json({
         usuario: {
           id: usuario._id,
           nombre: usuario.nombre,
           email: usuario.email,
           rol: usuario.rol,
-          is2FAEnabled: true
-        }
+          is2FAEnabled: true,
+        },
+        token: tempToken,
       });
     }
 
-    // ✅ Usuario sin 2FA: generar token normal
-    const token = generarToken(usuario);
+    // ✅ Usuario sin 2FA → generar token completo
+    const token = jwt.sign(
+      { id: usuario._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     await registrarLog(usuario._id, 'Login', 'Inicio de sesión exitoso');
-    console.log('✅ Login exitoso para:', email);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.status(200).json({
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
-        is2FAEnabled: false
-      },
-      token
-    });
+    res
+      .cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'Lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000, // 1 día
+      })
+      .status(200)
+      .json({
+        usuario: {
+          id: usuario._id,
+          nombre: usuario.nombre,
+          email: usuario.email,
+          rol: usuario.rol,
+          is2FAEnabled: false,
+        }
+      });
   } catch (err) {
     console.error('🔥 Error en login:', err);
     res.status(500).json({ msg: 'Error interno al iniciar sesión' });
-  }
-};
-
-// POST /api/auth/verify-otp-login
-exports.verificarOTPLogin = async (req, res) => {
-  try {
-    const { otp, email } = req.body;
-
-    if (!otp || !email) {
-      return res.status(400).json({ msg: 'Código OTP y correo requeridos' });
-    }
-
-    const usuario = await Usuario.findOne({ email: email.toLowerCase() });
-
-    if (!usuario || !usuario.twoFactorSecret) {
-      return res.status(400).json({ msg: 'Cuenta inválida o 2FA no configurado' });
-    }
-
-    const verified = speakeasy.totp.verify({
-      secret: usuario.twoFactorSecret,
-      encoding: 'base32',
-      token: otp,
-      window: 1,
-    });
-
-    if (!verified) {
-      console.warn('❌ Código OTP incorrecto para usuario:', email);
-      return res.status(401).json({ msg: 'Código OTP incorrecto' });
-    }
-
-    // ✅ OTP correcto → emitir token ahora
-    const token = generarToken(usuario);
-    await registrarLog(usuario._id, '2FA', 'Verificación 2FA exitosa');
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    console.log('✅ Verificación 2FA correcta para:', email);
-
-    res.status(200).json({ success: true, token });
-  } catch (error) {
-    console.error('❌ Error verificando OTP en login:', error);
-    res.status(500).json({ msg: 'Error interno al verificar OTP' });
   }
 };
 
@@ -197,6 +162,7 @@ exports.obtenerPerfil = async (req, res) => {
   }
 };
 
+// POST /api/auth/verify-otp-login
 exports.verificarOTPLogin = async (req, res) => {
   try {
     const { otp } = req.body;
@@ -205,18 +171,17 @@ exports.verificarOTPLogin = async (req, res) => {
       return res.status(400).json({ msg: 'Código OTP requerido' });
     }
 
-    const userId = req.usuarioId; // 👈 Esto viene del temp token
-    if (!userId) {
+    const usuario = req.usuario; // ✅ Obtenido correctamente desde tempAuth.middleware
+
+    if (!usuario) {
       return res.status(401).json({ msg: 'Usuario no autenticado' });
     }
 
-    const usuario = await Usuario.findById(userId);
-
-    if (!usuario?.twoFactorSecret) {
+    if (!usuario.twoFactorSecret) {
       return res.status(400).json({ msg: '2FA no está configurado en esta cuenta' });
     }
 
-    const verified = speakeasy.totp.verify({
+    const verified = require('speakeasy').totp.verify({
       secret: usuario.twoFactorSecret,
       encoding: 'base32',
       token: otp,
@@ -227,27 +192,39 @@ exports.verificarOTPLogin = async (req, res) => {
       return res.status(401).json({ msg: 'Código OTP incorrecto' });
     }
 
-    // ✅ Si OTP es correcto → Generamos el token real
     const tokenReal = jwt.sign(
       { id: usuario._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // ✅ Seteamos cookie de token real
+    // ✅ Seteamos cookie del token real
     res.cookie('token', tokenReal, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+      secure: true, // 👈 SOLO SI USAS HTTPS (y debes usarlo)
+      sameSite: 'Lax', // o 'None' si frontend y backend están en dominios distintos
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log('🔓 2FA verificado y nuevo token generado correctamente');
+    console.log(`🔓 2FA verificado para ${usuario.email}. Nuevo token generado.`);
 
-    return res.status(200).json({ success: true });
-
+    return res.status(200).json({ success: true, token: tokenReal, usuario: {
+      id: usuario._id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol
+    }});
   } catch (error) {
     console.error('❌ Error verificando OTP:', error);
     return res.status(500).json({ msg: 'Error interno al verificar OTP' });
   }
 };
+
+
+function emitirTokenAgente(userId) {
+  return jwt.sign(
+    { id: userId, aud: 'agente' },
+    process.env.SECRET,
+    { expiresIn: '7d' }
+  );
+}

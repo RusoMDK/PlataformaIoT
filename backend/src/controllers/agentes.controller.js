@@ -1,3 +1,4 @@
+// controllers/agentes.controller.js
 const Agente = require("../models/Agente");
 const AgenteLog = require("../models/AgenteLog");
 const Usuario = require("../models/Usuario");
@@ -13,9 +14,12 @@ const { registrarAgenteSchema } = require("../validations/agentes.validation");
 exports.listarAgentes = async (req, res) => {
   try {
     const agentesDb = await Agente.find().lean();
+    // Seleccionamos nombre, email y fotoPerfil
     const usuarios = await Usuario.find({
       _id: { $in: agentesDb.map(a => a.usuarioId) },
-    }).select("nombre email").lean();
+    })
+      .select("nombre email fotoPerfil")
+      .lean();
     const mapUsuarios = new Map(usuarios.map(u => [u._id.toString(), u]));
 
     const now = Date.now();
@@ -48,10 +52,15 @@ exports.listarAgentes = async (req, res) => {
             _id: a.usuarioId,
             nombre: user.nombre || "—",
             email: user.email || "—",
+            // devolvemos la URL de Cloudinary tal como viene en fotoPerfil
+            fotoPerfil: user.fotoPerfil || null,
           },
           socketId: a.socketId || null,
           ip: a.ip || "—",
-          isOnline: a.lastHeartbeat ? (now - new Date(a.lastHeartbeat).getTime() < ONLINE_THRESHOLD) : false,
+          isOnline:
+            a.lastHeartbeat
+              ? now - new Date(a.lastHeartbeat).getTime() < ONLINE_THRESHOLD
+              : false,
           connectedAt: a.firstConnected || null,
           lastHeartbeat: a.lastHeartbeat || null,
           dispositivos,
@@ -98,7 +107,9 @@ exports.obtenerAgentesActivos = async (req, res) => {
     const activosDb = await Agente.find({ lastHeartbeat: { $gte: threshold } }).lean();
     const usuarios = await Usuario.find({
       _id: { $in: activosDb.map(a => a.usuarioId) },
-    }).select("nombre email").lean();
+    })
+      .select("nombre email fotoPerfil")
+      .lean();
     const mapU = new Map(usuarios.map(u => [u._id.toString(), u]));
 
     const resultado = activosDb.map(a => ({
@@ -106,6 +117,7 @@ exports.obtenerAgentesActivos = async (req, res) => {
         _id: a.usuarioId,
         nombre: mapU.get(a.usuarioId.toString())?.nombre || "—",
         email: mapU.get(a.usuarioId.toString())?.email || "—",
+        fotoPerfil: mapU.get(a.usuarioId.toString())?.fotoPerfil || null,
       },
       socketId: a.socketId,
       ip: a.ip || "—",
@@ -131,23 +143,29 @@ exports.listarHistorialAgentes = async (req, res) => {
     const historial = await AgenteLog.aggregate([
       { $match: { evento: "connect" } },
       { $sort: { timestamp: -1 } },
-      { $group: {
-        _id: "$usuarioId",
-        lastConnected: { $first: "$timestamp" },
-      }},
-      { $lookup: {
-        from: "usuarios",
-        localField: "_id",
-        foreignField: "_id",
-        as: "user",
-      }},
+      {
+        $group: {
+          _id: "$usuarioId",
+          lastConnected: { $first: "$timestamp" },
+        },
+      },
+      {
+        $lookup: {
+          from: "usuarios",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
       { $unwind: "$user" },
-      { $project: {
-        usuarioId: "$_id",
-        nombre: "$user.nombre",
-        email: "$user.email",
-        lastConnected: 1,
-      }},
+      {
+        $project: {
+          usuarioId: "$_id",
+          nombre: "$user.nombre",
+          email: "$user.email",
+          lastConnected: 1,
+        },
+      },
       { $sort: { lastConnected: -1 } },
     ]);
 
@@ -167,7 +185,9 @@ exports.exportarAgentesExcel = async (req, res) => {
     const agentes = await Agente.find().lean();
     const usuarios = await Usuario.find({
       _id: { $in: agentes.map(a => a.usuarioId) },
-    }).select("email").lean();
+    })
+      .select("email")
+      .lean();
     const mapEmail = new Map(usuarios.map(u => [u._id.toString(), u.email]));
 
     const workbook = new ExcelJS.Workbook();
@@ -184,7 +204,11 @@ exports.exportarAgentesExcel = async (req, res) => {
     for (const a of agentes) {
       const dispositivos = a.dispositivos?.length
         ? a.dispositivos
-        : (await Dispositivo.find({ usuario: a.usuarioId }).select("uid").lean()).map(d => ({ uid: d.uid }));
+        : (
+            await Dispositivo.find({ usuario: a.usuarioId })
+              .select("uid")
+              .lean()
+          ).map(d => ({ uid: d.uid }));
 
       sheet.addRow({
         email: mapEmail.get(a.usuarioId.toString()) || "—",
@@ -197,7 +221,10 @@ exports.exportarAgentesExcel = async (req, res) => {
 
     res
       .setHeader("Content-Disposition", "attachment; filename=agentes.xlsx")
-      .setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      .setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
 
     await workbook.xlsx.write(res);
     res.end();

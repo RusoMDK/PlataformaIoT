@@ -1,3 +1,4 @@
+// src/pages/AgentesPage.jsx
 import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
@@ -7,7 +8,7 @@ import { Button } from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import { Download, Search, Monitor } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { getCsrfToken } from '../../api/auth.api'; // 🔥 Importamos CSRF token API
+import { getCsrfToken } from '../../api/auth.api';
 
 export default function AgentesPage() {
   const [agentes, setAgentes] = useState([]);
@@ -18,7 +19,7 @@ export default function AgentesPage() {
   const [modalDispositivos, setModalDispositivos] = useState(null);
   const [detalleDispositivos, setDetalleDispositivos] = useState([]);
   const [loadingDispositivos, setLoadingDispositivos] = useState(false);
-  const [csrfToken, setCsrfToken] = useState(''); // 🔥 Nuevo estado para CSRF token
+  const [csrfToken, setCsrfToken] = useState('');
 
   console.log('ara;ame')
 
@@ -27,7 +28,7 @@ export default function AgentesPage() {
     () => ({
       headers: {
         Authorization: `Bearer ${token}`,
-        'x-csrf-token': csrfToken, // 🔥 Agregamos CSRF al config de axios
+        'x-csrf-token': csrfToken,
       },
     }),
     [token, csrfToken]
@@ -36,21 +37,25 @@ export default function AgentesPage() {
   useEffect(() => {
     const inicializar = async () => {
       try {
+        // 1) Obtener CSRF
         const csrf = await getCsrfToken();
         setCsrfToken(csrf);
 
+        // 2) Traer lista de agentes
         const { data } = await axios.get('/api/agentes', cfg);
         setAgentes(
           data.map(a => ({
             usuarioId: a.usuario._id,
             nombre: a.usuario.nombre,
             email: a.usuario.email,
+            // usamos fotoPerfil tal como en el Navbar
+            foto: a.usuario.fotoPerfil || '/assets/profile-placeholder.png',
             socketId: a.socketId,
             isOnline: !!a.isOnline,
-            connectedAt: a.firstConnected ? new Date(a.firstConnected) : null,
+            connectedAt: a.connectedAt ? new Date(a.connectedAt) : null,
             lastHeartbeat: a.lastHeartbeat ? new Date(a.lastHeartbeat) : null,
             dispositivos: Array.isArray(a.dispositivos) ? a.dispositivos : [],
-            ip: a.ip || '—',
+            ip: a.ip === '::1' ? '127.0.0.1' : a.ip || '—',
           }))
         );
       } catch (err) {
@@ -62,6 +67,7 @@ export default function AgentesPage() {
 
     inicializar();
 
+    // Configurar WebSocket
     const socket = io(`${import.meta.env.VITE_WS_URL}/dashboard`, {
       path: '/socket.io',
       transports: ['websocket'],
@@ -77,12 +83,13 @@ export default function AgentesPage() {
             usuarioId: usuario._id,
             nombre: usuario.nombre,
             email: usuario.email,
+            foto: usuario.fotoPerfil || '/assets/profile-placeholder.png',
             socketId,
             isOnline: true,
             connectedAt: new Date(connectedAt),
             lastHeartbeat: new Date(lastHeartbeat),
             dispositivos: dispositivos || [],
-            ip: ip || '—',
+            ip: ip === '::1' ? '127.0.0.1' : ip || '—',
           });
           return Array.from(m.values());
         });
@@ -109,7 +116,9 @@ export default function AgentesPage() {
       );
     });
 
-    return () => socket.disconnect();
+    return () => {
+      socket.disconnect();
+    };
   }, [token, csrfToken]);
 
   const totalActivos = useMemo(() => agentes.filter(a => a.isOnline).length, [agentes]);
@@ -119,19 +128,21 @@ export default function AgentesPage() {
     [agentes]
   );
 
-  const agentesFiltrados = useMemo(() => {
-    return agentes.filter(a => {
-      if (filterStatus === 'activos' && !a.isOnline) return false;
-      if (filterStatus === 'desconectados' && a.isOnline) return false;
-      if (fecha && a.connectedAt?.toISOString().slice(0, 10) !== fecha) return false;
-      const q = filtro.trim().toLowerCase();
-      return q
-        ? a.email.toLowerCase().includes(q) ||
-            a.usuarioId.toLowerCase().includes(q) ||
-            a.dispositivos.some(d => d.uid.toLowerCase().includes(q))
-        : true;
-    });
-  }, [agentes, filterStatus, fecha, filtro]);
+  const agentesFiltrados = useMemo(
+    () =>
+      agentes.filter(a => {
+        if (filterStatus === 'activos' && !a.isOnline) return false;
+        if (filterStatus === 'desconectados' && a.isOnline) return false;
+        if (fecha && a.connectedAt?.toISOString().slice(0, 10) !== fecha) return false;
+        const q = filtro.trim().toLowerCase();
+        return q
+          ? a.email.toLowerCase().includes(q) ||
+              a.usuarioId.toLowerCase().includes(q) ||
+              a.dispositivos.some(d => d.uid.toLowerCase().includes(q))
+          : true;
+      }),
+    [agentes, filterStatus, fecha, filtro]
+  );
 
   const exportarExcel = () => {
     const datos = agentesFiltrados.map(a => ({
@@ -257,11 +268,7 @@ export default function AgentesPage() {
             >
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
-                  <img
-                    src="/assets/profile-placeholder.png"
-                    alt="perfil"
-                    className="w-10 h-10 rounded-full"
-                  />
+                  <img src={a.foto} alt="perfil" className="w-10 h-10 rounded-full object-cover" />
                   <div>
                     <h4 className="font-semibold text-lg">{a.nombre}</h4>
                     <p className="text-xs text-muted">{a.email}</p>

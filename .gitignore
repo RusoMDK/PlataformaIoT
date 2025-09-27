@@ -1,14 +1,85 @@
-# Ignorar node_modules en frontend y backend
-frontend/node_modules/
-backend/node_modules/
-
-# Ignorar archivos de entorno
-backend/.env
-
-# Ignorar archivos de compilación o distribución
-frontend/dist/
-backend/dist/
-
-# Archivos innecesarios del sistema
+# --- SO: macOS / Windows / editores ---
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+
+# --- Node (monorepo) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# NO ignores los lockfiles:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# --- Entornos (.env) ---
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# --- Build / dist / caches ---
+dist/
+build/
+coverage/
+.cache/
+.tmp/
+.vite/
+.parcel-cache/
+backend/tmp/
+backend/dump/
+
+# --- TS incremental ---
+*.tsbuildinfo
+
+# --- Certificados / claves ---
+certs/
+backend/certs/
+frontend/certs/
+**/*.pem
+**/*.key
+**/*.crt
+**/*.cer
+**/*.pfx
+**/*.p12
+**/*.der
+
+# --- Arduino/firmware (por si luego agregas) ---
+**/.pio/
+**/.pioenvs/
+**/.piolibdeps/
+**/build/
+**/.arduinoIDE*/
+**/*.elf
+**/*.bin
+**/*.hex
+**/*.uf2
+**/*.map
+**/*.eep
+
+# Archivos de utilidad que no deben ir al repo
+backend/crearAdmin.js
+
+# Variantes de crearAdmin
+backend/crearAdmin.js
+**/crearAdmin.js
+
+# env & certs
+backend/.env
+frontend/.env
+backend/certs/
+frontend/certs/
+
+# Cypress outputs
+frontend/cypress/videos/
+frontend/cypress/screenshots/

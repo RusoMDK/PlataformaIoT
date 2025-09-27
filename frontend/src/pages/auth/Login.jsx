@@ -12,7 +12,6 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [cargando, setCargando] = useState(false);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
-
   const [mostrarOTPModal, setMostrarOTPModal] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [tempToken, setTempToken] = useState(null);
@@ -20,52 +19,18 @@ export default function Login() {
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setCargando(true);
+  const notificarTokenAlAgente = async token => {
     try {
-      const csrfToken = await getCsrfToken();
-      const resp = await login(form.email, form.password, csrfToken);
-      const user = resp.usuario || resp;
-
-      if (user.is2FAEnabled) {
-        // 🛡️ Usuario con 2FA
-        setUsuario(user);
-        setTempToken(resp.token || '');
-        localStorage.setItem('temp_token', resp.token || ''); // 🔥 Guardamos el token temporal
-        setMostrarOTPModal(true);
-        toast.info('🔒 Verifica tu código 2FA');
-      } else {
-        // 🔥 Usuario SIN 2FA
-        guardarDatosUsuario(user, resp.token);
-        toast.success('✔️ Bienvenido de nuevo');
-        navigate('/proyectos');
-      }
+      const res = await fetch('http://localhost:3001/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      if (!res.ok) throw new Error('No se pudo enviar el token al agente');
+      console.log('✅ Token sincronizado con el agente');
+      await fetch('http://localhost:3001/api/trigger-reconexion', { method: 'POST' });
     } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.msg || '❌ Error al iniciar sesión');
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const handleVerifyOTP = async () => {
-    try {
-      if (!otpCode) {
-        toast.warning('Introduce el código 2FA');
-        return;
-      }
-
-      await verifyOTPLogin(otpCode); // 👈 solo mandas otp, como ya tienes temp_token
-
-      toast.success('🔓 Código 2FA verificado correctamente');
-
-      guardarDatosUsuario(usuario, tempToken); // ahora sí guardas todo bien
-      setMostrarOTPModal(false);
-      navigate('/home');
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.msg || '❌ Código inválido, intenta de nuevo');
+      console.error('❌ Error enviando token al agente:', err);
     }
   };
 
@@ -75,7 +40,55 @@ export default function Login() {
     localStorage.setItem('correo', user.email);
     if (token) {
       localStorage.setItem('token', token);
-      localStorage.removeItem('temp_token'); // 🔥 Borramos el temp después de validar
+      localStorage.removeItem('temp_token');
+      notificarTokenAlAgente(token);
+    }
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setCargando(true);
+    try {
+      const csrfToken = await getCsrfToken();
+      const resp = await login(form.email, form.password, csrfToken);
+      const user = resp.usuario || resp;
+      const token = resp.token;
+
+      if (user.is2FAEnabled) {
+        if (!token) throw new Error('No se recibió token temporal del backend');
+        localStorage.setItem('temp_token', token);
+        setUsuario(user);
+        setTempToken(token);
+        setMostrarOTPModal(true);
+        toast.info('🔒 Verifica tu código 2FA');
+      } else {
+        guardarDatosUsuario(user, token);
+        toast.success('✔️ Bienvenido de nuevo');
+        navigate('/home', { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.msg || err.message || '❌ Error al iniciar sesión');
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+      if (!otpCode) return toast.warning('Introduce el código 2FA');
+      const csrfToken = await getCsrfToken();
+      const token = localStorage.getItem('temp_token');
+      await verifyOTPLogin(otpCode, csrfToken, token);
+
+      toast.success('🔓 Código 2FA verificado correctamente');
+      localStorage.setItem('token', token);
+      localStorage.removeItem('temp_token');
+      guardarDatosUsuario(usuario, token);
+      window.location.href = '/home';
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.msg || '❌ Código inválido, intenta de nuevo');
     }
   };
 
@@ -88,30 +101,24 @@ export default function Login() {
         </div>
 
         <div className="space-y-4">
-          <div className="relative">
-            <input
-              name="email"
-              type="email"
-              placeholder="Correo electrónico"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white
-                         focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-            />
-          </div>
-          <div className="relative">
-            <input
-              name="password"
-              type="password"
-              placeholder="Contraseña"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white
-                         focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-            />
-          </div>
+          <input
+            name="email"
+            type="email"
+            placeholder="Correo electrónico"
+            value={form.email}
+            onChange={handleChange}
+            required
+            className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
 
           <div className="flex justify-between text-sm">
             <Link to="/recuperar" className="text-blue-600 dark:text-blue-400 hover:underline">
@@ -145,17 +152,14 @@ export default function Login() {
               <button
                 key={label}
                 type="button"
-                className="flex items-center justify-center w-full gap-2 px-4 py-2 border rounded text-sm
-                           dark:text-white hover:bg-gray-50 dark:hover:bg-darkMuted transition"
+                className="flex items-center justify-center w-full gap-2 px-4 py-2 border rounded text-sm dark:text-white hover:bg-gray-50 dark:hover:bg-darkMuted transition"
               >
-                {/* Aquí podría ir el logo */}
                 Iniciar con {label}
               </button>
             ))}
         </div>
       </form>
 
-      {/* 🔥 Modal OTP */}
       <ModalOTP
         isOpen={mostrarOTPModal}
         onClose={() => setMostrarOTPModal(false)}

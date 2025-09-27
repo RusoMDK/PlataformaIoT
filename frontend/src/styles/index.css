@@ -42,6 +42,16 @@
   }
 }
 
+/* Oculta scrollbars pero permite scroll interno */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Safari, Chrome */
+}
+
+
 /* ─────────────────────────────────────────────────────────────────────────────
    COMPONENTS layer: clases de componentes reutilizables
 ───────────────────────────────────────────────────────────────────────────── */

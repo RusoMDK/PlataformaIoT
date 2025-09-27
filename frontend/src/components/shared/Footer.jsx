@@ -7,7 +7,7 @@ export default function Footer() {
         {/* Texto */}
         <div className="text-center md:text-left">
           © {new Date().getFullYear()}{' '}
-          <span className="font-semibold text-blue-600 dark:text-darkAccent">IoT PLATFORM</span> –
+          <span className="font-semibold text-blue-600 dark:text-darkAccent">Smart IoT</span> –
           Todos los derechos reservados.
         </div>
 

@@ -1,12 +1,9 @@
-// backend/socketHandlers/deviceEvents.js
-
 const Dispositivo = require("../models/Dispositivo");
-const Agente      = require("../models/Agente");
-const AgenteLog   = require("../models/AgenteLog");
-const jwt         = require("jsonwebtoken");
-const { Types }   = require("mongoose");
-const Usuario     = require("../models/Usuario");
-
+const Agente = require("../models/Agente");
+const AgenteLog = require("../models/AgenteLog");
+const jwt = require("jsonwebtoken");
+const { Types } = require("mongoose");
+const Usuario = require("../models/Usuario");
 
 let dashboardNs = null;
 
@@ -140,6 +137,20 @@ function initDeviceSocketHandlers(agentNs, dashNs) {
     socket.on("device-removed", data => {
       AgenteLog.create({ socketId, usuarioId, evento: "device-removed", mensaje: "Device removed" }).catch(console.error);
       dashboardNs.emit("device-removed", { socketId, uid: data.uid });
+    });
+
+    // ✅ Nuevo evento: wifi-confirmada
+    socket.on("wifi-confirmada", async ({ uid, ip }) => {
+      if (!uid || !ip) return;
+
+      console.log("📶 [WS] WiFi confirmada para", uid, ip);
+      await Dispositivo.findOneAndUpdate(
+        { uid, usuario: new Types.ObjectId(usuarioId) },
+        { $set: { ultimaConexion: new Date() } }
+      );
+
+      AgenteLog.create({ socketId, usuarioId, evento: "wifi-confirmada", mensaje: `WiFi OK: ${ip}` }).catch(console.error);
+      dashboardNs.emit("wifi-confirmada", { socketId, uid, ip });
     });
 
     socket.on("disconnect", async () => {

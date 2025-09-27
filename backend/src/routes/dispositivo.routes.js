@@ -10,13 +10,16 @@ const {
   marcarComoConfigurado,
   guardarSensoresDispositivo,
   obtenerDispositivoPorUid,
-} = require('../controllers/dispositivo.controller');
+} = controlador;
 
 // 🔐 Crear o actualizar un dispositivo (upsert)
 router.post('/', auth, crearDispositivo);
 
 // 🔐 Obtener todos los dispositivos configurados del usuario
 router.get('/', auth, obtenerDispositivos);
+
+// 🔐 RUTA ESPECÍFICA PRIMERO ✅
+router.get('/raw', auth, controlador.obtenerTodosLosDispositivos);
 
 // 🔐 Verificar conexión de un dispositivo específico
 router.get('/verificar/:uid', auth, verificarConexion);
@@ -28,8 +31,6 @@ router.patch('/:uid/configurado', auth, marcarComoConfigurado);
 router.patch('/:uid/sensores', auth, guardarSensoresDispositivo);
 
 // 🔐 Obtener un dispositivo por su UID
-router.get('/:uid', auth, obtenerDispositivoPorUid);
-
-router.get("/raw", auth, controlador.obtenerTodosLosDispositivos);
+router.get('/:uid', auth, obtenerDispositivoPorUid); // ⬅️ ESTA DEBE IR AL FINAL
 
 module.exports = router;

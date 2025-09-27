@@ -1,95 +1,143 @@
 // src/components/wizard/PasoVerificarConexion.jsx
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import api from '../../utils/axios';
+import { forwardRef, useImperativeHandle, useState, useContext } from 'react';
+import { WifiOff, Wifi, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
+import { WizardContext } from '../../context/WizardContext';
 
-export default function PasoVerificarConexion({ formData, onNext, onBack }) {
-  const [estado, setEstado] = useState('verificando'); // verificando | exito | error
+const AGENT_URL = import.meta.env.VITE_AGENT_URL || 'http://localhost:3001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://localhost:4443';
 
-  useEffect(() => {
-    const verificarConexion = async () => {
-      setEstado('verificando');
+export default forwardRef(function PasoVerificarConexion({ formData }, ref) {
+  const [status, setStatus] = useState('idle'); // idle | checking | success | fail
+  const [message, setMessage] = useState('');
+  const { modo } = useContext(WizardContext);
 
-      const uid = formData?.uid || formData?.dispositivo?.uid || formData?.dispositivo?.UID;
-
-      if (!uid) {
-        console.warn('⚠️ UID del dispositivo no disponible.');
-        setEstado('error');
-        return;
-      }
-
-      console.log('🔎 Verificando conexión con UID:', uid);
-
-      try {
-        const res = await api.get(`/dispositivos/verificar/${uid}`); // 👈 usando axios con baseURL
-
-        if (res.data?.conectado) {
-          setEstado('exito');
-        } else {
-          setEstado('error');
+  useImperativeHandle(ref, () => ({
+    ejecutarPaso: () =>
+      new Promise(async resolve => {
+        const uid = formData.uid || formData?.dispositivo?.uid;
+        if (!uid) {
+          toast.error('❌ UID inválido, retrocede y selecciona tu placa de nuevo.');
+          return resolve(false);
         }
-      } catch (err) {
-        console.error('❌ Error verificando conexión:', err);
-        setEstado('error');
-      }
-    };
 
-    verificarConexion();
-  }, [formData]);
+        const isManual = modo === 'manual';
+        const url = isManual
+          ? `${BACKEND_URL}/api/dispositivos/verificar/${uid}`
+          : `${AGENT_URL}/api/configuracion/verificar-conexion/${uid}`;
+
+        setStatus('checking');
+        setMessage('🔄 Comprobando conexión…');
+
+        try {
+          let attempts = 0;
+          let conectado = false;
+
+          while (attempts < 5 && !conectado) {
+            const res = await fetch(url);
+            const body = await res.json();
+
+            if (body.conectado) {
+              conectado = true;
+              break;
+            }
+
+            attempts++;
+            setMessage(`⏳ Intento ${attempts} de 5…`);
+            await new Promise(r => setTimeout(r, 2000));
+          }
+
+          if (conectado) {
+            setStatus('success');
+            setMessage('✅ ¡Tu placa está en la red!');
+            toast.success('✅ Conexión confirmada');
+            resolve(true);
+          } else {
+            setStatus('fail');
+            setMessage('❌ No encontramos tu placa en la red.');
+            toast.error('❌ Verificación fallida');
+            resolve(false);
+          }
+        } catch (err) {
+          console.error('[Front] Error durante fetch:', err);
+          setStatus('fail');
+          setMessage('❌ Error al verificar conexión.');
+          toast.error('❌ Error de red');
+          resolve(false);
+        }
+      }),
+  }));
+
+  const renderIcon = () => {
+    if (status === 'success') return <Wifi size={48} className="text-green-500" />;
+    if (status === 'fail') return <WifiOff size={48} className="text-red-500" />;
+    return <Wifi size={48} className="text-primary" />;
+  };
 
   return (
     <motion.div
-      key="paso-5"
+      key="paso-verificar-wifi"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4 }}
       className="space-y-6 text-center"
     >
-      <h2 className="text-xl font-bold text-gray-800 dark:text-darkText">
-        5. Verificando conexión
+      {renderIcon()}
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+        {status === 'idle'
+          ? 'Verifiquemos tu conexión'
+          : status === 'checking'
+          ? 'Comprobando…'
+          : status === 'success'
+          ? '¡Conexión exitosa!'
+          : 'Algo no fue bien'}
       </h2>
-      <p className="text-sm text-gray-600 dark:text-darkMuted">
-        Estamos intentando verificar si tu dispositivo está conectado a la red...
-      </p>
 
-      <div className="mt-6 flex justify-center">
-        {estado === 'verificando' && <Loader2 className="animate-spin w-12 h-12 text-blue-500" />}
-        {estado === 'exito' && (
-          <div className="text-center">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
-            <p className="text-green-600 font-medium">¡Conexión exitosa!</p>
-          </div>
-        )}
-        {estado === 'error' && (
-          <div className="text-center">
-            <XCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
-            <p className="text-red-600 font-medium">No se pudo verificar la conexión.</p>
-            <p className="text-sm text-gray-600 dark:text-darkMuted">
-              Asegúrate de que tu placa esté encendida, conectada al WiFi, y que el código fue
-              cargado correctamente.
-            </p>
-            <button
-              onClick={onBack}
-              className="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded transition"
-            >
-              Reintentar
-            </button>
-          </div>
-        )}
-      </div>
-
-      {estado === 'exito' && (
-        <div className="text-right">
-          <button
-            onClick={onNext}
-            className="bg-primary hover:bg-primaryHover text-white px-5 py-2 rounded transition"
-          >
-            Continuar
-          </button>
+      {status !== 'fail' ? (
+        <p className="text-gray-600 dark:text-gray-400">{message}</p>
+      ) : (
+        <div className="space-y-3 text-gray-700 dark:text-gray-300">
+          <p>{message}</p>
+          <p className="font-medium">¿Qué puedes revisar?</p>
+          <ul className="list-disc list-inside text-left ml-4">
+            <li>Asegúrate de que la placa esté encendida y flasheada.</li>
+            <li>Confirma que los datos Wi‑Fi fueron bien configurados.</li>
+            <li>
+              Verifica que tu red sea de <strong>2.4 GHz</strong>.
+            </li>
+            <li>Abre el Monitor Serial para ver errores si los hay.</li>
+          </ul>
         </div>
+      )}
+
+      {status !== 'success' && (
+        <button
+          disabled={status === 'checking'}
+          onClick={() => ref.current.ejecutarPaso()}
+          className={`
+            mt-4 inline-flex items-center gap-2 px-6 py-2 rounded-full text-white transition
+            ${
+              status === 'checking'
+                ? 'bg-gray-300 cursor-not-allowed'
+                : status === 'fail'
+                ? 'bg-red-500 hover:bg-red-600'
+                : 'bg-primary hover:bg-primaryHover'
+            }
+          `}
+        >
+          {status === 'checking' ? (
+            'Comprobando…'
+          ) : status === 'fail' ? (
+            <>
+              <RefreshCw size={16} /> Reintentar
+            </>
+          ) : (
+            'Verificar ahora'
+          )}
+        </button>
       )}
     </motion.div>
   );
-}
+});

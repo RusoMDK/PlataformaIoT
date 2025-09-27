@@ -10,6 +10,9 @@ import DeviceConfigLayout from '../layouts/DeviceConfigLayout';
 
 import ProtectedRoute from '../components/Wrappers/ProtectedRoute';
 
+// Context
+import { WizardProvider } from '../context/WizardContext';
+
 // Páginas públicas
 import Home from '../pages/dashboard/Home';
 import Ayuda from '../pages/ayuda/Ayuda';
@@ -42,10 +45,9 @@ import SeguridadTab from '../pages/user/tabs/SeguridadTab';
 import PrivacidadTab from '../pages/user/tabs/PrivacidadTab';
 
 // Wizard de nuevo dispositivo
-import NuevoDispositivo from '../components/wizard/Wizard';
+import Wizard from '../components/wizard/Wizard';
 
 /** Layouts envueltos en ProtectedRoute **/
-// 1. Toda la app principal
 function ProtectedAppLayout() {
   return (
     <ProtectedRoute>
@@ -54,7 +56,6 @@ function ProtectedAppLayout() {
   );
 }
 
-// 2. Sección de perfil
 function ProtectedPerfilLayout() {
   return (
     <ProtectedRoute>
@@ -63,18 +64,16 @@ function ProtectedPerfilLayout() {
   );
 }
 
-// 3. Wizard nuevo dispositivo
 function ProtectedWizardLayout() {
   return (
     <ProtectedRoute>
-      <WizardLayout>
-        <NuevoDispositivo />
-      </WizardLayout>
+      <WizardProvider>
+        <WizardLayout />
+      </WizardProvider>
     </ProtectedRoute>
   );
 }
 
-// 4. Configuración de dispositivo
 function ProtectedDeviceConfigLayout() {
   return (
     <ProtectedRoute>
@@ -103,7 +102,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  // ── 3. Rutas protegidas de la app ──
+  // ── 3. Rutas protegidas ──
   {
     element: <ProtectedAppLayout />,
     children: [
@@ -115,8 +114,6 @@ const router = createBrowserRouter([
       { path: '/proyectos/:id/visualizacion', element: <Visualizacion /> },
       { path: '/things/nuevo', element: <NuevoThing /> },
       { path: '/notificaciones', element: <Notificaciones /> },
-
-      // Admin
       { path: '/admin/dashboard', element: <DashboardAdmin /> },
       { path: '/admin/exportar', element: <ExportarDatos /> },
       { path: '/logs/globales', element: <LogsGlobales /> },
@@ -142,9 +139,10 @@ const router = createBrowserRouter([
   {
     path: '/nuevo-dispositivo',
     element: <ProtectedWizardLayout />,
+    children: [{ index: true, element: <Wizard /> }],
   },
 
-  // ── 6. Configurar dispositivo ──
+  // ── 6. Configurar dispositivo existente ──
   {
     path: '/configurar-dispositivo/:id',
     element: <ProtectedDeviceConfigLayout />,
