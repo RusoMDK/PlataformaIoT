@@ -69,3 +69,7 @@ frontend/certs/
 
 # Archivos de utilidad que no deben ir al repo
 backend/crearAdmin.js
+
+# Variantes de crearAdmin
+backend/crearAdmin.js
+**/crearAdmin.js
