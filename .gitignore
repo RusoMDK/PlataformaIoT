@@ -73,3 +73,9 @@ backend/crearAdmin.js
 # Variantes de crearAdmin
 backend/crearAdmin.js
 **/crearAdmin.js
+
+# env & certs
+backend/.env
+frontend/.env
+backend/certs/
+frontend/certs/
