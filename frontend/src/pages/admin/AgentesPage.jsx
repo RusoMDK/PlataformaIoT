@@ -21,6 +21,8 @@ export default function AgentesPage() {
   const [loadingDispositivos, setLoadingDispositivos] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
 
+  console.log('ara;ame')
+
   const token = localStorage.getItem('token');
   const cfg = useMemo(
     () => ({

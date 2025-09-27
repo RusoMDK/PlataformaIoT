@@ -79,3 +79,7 @@ backend/.env
 frontend/.env
 backend/certs/
 frontend/certs/
+
+# Cypress outputs
+frontend/cypress/videos/
+frontend/cypress/screenshots/
