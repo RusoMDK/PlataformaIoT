@@ -83,3 +83,5 @@ frontend/certs/
 # Cypress outputs
 frontend/cypress/videos/
 frontend/cypress/screenshots/
+
+frontend/.env

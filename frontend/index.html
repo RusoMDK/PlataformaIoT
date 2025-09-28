@@ -2,12 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <title>Plataforma IoT</title>
+
+    <!-- Aplica dark/light ANTES de que cargue React (evita FOUC) -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme') || 'system';
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = saved === 'dark' || (saved !== 'light' && prefersDark);
+          document.documentElement.classList.toggle('dark', isDark);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <!-- Tu bundle de React -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

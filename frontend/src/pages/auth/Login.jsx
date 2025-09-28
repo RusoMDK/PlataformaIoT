@@ -1,3 +1,4 @@
+// frontend/src/pages/auth/Login.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
@@ -9,6 +10,7 @@ import ModalOTP from '../../components/ui/ModalOTP';
 
 export default function Login() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({ email: '', password: '' });
   const [cargando, setCargando] = useState(false);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
@@ -17,9 +19,12 @@ export default function Login() {
   const [tempToken, setTempToken] = useState(null);
   const [usuario, setUsuario] = useState(null);
 
-  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const proveedores = ['Apple', 'GitHub', 'Google', 'Microsoft'];
 
-  const notificarTokenAlAgente = async token => {
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const notificarTokenAlAgente = async (token) => {
     try {
       const res = await fetch('http://localhost:3001/api/token', {
         method: 'POST',
@@ -45,7 +50,7 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
     try {
@@ -54,7 +59,7 @@ export default function Login() {
       const user = resp.usuario || resp;
       const token = resp.token;
 
-      if (user.is2FAEnabled) {
+      if (user?.is2FAEnabled) {
         if (!token) throw new Error('No se recibió token temporal del backend');
         localStorage.setItem('temp_token', token);
         setUsuario(user);
@@ -68,7 +73,9 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.msg || err.message || '❌ Error al iniciar sesión');
+      toast.error(
+        err?.response?.data?.msg || err?.message || '❌ Error al iniciar sesión'
+      );
     } finally {
       setCargando(false);
     }
@@ -88,7 +95,7 @@ export default function Login() {
       window.location.href = '/home';
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.msg || '❌ Código inválido, intenta de nuevo');
+      toast.error(error?.response?.data?.msg || '❌ Código inválido, intenta de nuevo');
     }
   };
 
@@ -96,32 +103,51 @@ export default function Login() {
     <>
       <form onSubmit={handleSubmit} className="space-y-6 w-full animate-fade-in-down">
         <div className="text-center space-y-1">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Bienvenido de nuevo</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Inicia sesión en tu cuenta</p>
+          <h2 className="text-2xl font-bold text-light-text dark:text-white">
+            Bienvenido de nuevo
+          </h2>
+          <p className="text-sm text-light-muted dark:text-dark-muted">
+            Inicia sesión en tu cuenta
+          </p>
         </div>
 
         <div className="space-y-4">
-          <input
-            name="email"
-            type="email"
-            placeholder="Correo electrónico"
-            value={form.email}
-            onChange={handleChange}
-            required
-            className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          <input
-            name="password"
-            type="password"
-            placeholder="Contraseña"
-            value={form.password}
-            onChange={handleChange}
-            required
-            className="block w-full px-3 py-2 rounded-md border bg-white dark:bg-darkBg dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
+          {/* Email */}
+          <div>
+            <label className="form-label">Correo electrónico</label>
+            <input
+              name="email"
+              type="email"
+              placeholder="tu@email.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              className="form-input-md"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="form-label">Contraseña</label>
+            <input
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={handleChange}
+              required
+              autoComplete="current-password"
+              className="form-input-md"
+            />
+          </div>
 
           <div className="flex justify-between text-sm">
-            <Link to="/recuperar" className="text-blue-600 dark:text-blue-400 hover:underline">
+            <span />
+            <Link
+              to="/recuperar"
+              className="text-primary hover:underline font-medium"
+            >
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
@@ -131,28 +157,32 @@ export default function Login() {
           </Button>
         </div>
 
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-center text-sm text-light-muted dark:text-dark-muted">
           ¿No tienes cuenta?{' '}
           <Link to="/register" className="text-primary hover:underline font-medium">
             Regístrate
           </Link>
         </div>
 
-        <div className="mt-6 border-t pt-6 space-y-3">
+        <div className="mt-6 border-t border-light-border dark:border-dark-border pt-6 space-y-3">
           <button
             type="button"
-            onClick={() => setMostrarOpciones(v => !v)}
-            className="flex items-center justify-center w-full gap-1 text-blue-600 hover:underline"
+            onClick={() => setMostrarOpciones((v) => !v)}
+            className="flex items-center justify-center w-full gap-1 text-primary hover:underline"
           >
             {mostrarOpciones ? 'Ocultar opciones' : 'Mostrar más opciones'}
             {mostrarOpciones ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
+
           {mostrarOpciones &&
-            ['Apple', 'GitHub', 'Google', 'Microsoft'].map(label => (
+            proveedores.map((label) => (
               <button
                 key={label}
                 type="button"
-                className="flex items-center justify-center w-full gap-2 px-4 py-2 border rounded text-sm dark:text-white hover:bg-gray-50 dark:hover:bg-darkMuted transition"
+                className="w-full flex items-center justify-center gap-2 border rounded px-4 py-2 text-sm
+                           bg-white dark:bg-dark-surface text-light-text dark:text-dark-text
+                           border-light-border dark:border-dark-border
+                           hover:bg-white/90 dark:hover:bg-dark-surface/90 transition"
               >
                 Iniciar con {label}
               </button>
