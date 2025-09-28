@@ -1,136 +1,141 @@
-/* src/styles/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   BASE layer: resets y estilos globales
+   BASE
 ───────────────────────────────────────────────────────────────────────────── */
 @layer base {
   html, body, #root {
     @apply min-h-screen w-full overflow-x-hidden scroll-smooth;
   }
+
   body {
     font-family: 'Inter', sans-serif;
     @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
   }
+
+  /* Estilo global de enlaces (OK), pero luego blindamos los anchors con clase .btn */
   a {
     @apply text-primary hover:text-primary-hover dark:text-primary-dark dark:hover:text-primary;
   }
+
   h1, h2, h3, h4 {
     @apply font-semibold text-light-text dark:text-white;
   }
-  /* Scrollbar personalizado */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  /* src/index.css */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
 
-  ::-webkit-scrollbar-thumb {
-    @apply bg-light-muted dark:bg-dark-muted rounded-full;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { @apply bg-light-muted dark:bg-dark-muted rounded-full; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+
+  /* Placeholders */
+  ::placeholder { color: theme('colors.light.muted'); opacity: .9; }
+  .dark ::placeholder { color: theme('colors.dark.muted'); opacity: .9; }
+
+  /* Autofill (Chrome) para evitar amarillo ilegible */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: inherit !important;
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+    transition: background-color 9999s ease-in-out 0s !important;
   }
 }
 
 /* Oculta scrollbars pero permite scroll interno */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* IE y Edge */
-  scrollbar-width: none;     /* Firefox */
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;             /* Safari, Chrome */
-}
-
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   COMPONENTS layer: clases de componentes reutilizables
+   COMPONENTS
+   (Consolidados: navbar, inputs, botones… sin duplicados)
 ───────────────────────────────────────────────────────────────────────────── */
 @layer components {
+  /* Navbar */
   .navbar {
-    @apply fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-dark-surface/80
-           border-b border-light-border dark:border-dark-border px-6 py-4 shadow-md transition-all;
-  }
-  /* Aquí puedes agregar más componentes globales si los tienes */
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   UTILITIES layer: utilidades y animaciones personalizadas
-───────────────────────────────────────────────────────────────────────────── */
-@layer utilities {
-  /* -------------------------------------------------------------------
-     1) Contenedor de Sonner Toaster posicionado debajo del navbar,
-        a la derecha (dejando espacio para el sidebar cerrado).
-     ------------------------------------------------------------------- */
-  section[aria-label^="Notifications"] {
-    @apply fixed z-[10000] flex flex-col gap-2 !important;
-    top: 4rem    !important; /* ajusta según altura real de tu navbar */
-    right: 1rem  !important; /* deja espacio para sidebar cerrado */
-    bottom: auto !important;
-    left:   auto !important;
-    pointer-events: none;    /* que no bloqueen clicks fuera de toasts */
+    @apply fixed top-0 left-0 w-full z-50 backdrop-blur-md
+           bg-white/80 dark:bg-dark-surface/80
+           border-b border-light-border dark:border-dark-border
+           px-6 py-4 shadow-md transition-all;
   }
 
-  /* -------------------------------------------------------------------
-     2) Animaciones de cada toast: entrar/salir desde/hacia la derecha
-     ------------------------------------------------------------------- */
-  [data-sonner-toast][data-state="open"] {
-    animation: slide-in-from-right 0.3s ease-out forwards !important;
+  /* Inputs / Labels coherentes */
+  .form-label {
+    @apply block text-sm font-medium mb-1 text-light-text/80 dark:text-dark-text/80;
   }
-  [data-sonner-toast][data-state="closed"] {
-    animation: slide-out-to-right 0.2s ease-in forwards !important;
+  .form-input {
+    @apply w-full rounded-lg border
+      bg-white text-light-text placeholder-light-muted
+      dark:bg-dark-surface dark:text-dark-text dark:placeholder-dark-muted
+      border-light-border dark:border-dark-border
+      shadow-sm outline-none transition
+      focus:ring-2 focus:ring-primary/40 focus:border-primary;
+  }
+  .form-input-sm { @apply form-input px-3 py-2; }
+  .form-input-md { @apply form-input px-4 py-2.5; }
+  .form-input-lg { @apply form-input px-4 py-3 text-base; }
+
+  /* Botones base */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5
+           text-sm font-medium transition-colors
+           focus:outline-none focus-visible:ring-2;
   }
 
-  /* -------------------------------------------------------------------
-     3) Resto de utilidades existentes
-     ------------------------------------------------------------------- */
-  .fade-in-down {
-    @apply animate-fade-in-down;
+  /* PRIMARIO sólido: siempre texto blanco en hover/active también */
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-hover active:bg-primary-hover/90 shadow-sm;
   }
 
-  .no-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  /* PRIMARIO contorno: en dark mejora el fondo al hover */
+  .btn-outline-primary {
+    @apply border border-primary text-primary
+           hover:bg-primary/10 dark:hover:bg-primary/20;
   }
 
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text;
+  /* Blindaje para anchors que son botones (evita que el "a { … }" global les cambie color) */
+  a.btn,
+  a.btn-primary,
+  a.btn-outline-primary {
+    @apply no-underline;
+  }
+  a.btn-primary { @apply text-white hover:text-white; }
+  a.btn-outline-primary { @apply text-primary hover:text-primary; }
+
+  /* Botón de icono (idioma, notificaciones) */
+  .icon-btn {
+    @apply text-gray-600 dark:text-gray-300 hover:text-primary transition;
   }
 
+  /* Tarjeta “glass” reutilizable */
   .glass {
     @apply backdrop-blur-md bg-white/30 dark:bg-dark-surface/30 border rounded-lg;
   }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   KEYFRAMES para las animaciones personalizadas
+   UTILITIES
 ───────────────────────────────────────────────────────────────────────────── */
-/* Fade in desde arriba (ya lo tenías) */
-@keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
+@layer utilities {
+  /* Sonner Toaster */
+  section[aria-label^="Notifications"] {
+    @apply fixed z-[10000] flex flex-col gap-2 !important;
+    top: 4rem !important; right: 1rem !important; bottom: auto !important; left: auto !important;
+    pointer-events: none !important;
+  }
+
+  .fade-in-down { @apply animate-fade-in-down; }
+
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  .text-gradient { @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text; }
 }
 
-/* Deslizar desde la derecha */
-@keyframes slide-in-from-right {
-  0%   { transform: translateX(100%); opacity: 0; }
-  100% { transform: translateX(0);   opacity: 1; }
-}
-
-/* Deslizar hacia la derecha */
-@keyframes slide-out-to-right {
-  0%   { transform: translateX(0);   opacity: 1; }
-  100% { transform: translateX(100%); opacity: 0; }
-}
+/* ─────────────────────────────────────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────────────────────────────────────── */
+@keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slide-in-from-right { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+@keyframes slide-out-to-right { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
