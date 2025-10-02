@@ -1,13 +1,13 @@
 // DeviceConfigLayout.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
-import PlacaESP32Interactiva from '../components/things/PlacaESP32Interactiva';
-import SensorListEditor from '../components/things/SensorListEditor';
-import SensorCatalogPanel from '../components/things/SensorCatalogPanel';
-import SensorConfigPanel from '../components/things/SensorConfigPanel';
-import ThingSummary from '../components/things/ThingSummary';
+import Navbar from '../widgets/shell/Navbar';
+import Footer from '../widgets/shell/Footer';
+import PlacaESP32Interactiva from '../features/device-setup/components/PlacaESP32Interactiva';
+import SensorListEditor from '../features/device-setup/components/SensorListEditor';
+import SensorCatalogPanel from '../features/device-setup/components/SensorCatalogPanel';
+import SensorConfigPanel from '../features/device-setup/components/SensorConfigPanel';
+import ThingSummary from '../features/device-setup/components/ThingSummary';
 import { useDispositivo } from '../hooks/useDispositivo';
 import axiosInstance from '../api/axiosInstance';
 

@@ -8,7 +8,7 @@ import PerfilLayout from '../layouts/PerfilLayout';
 import WizardLayout from '../layouts/WizardLayout';
 import DeviceConfigLayout from '../layouts/DeviceConfigLayout';
 
-import ProtectedRoute from '../components/Wrappers/ProtectedRoute';
+import ProtectedRoute from '../app/guards/ProtectedRoute';
 
 // Context
 import { WizardProvider } from '../context/WizardContext';
@@ -23,12 +23,9 @@ import Register from '../pages/auth/Register';
 
 // App protegida
 import Logs from '../pages/dashboard/Logs';
-import Proyectos from '../pages/proyectos/Proyectos';
 import ProyectoDetalle from '../pages/proyectos/DetalleThing';
-import EditarThing from '../pages/proyectos/EditarThing';
 import Lecturas from '../pages/proyectos/Lecturas';
 import Visualizacion from '../pages/proyectos/VisualizacionAvanzada';
-import NuevoThing from '../pages/proyectos/NuevoThing';
 import Notificaciones from '../pages/notificaciones/Notificaciones';
 
 // Admin
@@ -45,7 +42,12 @@ import SeguridadTab from '../pages/user/tabs/SeguridadTab';
 import PrivacidadTab from '../pages/user/tabs/PrivacidadTab';
 
 // Wizard de nuevo dispositivo
-import Wizard from '../components/wizard/Wizard';
+import Wizard from '../features/device-setup/wizard/Wizard';
+
+// Proyectos (shell + modales)
+import ProyectosShell from '../pages/proyectos/ProyectosShell';
+import NuevoThingModal from '../pages/proyectos/NuevoThingModal';
+import EditarThingModal from '../pages/proyectos/EditarThingModal';
 
 /** Layouts envueltos en ProtectedRoute **/
 function ProtectedAppLayout() {
@@ -107,12 +109,27 @@ const router = createBrowserRouter([
     element: <ProtectedAppLayout />,
     children: [
       { path: '/logs', element: <Logs /> },
-      { path: '/proyectos', element: <Proyectos /> },
+
+      // 🔸 Proyectos: listado SIEMPRE visible + modales anidados sobre el listado
+      {
+        path: '/proyectos',
+        element: <ProyectosShell />, // Renderiza la lista + <Outlet/> para los modales
+        children: [
+          // Modal crear
+          { path: 'nuevo', element: <NuevoThingModal /> },
+          // Modal editar
+          { path: ':id/editar-thing', element: <EditarThingModal /> },
+        ],
+      },
+
+      // Páginas de detalle “normales” (pantalla completa)
       { path: '/proyectos/:id', element: <ProyectoDetalle /> },
-      { path: '/proyectos/:id/editar-thing', element: <EditarThing /> },
       { path: '/proyectos/:id/lecturas', element: <Lecturas /> },
       { path: '/proyectos/:id/visualizacion', element: <Visualizacion /> },
-      { path: '/things/nuevo', element: <NuevoThing /> },
+
+      // ♻️ Retrocompatibilidad: /things/nuevo -> /proyectos/nuevo
+      { path: '/things/nuevo', element: <Navigate to="/proyectos/nuevo" replace /> },
+
       { path: '/notificaciones', element: <Notificaciones /> },
       { path: '/admin/dashboard', element: <DashboardAdmin /> },
       { path: '/admin/exportar', element: <ExportarDatos /> },

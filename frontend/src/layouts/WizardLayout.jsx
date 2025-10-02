@@ -1,7 +1,7 @@
 // src/layouts/WizardLayout.jsx
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
+import Navbar from '../widgets/shell/Navbar';
+import Footer from '../widgets/shell/Footer';
 import Stepper from '../components/ui/Stepper';
 
 export default function WizardLayout() {

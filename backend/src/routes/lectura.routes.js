@@ -1,7 +1,13 @@
+// src/routes/lectura.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const { crearLectura, obtenerLecturasPorSensor, obtenerLecturasOptimizado } = require('../controllers/lectura.controller');
+
+const requireAuth = require('../middlewares/requireAuth'); // ✅ unificado
+const {
+  crearLectura,
+  obtenerLecturasPorSensor,
+  obtenerLecturasOptimizado
+} = require('../controllers/lectura.controller');
 
 /**
  * @swagger
@@ -29,7 +35,8 @@ const { crearLectura, obtenerLecturasPorSensor, obtenerLecturasOptimizado } = re
  *         description: Lectura creada
  */
 // Crear lectura
-router.post('/', auth, crearLectura);
+router.post('/', requireAuth, crearLectura);
+
 /**
  * @swagger
  * /lecturas:
@@ -49,8 +56,9 @@ router.post('/', auth, crearLectura);
  *         description: Lista de lecturas
  */
 // Obtener lecturas por sensor
-router.get('/', auth, obtenerLecturasPorSensor);
+router.get('/', requireAuth, obtenerLecturasPorSensor);
 
-router.get('/optimizado', auth, obtenerLecturasOptimizado);
+// Optimizado (downsample/paginación/lo que exponga tu controlador)
+router.get('/optimizado', requireAuth, obtenerLecturasOptimizado);
 
 module.exports = router;

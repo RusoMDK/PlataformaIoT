@@ -1,7 +1,10 @@
+// routes/alerta.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
+
+const requireAuth = require('../middlewares/requireAuth');  // ✅ unificado
 const { crearAlerta, obtenerAlertas, eliminarAlerta } = require('../controllers/alerta.controller');
+
 /**
  * @swagger
  * /alertas:
@@ -33,8 +36,8 @@ const { crearAlerta, obtenerAlertas, eliminarAlerta } = require('../controllers/
  *       201:
  *         description: Alerta creada
  */
-router.post('/', auth, crearAlerta);
-router.get('/', auth, obtenerAlertas);
-router.delete('/:id', auth, eliminarAlerta);
+router.post('/',    requireAuth, crearAlerta);
+router.get('/',     requireAuth, obtenerAlertas);
+router.delete('/:id', requireAuth, eliminarAlerta);
 
 module.exports = router;

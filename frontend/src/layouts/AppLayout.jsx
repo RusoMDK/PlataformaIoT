@@ -1,12 +1,10 @@
-// src/layouts/AppLayout.jsx
 import { useState, useEffect } from 'react';
 import { useLocation, Outlet, useNavigate } from 'react-router-dom';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
-import Sidebar from '../components/shared/Sidebar';
-import SidebarDispositivos from '../components/shared/DispositivosSidebar';
-import { logout } from '../api/auth.api';
-import { fetchUserProfile } from '../api/auth.api';
+import Navbar from '../widgets/shell/Navbar';
+import Footer from '../widgets/shell/Footer';
+import Sidebar from '../widgets/shell/Sidebar';
+import SidebarDispositivos from '../widgets/shell/DispositivosSidebar';
+import { logout, fetchUserProfile } from '../api/auth.api';
 
 export default function AppLayout() {
   const location = useLocation();
@@ -15,26 +13,19 @@ export default function AppLayout() {
   const [hoverSidebarRight, setHoverSidebarRight] = useState(false);
   const [dispositivos, setDispositivos] = useState([]);
 
-  // estado de autenticación: undefined = cargando, null = no auth, object = usuario
+  // undefined = cargando, null = no auth, object = usuario
   const [usuario, setUsuario] = useState(undefined);
 
-  // rutas públicas donde ocultamos TODO (navbar sigue igual)
   const rutasSinLayout = ['/login', '/register'];
   const mostrarLayout = !rutasSinLayout.includes(location.pathname);
 
-  // al iniciar, validamos user
   useEffect(() => {
     (async () => {
-      try {
-        const user = await fetchUserProfile();
-        setUsuario(user);
-      } catch {
-        setUsuario(null);
-      }
+      try { setUsuario(await fetchUserProfile()); }
+      catch { setUsuario(null); }
     })();
   }, []);
 
-  // hover sidebar
   useEffect(() => {
     const sidebarEl = document.getElementById('sidebar-hover');
     if (!sidebarEl) return;
@@ -49,31 +40,33 @@ export default function AppLayout() {
   }, [usuario]);
 
   const handleLogout = async () => {
-    try {
-      await logout(); // borra la cookie
-    } catch (err) {
-      console.error('Error en logout:', err);
-    }
+    try { await logout(); } catch (err) { console.error('Error en logout:', err); }
     setUsuario(null);
     navigate('/login', { replace: true });
   };
 
   return (
-    <div className="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text min-h-screen transition-colors duration-300">
+    // el body no scrollea; scrollea #app-content
+    <div className="relative h-screen overflow-hidden bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-300">
+      {/* Fondo global cubriendo toda la pantalla (también detrás de sidebars) */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-primary/20 blur-xl md:blur-2xl opacity-70 dark:opacity-40" />
+        <div className="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/20 blur-xl md:blur-2xl opacity-70 dark:opacity-40" />
+        <div className="absolute inset-0 [background:radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:20px_20px] dark:opacity-20 opacity-30" />
+      </div>
+
       {mostrarLayout && (
         <>
-          {/* Navbar siempre */}
+          {/* Navbar */}
           <div className="fixed top-0 left-0 right-0 z-40 shadow-sm glass">
             <Navbar onOpenDispositivos={() => setHoverSidebarRight(true)} />
           </div>
 
-          {/* Sidebar izquierdo SOLO si auth y ya cargado */}
+          {/* Sidebar izquierdo (overlay) */}
           {usuario && (
             <div
               id="sidebar-hover"
-              className={`fixed top-[80px] bottom-[60px] left-0 z-40 transition-all duration-300 ease-in-out ${
-                hoverSidebar ? 'w-64' : 'w-16'
-              }`}
+              className={`fixed top-[80px] bottom-[60px] left-0 z-40 transition-all duration-300 ease-in-out ${hoverSidebar ? 'w-64' : 'w-16'}`}
             >
               <Sidebar onLogout={handleLogout} />
             </div>
@@ -84,7 +77,7 @@ export default function AppLayout() {
             <Footer />
           </div>
 
-          {/* Sidebar dispositivos SOLO si auth */}
+          {/* Sidebar derecho (overlay) */}
           {usuario && (
             <SidebarDispositivos
               hover={hoverSidebarRight}
@@ -96,15 +89,17 @@ export default function AppLayout() {
         </>
       )}
 
-      {/* Contenido: ajustar margenes sólo si auth */}
+      {/* Contenido (padding lateral dinámico cuando los sidebars se expanden) */}
       <div
+        id="app-content"
         className={`
-          transition-[margin] duration-300 ease-in-out min-h-screen pt-[80px] pb-[60px] px-4
-          ${mostrarLayout && usuario ? (hoverSidebar ? 'ml-64' : 'ml-16') : ''}
-          ${mostrarLayout && usuario ? (hoverSidebarRight ? 'mr-64' : 'mr-16') : ''}
+          h-full overflow-y-auto no-scrollbar overscroll-y-contain scroll-smooth
+          transition-[padding] duration-300 ease-in-out pt-[80px] pb-[60px] will-change-transform
+          ${mostrarLayout && usuario ? (hoverSidebar ? 'pl-[calc(1rem+16rem)]' : 'pl-4') : 'pl-4'}
+          ${mostrarLayout && usuario ? (hoverSidebarRight ? 'pr-[calc(1rem+16rem)]' : 'pr-4') : 'pr-4'}
         `}
       >
-        <main className="transition-all duration-300 ease-in-out">
+        <main className="transition-all duration-300 ease-in-out cv-auto">
           <Outlet />
         </main>
       </div>

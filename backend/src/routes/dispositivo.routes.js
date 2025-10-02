@@ -1,7 +1,10 @@
+// src/routes/dispositivo.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const controlador = require("../controllers/dispositivo.controller");
+
+const requireAuth = require('../middlewares/requireAuth');   // ✅ unificado
+const { requireDevice } = require('../middlewares/requireDevice');
+const controlador = require('../controllers/dispositivo.controller');
 
 const {
   crearDispositivo,
@@ -10,27 +13,28 @@ const {
   marcarComoConfigurado,
   guardarSensoresDispositivo,
   obtenerDispositivoPorUid,
+  obtenerTodosLosDispositivos,
 } = controlador;
 
 // 🔐 Crear o actualizar un dispositivo (upsert)
-router.post('/', auth, crearDispositivo);
+router.post('/', requireAuth, crearDispositivo);
 
-// 🔐 Obtener todos los dispositivos configurados del usuario
-router.get('/', auth, obtenerDispositivos);
+// 🔐 Obtener todos los dispositivos del usuario autenticado
+router.get('/', requireAuth, obtenerDispositivos);
 
-// 🔐 RUTA ESPECÍFICA PRIMERO ✅
-router.get('/raw', auth, controlador.obtenerTodosLosDispositivos);
+// 🔐 Ruta “raw” (si debe ser admin, añade rol aquí; por ahora autenticado basta)
+router.get('/raw', requireAuth, obtenerTodosLosDispositivos);
 
-// 🔐 Verificar conexión de un dispositivo específico
-router.get('/verificar/:uid', auth, verificarConexion);
+// 🔐 Verificar conexión de un dispositivo específico (ownership)
+router.get('/verificar/:uid', requireAuth, requireDevice, verificarConexion);
 
-// 🔐 Marcar un dispositivo como configurado
-router.patch('/:uid/configurado', auth, marcarComoConfigurado);
+// 🔐 Marcar un dispositivo como configurado (ownership)
+router.patch('/:uid/configurado', requireAuth, requireDevice, marcarComoConfigurado);
 
-// 🔐 Guardar sensores asociados a un dispositivo
-router.patch('/:uid/sensores', auth, guardarSensoresDispositivo);
+// 🔐 Guardar sensores asociados a un dispositivo (ownership)
+router.patch('/:uid/sensores', requireAuth, requireDevice, guardarSensoresDispositivo);
 
-// 🔐 Obtener un dispositivo por su UID
-router.get('/:uid', auth, obtenerDispositivoPorUid); // ⬅️ ESTA DEBE IR AL FINAL
+// 🔐 Obtener un dispositivo por su UID (ownership) — esta debe ir al final
+router.get('/:uid', requireAuth, requireDevice, obtenerDispositivoPorUid);
 
 module.exports = router;

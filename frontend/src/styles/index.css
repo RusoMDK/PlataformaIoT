@@ -15,7 +15,7 @@
     @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
   }
 
-  /* Estilo global de enlaces (OK), pero luego blindamos los anchors con clase .btn */
+  /* Enlaces (anchors) — los botones tipo <a class="btn ..."> se blindan abajo */
   a {
     @apply text-primary hover:text-primary-hover dark:text-primary-dark dark:hover:text-primary;
   }
@@ -43,13 +43,9 @@
   }
 }
 
-/* Oculta scrollbars pero permite scroll interno */
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-
 /* ─────────────────────────────────────────────────────────────────────────────
    COMPONENTS
-   (Consolidados: navbar, inputs, botones… sin duplicados)
+   (Navbar, Inputs/Labels, Select/Date pro, Botones, Tarjetas)
 ───────────────────────────────────────────────────────────────────────────── */
 @layer components {
   /* Navbar */
@@ -60,10 +56,12 @@
            px-6 py-4 shadow-md transition-all;
   }
 
-  /* Inputs / Labels coherentes */
+  /* Labels coherentes */
   .form-label {
     @apply block text-sm font-medium mb-1 text-light-text/80 dark:text-dark-text/80;
   }
+
+  /* Input base unificado */
   .form-input {
     @apply w-full rounded-lg border
       bg-white text-light-text placeholder-light-muted
@@ -76,6 +74,20 @@
   .form-input-md { @apply form-input px-4 py-2.5; }
   .form-input-lg { @apply form-input px-4 py-3 text-base; }
 
+  /* Alias para compatibilidad (viejos class="input") */
+  .input { @apply form-input-md; }
+
+  /* Select “pro” (el chevron se añade con un <svg> absoluto en el wrapper) */
+  .select-pro {
+    @apply form-input-md pr-10 appearance-none bg-no-repeat bg-right;
+    background-image: none;
+  }
+
+  /* Date “pro” */
+  .date-pro {
+    @apply form-input-md;
+  }
+
   /* Botones base */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5
@@ -83,32 +95,28 @@
            focus:outline-none focus-visible:ring-2;
   }
 
-  /* PRIMARIO sólido: siempre texto blanco en hover/active también */
+  /* Primario sólido */
   .btn-primary {
     @apply bg-primary text-white hover:bg-primary-hover active:bg-primary-hover/90 shadow-sm;
   }
 
-  /* PRIMARIO contorno: en dark mejora el fondo al hover */
+  /* Primario contorno */
   .btn-outline-primary {
     @apply border border-primary text-primary
            hover:bg-primary/10 dark:hover:bg-primary/20;
   }
 
-  /* Blindaje para anchors que son botones (evita que el "a { … }" global les cambie color) */
-  a.btn,
-  a.btn-primary,
-  a.btn-outline-primary {
-    @apply no-underline;
-  }
+  /* Blindaje para anchors que son botones */
+  a.btn, a.btn-primary, a.btn-outline-primary { @apply no-underline; }
   a.btn-primary { @apply text-white hover:text-white; }
   a.btn-outline-primary { @apply text-primary hover:text-primary; }
 
-  /* Botón de icono (idioma, notificaciones) */
+  /* Botón icono */
   .icon-btn {
     @apply text-gray-600 dark:text-gray-300 hover:text-primary transition;
   }
 
-  /* Tarjeta “glass” reutilizable */
+  /* Tarjeta glass reutilizable */
   .glass {
     @apply backdrop-blur-md bg-white/30 dark:bg-dark-surface/30 border rounded-lg;
   }
@@ -127,15 +135,58 @@
 
   .fade-in-down { @apply animate-fade-in-down; }
 
-  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
+  /* Ocultar scrollbar donde lo apliques */
+  .no-scrollbar {
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE/Edge */
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; } /* WebKit */
+
+  /* Scroll helper adicional: evita ‘bouncing’ y scroll chaining */
+  .overscroll-contain { overscroll-behavior: contain; }
+  .overscroll-y-contain { overscroll-behavior-y: contain; }
+
+  /* Aceleración GPU para animaciones (úsalo en wrappers que animan) */
+  .gpu { will-change: transform, opacity; transform: translateZ(0); }
+
+  /* Render diferido de secciones fuera de viewport */
+  @supports (content-visibility: auto) {
+    .cv-auto { content-visibility: auto; contain-intrinsic-size: 800px 600px; }
+  }
 
   .text-gradient { @apply bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text; }
+
+  /* (opcional) estabilidad de layout si alterna la presencia de scroll */
+  .scrollbar-stable { scrollbar-gutter: stable both-edges; }
+
+  .perspective-1000 { perspective: 1000px; transform-style: preserve-3d; }
+  .backface-hidden { backface-visibility: hidden; }
+
+   /* Aplica a cualquier icono flecha al que le pongas class="chev" */
+  .chev {
+    transition: transform .2s ease-out;
+    will-change: transform;
+    transform-origin: 50% 50%;
+    display: inline-block; /* por si algún svg viene como inline sin inline-block */
+  }
+
+  /* Giro al abrir (Headless UI / Radix / aria-expanded) */
+  [data-headlessui-state~="open"] .chev,
+  [data-state="open"] .chev,
+  [aria-expanded="true"] .chev {
+    transform: rotate(180deg);
+  }
+
+  /* (Opcional) si quieres que gire SOLO mientras se presiona el botón contenedor */
+  .rotate-on-press:active .chev {
+    transform: rotate(180deg);
+  }
 }
+
 
 /* ─────────────────────────────────────────────────────────────────────────────
    KEYFRAMES
 ───────────────────────────────────────────────────────────────────────────── */
 @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slide-in-from-right { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
-@keyframes slide-out-to-right { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
+@keyframes slide-out-to-right  { 0% { transform: translateX(0);   opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }

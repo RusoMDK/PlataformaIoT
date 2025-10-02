@@ -2,8 +2,8 @@
 import { Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getProfile, updateCuenta } from '../api/apiUsuarios';
-import Navbar from '../components/shared/Navbar';
-import Footer from '../components/shared/Footer';
+import Navbar from '../widgets/shell/Navbar';
+import Footer from '../widgets/shell/Footer';
 import PerfilTabs from '../pages/user/tabs/PerfilTabs';
 
 export default function PerfilLayout() {

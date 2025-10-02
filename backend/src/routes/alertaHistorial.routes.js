@@ -1,7 +1,16 @@
+// routes/alertaHistorial.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const { obtenerHistorial, obtenerHistorialFiltrado, marcarComoVista, marcarComoResuelta, obtenerHistorialPorProyecto } = require('../controllers/alertaHistorial.controller');
+
+const requireAuth = require('../middlewares/requireAuth');  // ✅ unificado
+const {
+  obtenerHistorial,
+  obtenerHistorialFiltrado,
+  marcarComoVista,
+  marcarComoResuelta,
+  obtenerHistorialPorProyecto
+} = require('../controllers/alertaHistorial.controller');
+
 /**
  * @swagger
  * /alertas/historial:
@@ -14,7 +23,8 @@ const { obtenerHistorial, obtenerHistorialFiltrado, marcarComoVista, marcarComoR
  *       200:
  *         description: Lista de alertas activadas
  */
-router.get('/', auth, obtenerHistorial);
+router.get('/', requireAuth, obtenerHistorial);
+
 /**
  * @swagger
  * /alertas/historial/filtro:
@@ -36,7 +46,8 @@ router.get('/', auth, obtenerHistorial);
  *       200:
  *         description: Lista de alertas filtradas
  */
-router.get('/filtro', auth, obtenerHistorialFiltrado);
+router.get('/filtro', requireAuth, obtenerHistorialFiltrado);
+
 /**
  * @swagger
  * /alertas/historial/{id}/vista:
@@ -55,7 +66,8 @@ router.get('/filtro', auth, obtenerHistorialFiltrado);
  *       200:
  *         description: Alerta marcada como vista
  */
-router.patch('/:id/vista', auth, marcarComoVista);
+router.patch('/:id/vista', requireAuth, marcarComoVista);
+
 /**
  * @swagger
  * /alertas/historial/{id}/resuelta:
@@ -74,8 +86,8 @@ router.patch('/:id/vista', auth, marcarComoVista);
  *       200:
  *         description: Alerta marcada como resuelta
  */
-router.patch('/:id/resuelta', auth, marcarComoResuelta);
+router.patch('/:id/resuelta', requireAuth, marcarComoResuelta);
 
-router.get('/proyecto', auth, obtenerHistorialPorProyecto);
+router.get('/proyecto', requireAuth, obtenerHistorialPorProyecto);
 
 module.exports = router;

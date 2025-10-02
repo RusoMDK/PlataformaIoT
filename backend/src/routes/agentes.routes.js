@@ -1,8 +1,9 @@
 // backend/routes/agentes.routes.js
 const express = require('express');
 const router  = express.Router();
-const auth    = require('../middlewares/auth.middleware');
-const rol     = require('../middlewares/rol.middleware');
+
+const requireAuth = require('../middlewares/requireAuth');   // ✅ unificado
+const rol         = require('../middlewares/rol.middleware');
 
 const {
   listarAgentes,
@@ -11,9 +12,9 @@ const {
   listarHistorialAgentes
 } = require('../controllers/agentes.controller');
 
-router.get(   '/',               auth, rol('admin'), listarAgentes       );
-router.get(   '/exportar',       auth, rol('admin'), exportarAgentesExcel);
-router.get(   '/agentes-activos',auth, rol('admin'), obtenerAgentesActivos);
-router.get(   '/historial',      auth, rol('admin'), listarHistorialAgentes);
+router.get('/',                requireAuth, rol('admin'), listarAgentes);
+router.get('/exportar',        requireAuth, rol('admin'), exportarAgentesExcel);
+router.get('/agentes-activos', requireAuth, rol('admin'), obtenerAgentesActivos);
+router.get('/historial',       requireAuth, rol('admin'), listarHistorialAgentes);
 
 module.exports = router;

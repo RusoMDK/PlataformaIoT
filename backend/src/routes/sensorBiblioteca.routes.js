@@ -1,3 +1,4 @@
+// src/routes/sensorBiblioteca.routes.js
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -8,13 +9,7 @@ router.get('/', (req, res) => {
   try {
     const filePath = path.join(__dirname, '../data/biblioteca_sensores.json');
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-    // 🔁 Convertimos de objeto { id: sensor } a array de sensores con campo `id`
-    const sensores = Object.entries(data).map(([id, sensor]) => ({
-      id,
-      ...sensor
-    }));
-
+    const sensores = Object.entries(data).map(([id, sensor]) => ({ id, ...sensor }));
     res.json(sensores);
   } catch (err) {
     console.error('❌ Error leyendo biblioteca de sensores:', err);

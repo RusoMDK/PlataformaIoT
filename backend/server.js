@@ -1,10 +1,8 @@
 // backend/server.js
-
 require('dotenv').config();
 
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
 const https = require('https');
 const express = require('express');
 const cors = require('cors');
@@ -15,9 +13,14 @@ const mongoose = require('./src/config/db');
 
 // Realtime / IoT
 const { Server } = require('socket.io');
-const { initMQTTListener } = require('./src/mqtt/mqttClient');
+const { initMQTTListener, getClient } = require('./src/mqtt/mqttClient');
+const { setIO } = require('./src/realtime/io');
+const { initDashboardSocketHandlers, roomForUser } = require('./src/socketHandlers/dashboardEvents');
 
-// Workers
+// ⬇️ NUEVO: bus de logs (event emitter)
+const { onLog, onLogMany } = require('./src/realtime/logs');
+
+// Workers (se ejecutan DESPUÉS de initMQTTListener)
 const { startIngestor } = require('./src/workers/ingestor');
 
 // Rutas y middlewares
@@ -47,11 +50,48 @@ const io = new Server(server, {
 
 // Namespaces para aislar tráfico
 const agentNs = io.of('/agent');       // conexión con agentes/dispositivos
-const dashNs = io.of('/dashboard');    // eventos en panel/dashboard
+const dashNs  = io.of('/dashboard');   // eventos en panel/dashboard
 
-// Handlers de sockets por dispositivo
-const { initDeviceSocketHandlers } = require('./src/socketHandlers/deviceEvents');
-initDeviceSocketHandlers(agentNs, dashNs);
+// Handlers de sockets por dispositivo (si existen)
+try {
+  const { initDeviceSocketHandlers } = require('./src/socketHandlers/deviceEvents');
+  initDeviceSocketHandlers(agentNs, dashNs);
+} catch {
+  console.warn('[WARN] Falta ./src/socketHandlers/deviceEvents (lo añadimos luego).');
+}
+
+// Registra el io y namespaces para uso global (notify.js, etc.)
+setIO(io, { dashNs, agentNs });
+
+// Inicializa auth/salas del dashboard (user:<id>)
+initDashboardSocketHandlers(dashNs);
+
+// ------------------------------
+// 3.b) 🔔 LOGS en tiempo real → reenviar a sala del usuario
+// ------------------------------
+(function wireRealtimeLogs() {
+  const safe = (log) => (log && typeof log.toObject === 'function' ? log.toObject() : log);
+
+  // un solo log
+  onLog(({ userId, log }) => {
+    if (!userId || !log) return;
+    try {
+      dashNs.to(roomForUser(userId)).emit('logs:new', safe(log));
+    } catch (e) {
+      console.warn('logs:new emit error:', e?.message);
+    }
+  });
+
+  // varios logs a la vez
+  onLogMany(({ userId, logs }) => {
+    if (!userId || !Array.isArray(logs) || !logs.length) return;
+    try {
+      dashNs.to(roomForUser(userId)).emit('logs:many', logs.map(safe));
+    } catch (e) {
+      console.warn('logs:many emit error:', e?.message);
+    }
+  });
+})();
 
 // ------------------------------
 // 4) Middlewares base
@@ -59,13 +99,11 @@ initDeviceSocketHandlers(agentNs, dashNs);
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'https://localhost:5173',
-    process.env.AGENT_URL || 'https://localhost:3001',
+    process.env.AGENT_URL    || 'https://localhost:3001',
     'file://',
   ],
   credentials: true,
 }));
-
-// Cuerpo JSON y cookies
 app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser());
 
@@ -84,11 +122,10 @@ app.use('/api/csrf',     require('./src/routes/csrf.routes'));
 app.use('/api/auth',     require('./src/routes/loginSinCsrf.route')); // login inicial sin CSRF
 app.use('/api/sketch',   require('./src/routes/sketchManual.route')); // descarga/generación de sketch
 
-// Provisionamiento seguro de dispositivos (claim/register/heartbeat)
-// Si aún no creaste la ruta, crea ./src/routes/provision.routes.js
+// Provisionamiento (si existe)
 try {
   app.use('/api/provision', require('./src/routes/provision.routes'));
-} catch (e) {
+} catch {
   console.warn('[WARN] Falta ./src/routes/provision.routes.js (lo añadimos luego).');
 }
 
@@ -111,13 +148,31 @@ app.use('/api/sensores-biblioteca', csrfProtection, require('./src/routes/sensor
 app.use('/api/agentes',             csrfProtection, require('./src/routes/agentes.routes'));
 app.use('/api/usuarios',            csrfProtection, require('./src/routes/usuarios.routes'));
 
+// REST → MQTT (desired / commands)
+try {
+  app.use('/api', csrfProtection, require('./src/routes/deviceDesired.routes'));
+  app.use('/api', csrfProtection, require('./src/routes/deviceCommands.routes'));
+} catch {
+  console.warn('[WARN] Faltan deviceDesired.routes o deviceCommands.routes (los añadimos luego).');
+}
+
+// (Opcional) Healthcheck simple
+app.get('/health', (_req, res) => {
+  res.json({
+    ok: true,
+    mqtt: !!getClient(),
+    mongo: mongoose.connection.readyState === 1 ? 'connected' : 'not-connected',
+    time: new Date().toISOString()
+  });
+});
+
 // ------------------------------
 // 6) Swagger (si ya tienes swagger.js)
 // ------------------------------
 try {
   const { swaggerUi, swaggerDocs } = require('./swagger');
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-} catch (e) {
+} catch {
   console.warn('[WARN] Swagger no inicializado (./swagger.js no encontrado).');
 }
 
@@ -129,7 +184,7 @@ const PORT = Number(process.env.PORT || 4443);
 mongoose.connection.once('open', () => {
   console.log('✅ MongoDB conectado.');
 
-  // Listener MQTT (suscribe a topics y procesa eventos básicos)
+  // 7.1) Inicializa MQTT **ANTES** del ingestor (pasando namespaces)
   try {
     initMQTTListener({ io, agentNs, dashNs });
     console.log('✅ MQTT listener inicializado.');
@@ -137,7 +192,7 @@ mongoose.connection.once('open', () => {
     console.error('❌ Error iniciando MQTT listener:', e.message);
   }
 
-  // Worker de ingesta (si existe)
+  // 7.2) Arranca el ingestor (el client ya existe)
   try {
     if (typeof startIngestor === 'function') {
       startIngestor({ io, agentNs, dashNs });
@@ -147,7 +202,7 @@ mongoose.connection.once('open', () => {
     console.error('❌ Error iniciando ingestor:', e.message);
   }
 
-  // Levantar HTTPS
+  // 7.3) Levantar HTTPS
   const ip = process.env.HOST || 'localhost';
   server.listen(PORT, () => {
     console.log(`🚀 Servidor HTTPS en https://${ip}:${PORT}`);
@@ -156,8 +211,24 @@ mongoose.connection.once('open', () => {
 });
 
 // ------------------------------
-// 8) Señales & errores
+// 8) Señales & errores (graceful shutdown)
 // ------------------------------
+function shutdown() {
+  console.log('🛑 Shutting down...');
+  try {
+    const c = getClient();
+    if (c) c.end(true);
+  } catch (e) {
+    console.warn('[WARN] error cerrando MQTT:', e?.message);
+  }
+  server.close(() => {
+    mongoose.connection.close(false).finally(() => process.exit(0));
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
 process.on('unhandledRejection', (err) => {
   console.error('UNHANDLED REJECTION:', err);
 });
