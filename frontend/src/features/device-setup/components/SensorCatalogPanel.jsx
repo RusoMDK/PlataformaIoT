@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { obtenerBibliotecaSensores } from '../../services/sensoresBiblioteca';
+import { obtenerBibliotecaSensores } from "@/services/sensoresBiblioteca";
 import SensorCard from './SensorCard';
 import SensorAutocomplete from './SensorAutocomplete';
 

@@ -1,4 +1,4 @@
-// src/components/wizard/PasoDescargaAgente.jsx
+// src/features/device-setup/wizard/PasoDescargaAgente.jsx
 import { motion } from 'framer-motion';
 import { FaWindows, FaApple, FaLinux } from 'react-icons/fa';
 

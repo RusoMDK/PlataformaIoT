@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { generarCodigoWiFi } from '../../utils/generarCodigoWiFi';
+import { generarCodigoWiFi } from '@/utils/generarCodigoWiFi';
 import { Copy, Download, AlertTriangle, BookOpen, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { saveAs } from 'file-saver';

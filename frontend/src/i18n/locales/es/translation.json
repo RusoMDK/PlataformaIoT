@@ -25,10 +25,12 @@
     "description": "Estadísticas globales del sistema",
     "titulo": "Panel de Administración",
     "descripcion": "Estadísticas globales del sistema",
+
     "usuarios": "Usuarios",
     "proyectos": "Proyectos",
     "sensores": "Sensores",
     "alertas": "Alertas",
+
     "usuariosRegistrados": "Usuarios Registrados",
     "nombre": "Nombre",
     "email": "Email",
@@ -38,10 +40,38 @@
     "estado": "Estado",
     "activo": "Activo",
     "inactivo": "Inactivo",
+    "creado": "Creado",
+
+    "refrescar": "Refrescar",
+    "crearUsuario": "Crear usuario",
+    "buscarUsuario": "Buscar por nombre o email...",
+    "todosLosRoles": "Todos los roles",
+    "todosLosEstados": "Todos los estados",
+    "activos": "Activos",
+    "inactivos": "Inactivos",
+    "limpiar": "Limpiar filtros",
+
+    "perfil": "Perfil",
+    "accionesRapidas": "Acciones rápidas",
+    "desactivar": "Desactivar",
+    "activar": "Activar",
+    "hacerUsuario": "Hacer usuario",
+    "hacerAdmin": "Hacer admin",
+    "resetPass": "Resetear contraseña",
+    "verActividad": "Ver actividad",
+
     "activarDesactivar": "Activar/Desactivar",
     "eliminar": "Eliminar",
+    "eliminarSeleccionados": "Eliminar seleccionados",
+
     "confirmarEliminacion": "¿Estás seguro que deseas eliminar los usuarios seleccionados?",
-    "confirmarEliminarUsuario": "¿Estás seguro que deseas eliminar este usuario?"
+    "confirmarEliminarUsuario": "¿Estás seguro que deseas eliminar este usuario?",
+    "sinResultados": "Sin resultados con los filtros actuales.",
+    "common": {
+    "acciones": "Acciones",
+    "eliminar": "Eliminar",
+    "cancelar": "Cancelar"
+  }
   },
 
   "proyectos": {
@@ -164,13 +194,13 @@
   },
 
   "preference": {
-  "interfaceTheme": "Tema de la interfaz",
-  "platformLanguage": "Idioma de la plataforma",
-  "notifications": "Notificaciones",
-  "enableNotifications": "Activar notificaciones",
-  "savePreferences": "Guardar preferencias",
-  "saving": "Guardando...",
-  "preferencesSaved": "Preferencias guardadas correctamente",
-  "errorSavingPreferences": "Error al guardar preferencias"
-}
+    "interfaceTheme": "Tema de la interfaz",
+    "platformLanguage": "Idioma de la plataforma",
+    "notifications": "Notificaciones",
+    "enableNotifications": "Activar notificaciones",
+    "savePreferences": "Guardar preferencias",
+    "saving": "Guardando...",
+    "preferencesSaved": "Preferencias guardadas correctamente",
+    "errorSavingPreferences": "Error al guardar preferencias"
+  }
 }

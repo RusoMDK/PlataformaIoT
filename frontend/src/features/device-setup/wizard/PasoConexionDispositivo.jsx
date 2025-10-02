@@ -1,4 +1,4 @@
-// src/components/wizard/PasoConexionDispositivo.jsx
+// src/features/device-setup/wizard/PasoConexionDispositivo.jsx
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';

@@ -1,8 +1,14 @@
+// src/routes/sensor.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const { crearSensor, obtenerSensores, eliminarSensoresPorProyecto, obtenerSensorPorId} = require('../controllers/sensor.controller');
 
+const requireAuth = require('../middlewares/requireAuth'); // ✅ unificado
+const {
+  crearSensor,
+  obtenerSensores,
+  eliminarSensoresPorProyecto,
+  obtenerSensorPorId
+} = require('../controllers/sensor.controller');
 
 /**
  * @swagger
@@ -19,21 +25,16 @@ const { crearSensor, obtenerSensores, eliminarSensoresPorProyecto, obtenerSensor
  *           schema:
  *             type: object
  *             properties:
- *               nombre:
- *                 type: string
- *               tipo:
- *                 type: string
- *               pin:
- *                 type: string
- *               unidad:
- *                 type: string
- *               proyecto:
- *                 type: string
+ *               nombre:   { type: string }
+ *               tipo:     { type: string }
+ *               pin:      { type: string }
+ *               unidad:   { type: string }
+ *               proyecto: { type: string }
  *     responses:
  *       201:
  *         description: Sensor creado
  */
-router.post('/', auth, crearSensor);
+router.post('/', requireAuth, crearSensor);
 
 /**
  * @swagger
@@ -54,10 +55,10 @@ router.post('/', auth, crearSensor);
  *       200:
  *         description: Lista de sensores
  */
-router.get('/', auth, obtenerSensores); // <-- 🔥 Este es el que te falta
+router.get('/', requireAuth, obtenerSensores);
 
-router.delete('/proyecto/:proyectoId', auth, eliminarSensoresPorProyecto);
+router.delete('/proyecto/:proyectoId', requireAuth, eliminarSensoresPorProyecto);
 
-router.get('/:id', auth, obtenerSensorPorId);
+router.get('/:id', requireAuth, obtenerSensorPorId);
 
 module.exports = router;

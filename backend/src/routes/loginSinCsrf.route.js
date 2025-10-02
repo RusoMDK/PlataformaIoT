@@ -8,9 +8,8 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
 
 const authController = require('../controllers/auth.controller');
-const tempAuthMiddleware = require('../middlewares/tempAuth.middleware');
-// Middleware que valida cookie httpOnly "token" o Authorization: Bearer <token>
-const authRequired = require('../middlewares/authRequired');
+const tempAuthMiddleware = require('../middlewares/tempAuth.middleware'); // usado para OTP login
+const requireAuth = require('../middlewares/requireAuth');               // ✅ unificado
 
 /* ───────────────────── Rutas SIN CSRF ───────────────────── */
 
@@ -23,11 +22,12 @@ router.post('/verify-otp-login', tempAuthMiddleware, authController.verificarOTP
 /**
  * GET /api/auth/jwt-token
  * Devuelve un JWT corto (1h) para frontend/agent.
- * Requiere sesión válida (cookie httpOnly o bearer), validada por authRequired.
+ * Requiere sesión válida (cookie httpOnly o bearer), validada por requireAuth.
  */
-router.get('/jwt-token', authRequired, async (req, res) => {
+router.get('/jwt-token', requireAuth, async (req, res) => {
   try {
-    const user = await Usuario.findById(req.usuarioId).select('_id rol email activo nombre');
+    const userId = req.user?._id || req.usuarioId;
+    const user = await Usuario.findById(userId).select('_id rol email activo nombre');
     if (!user) {
       return res.status(401).json({ msg: 'Usuario no encontrado' });
     }
@@ -56,8 +56,9 @@ router.get('/jwt-token', authRequired, async (req, res) => {
  * GET /api/auth/me-light
  * Endpoint liviano para que el frontend verifique sesión por cookie/bearer sin CSRF.
  */
-router.get('/me-light', authRequired, (req, res) => {
-  const { _id, email, nombre, rol, activo } = req.usuario || {};
+router.get('/me-light', requireAuth, (req, res) => {
+  const base = req.usuario || {};
+  const { _id, email, nombre, rol, activo } = base;
   return res.status(200).json({
     ok: true,
     usuario: { id: _id, email, nombre, rol, activo },
@@ -68,7 +69,7 @@ router.get('/me-light', authRequired, (req, res) => {
  * (Opcional) GET /api/auth/ping
  * Útil para diagnóstico rápido de auth/cookies.
  */
-router.get('/ping', (req, res) => {
+router.get('/ping', (_req, res) => {
   return res.status(200).json({ pong: true, time: new Date().toISOString() });
 });
 

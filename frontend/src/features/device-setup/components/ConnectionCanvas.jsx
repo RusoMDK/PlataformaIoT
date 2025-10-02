@@ -1,4 +1,4 @@
-// src/components/things/ConnectionCanvas.jsx
+// src/features/device-setup/components/ConnectionCanvas.jsx
 import { useEffect, useRef } from 'react';
 
 export default function ConnectionCanvas({ conexiones = [] }) {

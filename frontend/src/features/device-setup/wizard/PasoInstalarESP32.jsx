@@ -1,4 +1,4 @@
-// src/components/wizard/PasoInstalarESP32.jsx
+// src/features/device-setup/wizard/PasoInstalarESP32.jsx
 import { motion } from 'framer-motion';
 import { Copy, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';

@@ -1,19 +1,19 @@
-// src/components/VisualizacionCard.jsx
+import { useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  LineChart,
+  LineChart as RLChart,
   Line,
-  BarChart,
+  BarChart as RBChart,
   Bar,
-  AreaChart,
+  AreaChart as RAChart,
   Area,
-  ScatterChart,
+  ScatterChart as RSChart,
   Scatter,
-  PieChart,
+  PieChart as RPChart,
   Pie,
   Cell,
-  RadarChart,
+  RadarChart as RRChart,
   Radar,
   PolarGrid,
   PolarAngleAxis,
@@ -24,41 +24,39 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { useEffect, useState } from 'react';
 import { GripVertical, Expand } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 import download from 'downloadjs';
 import Swal from 'sweetalert2';
-import axios from 'axios';
-import FullscreenModal from '../ui/FullscreenModal';
+import axiosInstance from '@/api/axiosInstance';
+import { getCsrfToken } from '@/api/auth.api';
+import FullscreenModal from '@/components/ui/FullscreenModal';
 
 export default function VisualizacionCard({ visualizacion, sensores, fetchAll, onEditar }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: visualizacion?._id || '',
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: visualizacion?._id || '' });
+  const style = { transform: CSS.Transform.toString(transform), transition };
 
   const [lecturas, setLecturas] = useState([]);
   const [fullscreen, setFullscreen] = useState(false);
-  const token = localStorage.getItem('token');
-  const config = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
     if (visualizacion?.sensores?.length > 0) fetchLecturas();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visualizacion?._id]);
 
   const fetchLecturas = async () => {
     try {
+      const csrf = await getCsrfToken();
       const respuestas = await Promise.all(
-        visualizacion.sensores.map(sensorId =>
-          axios.get(`/api/lecturas/optimizadas?sensor=${sensorId}&limite=10`, config)
+        (visualizacion.sensores || []).map((sensorId) =>
+          axiosInstance.get('/lecturas/optimizado', {
+            params: { sensor: sensorId, limite: 200, pagina: 1 },
+            headers: { 'x-csrf-token': csrf },
+            withCredentials: true,
+          })
         )
       );
-      const datos = respuestas.flatMap(res => res.data.lecturas);
+      const datos = respuestas.flatMap((res) => Array.isArray(res.data?.lecturas) ? res.data.lecturas : []);
       setLecturas(datos.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)));
     } catch (error) {
       console.error('Error al obtener lecturas:', error);
@@ -67,21 +65,22 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
 
   const eliminar = async () => {
     const confirmar = await Swal.fire({
-      title: '¿Estás seguro?',
+      title: '¿Eliminar visualización?',
       text: 'Esta visualización se eliminará permanentemente.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'dark:bg-dark-bg dark:text-white',
-      },
+      customClass: { popup: 'dark:bg-dark-bg dark:text-white' },
     });
 
     if (confirmar.isConfirmed) {
       try {
-        await axios.delete(`/api/visualizaciones/${visualizacion._id}`, config);
-        await fetchAll();
+        const csrf = await getCsrfToken();
+        await axiosInstance.delete(`/visualizaciones/${visualizacion._id}`, {
+          headers: { 'x-csrf-token': csrf }, withCredentials: true,
+        });
+        await fetchAll?.();
         Swal.fire('Eliminado', 'La visualización ha sido eliminada.', 'success');
       } catch (err) {
         console.error('Error al eliminar visualización:', err);
@@ -107,26 +106,18 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
   const color = visualizacion.color || '#3B82F6';
   const mostrarLeyenda = visualizacion.mostrarLeyenda !== false;
   const nombreSensores = sensores
-    .filter(s => visualizacion.sensores.includes(s._id))
-    .map(s => s.nombre)
+    .filter((s) => (visualizacion.sensores || []).includes(s._id))
+    .map((s) => s.nombre)
     .join(', ');
 
   const ejeX = (
-    <XAxis
-      dataKey="timestamp"
-      tickFormatter={v => new Date(v).toLocaleTimeString()}
-      stroke="currentColor"
-    />
+    <XAxis dataKey="timestamp" tickFormatter={(v) => new Date(v).toLocaleTimeString()} stroke="currentColor" />
   );
   const ejeY = <YAxis stroke="currentColor" />;
   const tooltip = (
     <Tooltip
-      contentStyle={{
-        backgroundColor: 'rgba(30, 41, 59, 0.9)',
-        border: 'none',
-        color: 'white',
-      }}
-      labelFormatter={v => new Date(v).toLocaleString()}
+      contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', border: 'none', color: 'white' }}
+      labelFormatter={(v) => new Date(v).toLocaleString()}
     />
   );
   const leyenda = mostrarLeyenda ? <Legend /> : null;
@@ -134,77 +125,51 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
   const Grafica = () => (
     <ResponsiveContainer width="100%" height={fullscreen ? 500 : 250}>
       {visualizacion.tipo === 'line' && (
-        <LineChart data={lecturas}>
-          {ejeX}
-          {ejeY}
-          {tooltip}
-          {leyenda}
-          <Line dataKey="valor" stroke={color} strokeWidth={2} />
-        </LineChart>
+        <RLChart data={lecturas}>
+          {ejeX}{ejeY}{tooltip}{leyenda}
+          <Line dataKey="valor" stroke={color} strokeWidth={2} dot={false} />
+        </RLChart>
       )}
       {visualizacion.tipo === 'bar' && (
-        <BarChart data={lecturas}>
-          {ejeX}
-          {ejeY}
-          {tooltip}
-          {leyenda}
+        <RBChart data={lecturas}>
+          {ejeX}{ejeY}{tooltip}{leyenda}
           <Bar dataKey="valor" fill={color} />
-        </BarChart>
+        </RBChart>
       )}
       {visualizacion.tipo === 'area' && (
-        <AreaChart data={lecturas}>
-          {ejeX}
-          {ejeY}
-          {tooltip}
-          {leyenda}
+        <RAChart data={lecturas}>
+          {ejeX}{ejeY}{tooltip}{leyenda}
           <Area dataKey="valor" stroke={color} fill={color} />
-        </AreaChart>
+        </RAChart>
       )}
       {visualizacion.tipo === 'scatter' && (
-        <ScatterChart>
-          {ejeX}
-          {ejeY}
-          {tooltip}
-          {leyenda}
+        <RSChart>
+          {ejeX}{ejeY}{tooltip}{leyenda}
           <Scatter data={lecturas} fill={color} />
-        </ScatterChart>
+        </RSChart>
       )}
       {visualizacion.tipo === 'radar' && (
-        <RadarChart data={lecturas} outerRadius={90}>
+        <RRChart data={lecturas} outerRadius={90}>
           <PolarGrid />
           <PolarAngleAxis dataKey="timestamp" />
           <PolarRadiusAxis />
           <Radar dataKey="valor" stroke={color} fill={color} fillOpacity={0.6} />
-          {tooltip}
-          {leyenda}
-        </RadarChart>
+          {tooltip}{leyenda}
+        </RRChart>
       )}
       {visualizacion.tipo === 'pie' && (
-        <PieChart>
-          <Pie
-            data={lecturas}
-            dataKey="valor"
-            nameKey="timestamp"
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-          >
-            {lecturas.map((entry, i) => (
-              <Cell key={i} fill={color} />
-            ))}
+        <RPChart>
+          <Pie data={lecturas} dataKey="valor" nameKey="timestamp" cx="50%" cy="50%" outerRadius={80}>
+            {lecturas.map((_, i) => <Cell key={i} fill={color} />)}
           </Pie>
-          {tooltip}
-          {leyenda}
-        </PieChart>
+          {tooltip}{leyenda}
+        </RPChart>
       )}
       {visualizacion.tipo === 'histogram' && (
-        <BarChart data={lecturas}>
-          {ejeX}
-          {ejeY}
-          {tooltip}
-          {leyenda}
+        <RBChart data={lecturas}>
+          {ejeX}{ejeY}{tooltip}{leyenda}
           <Bar dataKey="valor" fill={color} />
-        </BarChart>
+        </RBChart>
       )}
     </ResponsiveContainer>
   );
@@ -230,25 +195,14 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
           </h2>
         </div>
         <div className="flex gap-2 text-sm">
-          <button
-            onClick={onEditar}
-            className="text-primary hover:underline dark:text-primary-dark"
-          >
-            Editar
-          </button>
-          <button onClick={eliminar} className="text-danger hover:underline">
-            Eliminar
-          </button>
-          <button onClick={() => exportarImagen('png')} className="text-success hover:underline">
-            PNG
-          </button>
-          <button onClick={() => exportarImagen('jpg')} className="text-accent hover:underline">
-            JPG
-          </button>
+          <button onClick={onEditar} className="text-primary hover:underline dark:text-primary-dark">Editar</button>
+          <button onClick={eliminar} className="text-danger hover:underline">Eliminar</button>
+          <button onClick={() => exportarImagen('png')} className="text-success hover:underline">PNG</button>
+          <button onClick={() => exportarImagen('jpg')} className="text-accent hover:underline">JPG</button>
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Sensores: {nombreSensores}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Sensores: {nombreSensores || '—'}</p>
 
       <div id={`grafica-${visualizacion._id}`}>
         <Grafica />
@@ -262,11 +216,7 @@ export default function VisualizacionCard({ visualizacion, sensores, fetchAll, o
         <Expand size={18} />
       </button>
 
-      <FullscreenModal
-        open={fullscreen}
-        onClose={() => setFullscreen(false)}
-        title={visualizacion.titulo}
-      >
+      <FullscreenModal open={fullscreen} onClose={() => setFullscreen(false)} title={visualizacion.titulo}>
         <div className="h-full">
           <Grafica />
         </div>

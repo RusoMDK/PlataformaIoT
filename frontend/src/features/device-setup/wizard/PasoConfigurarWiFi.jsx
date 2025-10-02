@@ -1,4 +1,4 @@
-// src/components/wizard/PasoConfigurarWiFi.jsx
+// src/features/device-setup/wizard/PasoConfigurarWiFi.jsx
 import { motion } from 'framer-motion';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Wifi, Info } from 'lucide-react';

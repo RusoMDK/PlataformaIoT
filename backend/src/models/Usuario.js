@@ -1,4 +1,3 @@
-// src/models/Usuario.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -8,17 +7,17 @@ const usuarioSchema = new mongoose.Schema(
     username: {
       type: String,
       required: [true, 'username requerido'],
-      unique: true,
+      unique: true,            // ← deja unique aquí
       trim: true,
       lowercase: true,
       minlength: 3,
       maxlength: 30,
-      match: /^[a-z0-9._-]+$/i, // letras, números, ".", "_" y "-"
+      match: /^[a-z0-9._-]+$/i,
     },
 
     email: {
       type: String,
-      unique: true,
+      unique: true,            // ← deja unique aquí
       required: [true, 'email requerido'],
       lowercase: true,
       trim: true,
@@ -27,21 +26,19 @@ const usuarioSchema = new mongoose.Schema(
 
     password: { type: String, required: true, minlength: 6, select: false },
 
-    // Roles: alineado con el backend (user/admin)
+    // Roles
     rol: { type: String, enum: ['user', 'admin'], default: 'user' },
     activo: { type: Boolean, default: true },
 
     // === Perfil (OPCIONAL) ===
-    // nombre completo opcional
     nombre: { type: String, trim: true, default: '' },
 
-    // nombres desglosados (opcionales)
-    primerNombre:   { type: String, trim: true, default: '' },
-    segundoNombre:  { type: String, trim: true, default: '' },
-    primerApellido: { type: String, trim: true, default: '' },
-    segundoApellido:{ type: String, trim: true, default: '' },
+    primerNombre:    { type: String, trim: true, default: '' },
+    segundoNombre:   { type: String, trim: true, default: '' },
+    primerApellido:  { type: String, trim: true, default: '' },
+    segundoApellido: { type: String, trim: true, default: '' },
 
-    apodo:          { type: String, trim: true, default: '' },
+    apodo:           { type: String, trim: true, default: '' },
 
     fotoPerfil: { type: String, default: '/assets/profile-placeholder.png' },
     bio:        { type: String, maxlength: 1000, default: '' },
@@ -49,8 +46,8 @@ const usuarioSchema = new mongoose.Schema(
     estadoCivil:{ type: String, enum: ['soltero','casado','otro'], default: 'soltero' },
     fechaNacimiento: { type: Date },
 
-    telefono:       { type: String, default: '' },
-    prefijoTelefono:{ type: String, default: '' },
+    telefono:        { type: String, default: '' },
+    prefijoTelefono: { type: String, default: '' },
     direccion: {
       pais:         { type: String, default: '' },
       ciudad:       { type: String, default: '' },
@@ -68,8 +65,8 @@ const usuarioSchema = new mongoose.Schema(
     },
 
     preferencias: {
-      temaUI:          { type: String, enum: ['light','dark','system'], default: 'light' },
-      notificaciones:  { type: Boolean, default: true },
+      temaUI:         { type: String, enum: ['light','dark','system'], default: 'light' },
+      notificaciones: { type: Boolean, default: true },
     },
 
     // === 2FA ===
@@ -92,9 +89,9 @@ const usuarioSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Índices
-usuarioSchema.index({ username: 1 }, { unique: true });
-usuarioSchema.index({ email: 1 }, { unique: true });
+// ❌ OJO: eliminamos estos porque duplicaban los índices creados por `unique: true`
+// usuarioSchema.index({ username: 1 }, { unique: true });
+// usuarioSchema.index({ email: 1 }, { unique: true });
 
 // Hash automático del password si cambia
 usuarioSchema.pre('save', async function (next) {
@@ -109,4 +106,4 @@ usuarioSchema.methods.compararPassword = function (pass) {
   return bcrypt.compare(pass, this.password);
 };
 
-module.exports = mongoose.model('Usuario', usuarioSchema);
+module.exports = mongoose.models.Usuario || mongoose.model('Usuario', usuarioSchema);

@@ -1,4 +1,4 @@
-// ✅ src/components/things/EmptySensors.jsx
+// ✅ src/features/device-setup/components/EmptySensors.jsx
 export default function EmptySensors() {
   return (
     <div className="text-center p-6 border border-dashed rounded-xl border-gray-300 dark:border-gray-600 bg-light-surface dark:bg-dark-surface transition">

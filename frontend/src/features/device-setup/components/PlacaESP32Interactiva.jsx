@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import Esp32DevkitCV4 from './svg/Esp32DevkitCV4';
-import { useDispositivo } from '../../hooks/useDispositivo'; // ✅ CORRECTO
+import { useDispositivo } from "@/hooks/useDispositivo";
 
 const PINS = [
   // 📍 Lado izquierdo

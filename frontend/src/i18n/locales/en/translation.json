@@ -25,10 +25,12 @@
     "description": "System-wide statistics",
     "titulo": "Admin Dashboard",
     "descripcion": "System-wide statistics",
+
     "usuarios": "Users",
     "proyectos": "Projects",
     "sensores": "Sensors",
     "alertas": "Alerts",
+
     "usuariosRegistrados": "Registered Users",
     "nombre": "Name",
     "email": "Email",
@@ -38,10 +40,38 @@
     "estado": "Status",
     "activo": "Active",
     "inactivo": "Inactive",
+    "creado": "Created",
+
+    "refrescar": "Refresh",
+    "crearUsuario": "Create user",
+    "buscarUsuario": "Search by name or email...",
+    "todosLosRoles": "All roles",
+    "todosLosEstados": "All statuses",
+    "activos": "Active",
+    "inactivos": "Inactive",
+    "limpiar": "Clear filters",
+
+    "perfil": "Profile",
+    "accionesRapidas": "Quick actions",
+    "desactivar": "Deactivate",
+    "activar": "Activate",
+    "hacerUsuario": "Make user",
+    "hacerAdmin": "Make admin",
+    "resetPass": "Reset password",
+    "verActividad": "View activity",
+
     "activarDesactivar": "Activate/Deactivate",
     "eliminar": "Delete",
+    "eliminarSeleccionados": "Delete selected",
+
     "confirmarEliminacion": "Are you sure you want to delete the selected users?",
-    "confirmarEliminarUsuario": "Are you sure you want to delete this user?"
+    "confirmarEliminarUsuario": "Are you sure you want to delete this user?",
+    "sinResultados": "No results for the current filters.",
+    "common": {
+      "acciones": "Actions",
+      "eliminar": "Delete",
+      "cancelar": "Cancel"
+    }
   },
 
   "proyectos": {
@@ -162,7 +192,7 @@
       }
     }
   },
-  
+
   "preference": {
     "interfaceTheme": "Interface Theme",
     "platformLanguage": "Platform Language",

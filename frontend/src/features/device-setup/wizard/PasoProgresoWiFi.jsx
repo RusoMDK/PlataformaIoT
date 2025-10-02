@@ -1,8 +1,8 @@
-// src/components/wizard/PasoProgresoWiFi.jsx
+// src/features/device-setup/wizard/PasoProgresoWiFi.jsx
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import socket from '../../utils/socket';
+import socket from "@/lib/socketAgent";
 
 const cliLogs = [
   '📦 [arduino-cli] arduino-cli lib install "PubSubClient"',

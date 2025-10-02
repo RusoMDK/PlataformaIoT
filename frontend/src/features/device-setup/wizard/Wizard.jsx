@@ -1,8 +1,8 @@
-// src/components/wizard/Wizard.jsx
+// src/features/device-setup/wizard/Wizard.jsx
 import { useRef, useEffect, useContext } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import axios from 'axios';
-import { WizardContext } from '../../context/WizardContext';
+import axiosInstance from "@/api/axiosInstance";
+import { WizardContext } from "@/context/WizardContext";
 
 export default function Wizard() {
   const {
@@ -19,7 +19,7 @@ export default function Wizard() {
   } = useContext(WizardContext);
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get('/api/csrf-token')
       .then(({ data }) => setCsrfToken(data.csrfToken))
       .catch(console.error);

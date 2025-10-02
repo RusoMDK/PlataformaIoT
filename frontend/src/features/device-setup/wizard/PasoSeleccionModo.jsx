@@ -1,9 +1,9 @@
-// src/components/wizard/PasoSeleccionModo.jsx
+// src/features/device-setup/wizard/PasoSeleccionModo.jsx
 import { motion } from 'framer-motion';
 import { RadioGroup } from '@headlessui/react';
 import { CheckCircle, Zap, Wrench, Info } from 'lucide-react';
 import { useState, useContext, useEffect } from 'react';
-import { WizardContext } from '../../context/WizardContext';
+import { WizardContext } from '@/context/WizardContext';
 
 const modos = [
   {

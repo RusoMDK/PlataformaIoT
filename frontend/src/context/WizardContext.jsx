@@ -1,15 +1,15 @@
 // src/context/WizardContext.jsx
 import { createContext, useContext, useState, useRef, useMemo } from 'react';
-import PasoSeleccionPlaca from '../components/wizard/PasoSeleccionPlaca';
-import PasoDescargaAgente from '../components/wizard/PasoDescargaAgente';
-import PasoSeleccionModo from '../components/wizard/PasoSeleccionModo';
-import PasoConexionDispositivo from '../components/wizard/PasoConexionDispositivo';
-import PasoInstalarESP32 from '../components/wizard/PasoInstalarESP32';
-import PasoSubirCodigo from '../components/wizard/PasoSubirCodigo';
-import PasoConfigurarWiFi from '../components/wizard/PasoConfigurarWiFi';
-import PasoProgresoWiFi from '../components/wizard/PasoProgresoWiFi';
-import PasoVerificarConexion from '../components/wizard/PasoVerificarConexion';
-import PasoFinal from '../components/wizard/PasoFinal';
+import PasoSeleccionPlaca from '../features/device-setup/wizard/PasoSeleccionPlaca';
+import PasoDescargaAgente from '../features/device-setup/wizard/PasoDescargaAgente';
+import PasoSeleccionModo from '../features/device-setup/wizard/PasoSeleccionModo';
+import PasoConexionDispositivo from '../features/device-setup/wizard/PasoConexionDispositivo';
+import PasoInstalarESP32 from '../features/device-setup/wizard/PasoInstalarESP32';
+import PasoSubirCodigo from '../features/device-setup/wizard/PasoSubirCodigo';
+import PasoConfigurarWiFi from '../features/device-setup/wizard/PasoConfigurarWiFi';
+import PasoProgresoWiFi from '../features/device-setup/wizard/PasoProgresoWiFi';
+import PasoVerificarConexion from '../features/device-setup/wizard/PasoVerificarConexion';
+import PasoFinal from '../features/device-setup/wizard/PasoFinal';
 
 export const WizardContext = createContext();
 

@@ -1,14 +1,14 @@
-// src/components/shared/Navbar.jsx
+// src/widgets/shell/Navbar.jsx
 import { Link } from 'react-router-dom';
 import { Bell, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { fetchUserProfile } from '../../api/auth.api';
-import NotificacionesDropdown from './NotificacionesDropdown';
-import ThemeToggle from './ThemeToggle';
+import { fetchUserProfile } from "@/api/auth.api";
+import NotificacionesDropdown from "./NotificacionesDropdown"; // <-- este sí está en la misma carpeta
+import ThemeToggle from "@/components/shared/ThemeToggle";
 import { useTranslation } from 'react-i18next';
 
-import logoLight from '../../assets/logo.png';
-import logoDark from '../../assets/logo_dark_contrast.png';
+import logoLight from "@/assets/logo.png";
+import logoDark from '@assets/logo_dark_contrast.png';
 
 // Si NotificacionesContext no está montado (p.ej. en minimal), evitamos errores
 let useNotificacionesSafe = () => ({ noLeidas: 0, notificaciones: [] });

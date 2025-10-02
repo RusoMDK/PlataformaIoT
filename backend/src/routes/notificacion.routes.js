@@ -1,10 +1,17 @@
+// routes/notificacion.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
+
+const requireAuth = require('../middlewares/requireAuth');
+const csrfProtection = require('../middlewares/csrfProtection');
+
 const {
   obtenerNotificaciones,
+  obtenerNoLeidasCount,
+  crearNotificacion,
   marcarComoLeida,
-  marcarTodasComoLeidas
+  marcarVariasComoLeidas,
+  marcarTodasComoLeidas,
 } = require('../controllers/notificacion.controller');
 
 /**
@@ -14,82 +21,22 @@ const {
  *   description: Endpoints para gestionar notificaciones de usuarios
  */
 
-/**
- * @swagger
- * /notificaciones:
- *   get:
- *     summary: Obtener todas las notificaciones del usuario
- *     tags: [Notificaciones]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: leida
- *         schema:
- *           type: boolean
- *         description: Filtrar por estado de lectura
- *       - in: query
- *         name: tipo
- *         schema:
- *           type: string
- *         description: Filtrar por tipo de notificación
- *       - in: query
- *         name: pagina
- *         schema:
- *           type: integer
- *         description: Página para paginación
- *       - in: query
- *         name: limite
- *         schema:
- *           type: integer
- *         description: Límite de resultados por página
- *     responses:
- *       200:
- *         description: Lista de notificaciones del usuario autenticado
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- */
-router.get('/', auth, obtenerNotificaciones);
+// LIST + filtros + paginación
+router.get('/', requireAuth, obtenerNotificaciones);
 
-/**
- * @swagger
- * /notificaciones/{id}/leida:
- *   patch:
- *     summary: Marcar una notificación como leída
- *     tags: [Notificaciones]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID de la notificación
- *     responses:
- *       200:
- *         description: Notificación marcada como leída
- *       404:
- *         description: Notificación no encontrada
- */
-router.patch('/:id/leida', auth, marcarComoLeida);
+// Conteo no leídas
+router.get('/unread-count', requireAuth, obtenerNoLeidasCount);
 
-/**
- * @swagger
- * /notificaciones/marcar-todas/leidas:
- *   patch:
- *     summary: Marcar todas las notificaciones del usuario como leídas
- *     tags: [Notificaciones]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Todas las notificaciones marcadas como leídas
- */
-router.patch('/marcar-todas/leidas', auth, marcarTodasComoLeidas);
+// Crear (útil para pruebas/seed manual)
+router.post('/', requireAuth, csrfProtection, crearNotificacion);
+
+// Marcar una como leída
+router.patch('/:id/leida', requireAuth, csrfProtection, marcarComoLeida);
+
+// Marcar varias (bulk)
+router.patch('/mark-read-bulk', requireAuth, csrfProtection, marcarVariasComoLeidas);
+
+// Marcar TODAS como leídas (fallback)
+router.patch('/marcar-todas/leidas', requireAuth, csrfProtection, marcarTodasComoLeidas);
 
 module.exports = router;

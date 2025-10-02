@@ -1,7 +1,17 @@
+// src/routes/proyecto.routes.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const { crearProyecto, obtenerProyectos, obtenerResumenProyecto, actualizarProyecto, eliminarProyecto, obtenerProyectoPorId } = require('../controllers/proyecto.controller');
+
+const requireAuth = require('../middlewares/requireAuth'); // ✅ unificado
+const {
+  crearProyecto,
+  obtenerProyectos,
+  obtenerResumenProyecto,
+  actualizarProyecto,
+  eliminarProyecto,
+  obtenerProyectoPorId
+} = require('../controllers/proyecto.controller');
+
 /**
  * @swagger
  * /proyectos:
@@ -34,13 +44,13 @@ const { crearProyecto, obtenerProyectos, obtenerResumenProyecto, actualizarProye
  *         description: Datos inválidos
  */
 
-router.post('/', auth, crearProyecto);
-router.get('/', auth, obtenerProyectos);
-router.get('/:id/resumen', auth, obtenerResumenProyecto);
-router.put('/:id', auth, actualizarProyecto); 
+router.post('/', requireAuth, crearProyecto);
+router.get('/', requireAuth, obtenerProyectos);
+router.get('/:id/resumen', requireAuth, obtenerResumenProyecto);
+router.put('/:id', requireAuth, actualizarProyecto);
 
-// ... tus otras rutas
-router.get('/:id', auth, obtenerProyectoPorId); // <-- Esta es la que faltaba
-router.delete('/:id', auth, eliminarProyecto);
+// Leer/eliminar proyecto por id
+router.get('/:id', requireAuth, obtenerProyectoPorId);
+router.delete('/:id', requireAuth, eliminarProyecto);
 
 module.exports = router;

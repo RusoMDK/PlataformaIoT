@@ -1,4 +1,4 @@
-// src/components/wizard/PasoSeleccionPlaca.jsx
+// src/features/device-setup/wizard/PasoSeleccionPlaca.jsx
 import { motion } from 'framer-motion';
 import { RadioGroup } from '@headlessui/react';
 import { CheckCircle } from 'lucide-react';

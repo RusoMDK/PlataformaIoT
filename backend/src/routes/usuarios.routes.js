@@ -2,22 +2,18 @@
 const express = require('express');
 const router = express.Router();
 
-const usuariosController = require('../controllers/usuarios.controller');  // ← IMPORTAR el controlador
-const authMiddleware = require('../middlewares/auth.middleware');
-const upload = require('../middlewares/upload'); // tu middleware de Multer+Cloudinary
+const usuariosController = require('../controllers/usuarios.controller');
+const requireAuth = require('../middlewares/requireAuth'); // ✅ unificado
+const upload = require('../middlewares/upload'); // Multer + Cloudinary
 
-// Todas estas rutas requieren estar autenticado:
-router.use(authMiddleware);
+// Todas requieren autenticación
+router.use(requireAuth);
 
 // GET  /api/usuarios/me
 router.get('/me', usuariosController.getProfile);
 
-// PUT  /api/usuarios/me  (termina en /me, y aquí recibes FormData con campo 'fotoPerfil')
-router.put(
-  '/me',
-  upload.single('fotoPerfil'),
-  usuariosController.updateCuenta
-);
+// PUT  /api/usuarios/me (FormData con 'fotoPerfil')
+router.put('/me', upload.single('fotoPerfil'), usuariosController.updateCuenta);
 
 // PUT  /api/usuarios/me/password
 router.put('/me/password', usuariosController.changePassword);

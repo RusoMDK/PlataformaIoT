@@ -5,3 +5,5 @@ export * from './toastEasy';
 export * from './useNotificaciones';
 export * from './useHoverSidebar';
 export * from './useSensorBiblioteca';
+export * from './useDeviceLive';
+export * from './useDeviceAcks';

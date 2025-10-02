@@ -1,18 +1,28 @@
+// src/widgets/shell/DispositivosSidebar.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BadgeCheck, AlertCircle, Plus, Cpu, Wrench, CheckCircle } from 'lucide-react';
-import axiosInstance from '../../api/axiosInstance'; // 🔥 Usar instancia que ya manda cookies
+import {
+  BadgeCheck,
+  AlertCircle,
+  Plus,
+  Cpu,
+  Wrench,
+  CheckCircle,
+} from 'lucide-react';
+import axiosInstance from '../../api/axiosInstance';
 import { format } from 'date-fns';
-import { fetchUserProfile } from '../../api/auth.api'; // 🔥 Nuevo import
+import { fetchUserProfile } from '../../api/auth.api';
 
-export default function SidebarDispositivos({
+const ONLINE_WINDOW_MS = 10_000; // ventana para considerar "online"
+
+export default function DispositivosSidebar({
   hover,
   onHoverChange,
   dispositivos,
   setDispositivos,
 }) {
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null); // 🔥 Nuevo estado para saber si hay sesión
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -24,14 +34,15 @@ export default function SidebarDispositivos({
         setUsuario(null);
       }
     };
-
     cargarUsuario();
   }, []);
 
   const fetchDispositivos = async () => {
     try {
-      const { data } = await axiosInstance.get('/dispositivos');
-      console.log('📦 Dispositivos recibidos:', data); // ✅ Filtramos duplicados por UID (por si acaso)
+      const { data } = await axiosInstance.get('/dispositivos', {
+        withCredentials: true,
+      });
+      // Evitar duplicados por uid
       const unicos = Array.from(new Map(data.map(d => [d.uid, d])).values());
       setDispositivos(unicos);
     } catch (err) {
@@ -41,13 +52,14 @@ export default function SidebarDispositivos({
   };
 
   useEffect(() => {
-    if (!usuario) return; // 🔥 No busques si no hay usuario autenticado
+    if (!usuario) return;
     fetchDispositivos();
     const id = setInterval(fetchDispositivos, 8000);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario]);
 
-  if (!usuario) return null; // 🔥 Si no está logueado, no renderizar nada
+  if (!usuario) return null;
 
   return (
     <div
@@ -78,29 +90,53 @@ export default function SidebarDispositivos({
           )}
         </header>
 
-        {/* Lista de dispositivos */}
+        {/* Lista */}
         <section className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 space-y-3">
           {dispositivos.length ? (
-            dispositivos.map(d => {
-              const online = Date.now() - new Date(d.ultimaConexion).getTime() < 10000;
+            dispositivos.map((d) => {
+              const online =
+                Date.now() - new Date(d.ultimaConexion).getTime() <
+                ONLINE_WINDOW_MS;
               const file = (d.imagen || 'generic.png').split('/').pop();
               const imgSrc = `/images/conexion/${file}`;
               const estaConfigurado = d.configurado === true;
-              const fechaCreacion = format(new Date(d.creadoEn), 'dd MMM yyyy HH:mm');
+              const fechaCreacion = format(
+                new Date(d.creadoEn),
+                'dd MMM yyyy HH:mm'
+              );
 
               return (
                 <div
                   key={d.uid}
+                  role="button"
                   title={`Creado el ${fechaCreacion}`}
-                  onClick={() =>
-                    navigate(`/configurar-dispositivo/${d.uid}`, {
-                      state: { from: window.location.pathname },
-                    })
-                  }
+                  onClick={() => navigate(`/things/${d.uid}`)} // 👈 monitoreo por defecto
                   className="relative flex items-center gap-3 p-3 rounded-lg border bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-700 cursor-pointer hover:ring-1 hover:ring-blue-400 transition"
                 >
+                  {/* Botón secundario → Configurar */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/configurar-dispositivo/${d.uid}`, {
+                        state: { from: window.location.pathname },
+                      });
+                    }}
+                    title="Configurar dispositivo"
+                    className="absolute top-2 right-2 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200/60 dark:border-gray-700/60"
+                    aria-label={`Configurar ${d.nombre}`}
+                  >
+                    <Wrench size={14} className="text-gray-600 dark:text-gray-300" />
+                  </button>
+
                   {/* Imagen */}
-                  <img src={imgSrc} alt={d.nombre} className="w-11 h-11 object-contain shrink-0" />
+                  <img
+                    src={imgSrc}
+                    alt={`Imagen de ${d.nombre}`}
+                    className="w-11 h-11 object-contain shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/conexion/generic.png';
+                    }}
+                  />
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
@@ -108,7 +144,7 @@ export default function SidebarDispositivos({
                       {d.nombre}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {d.uid.slice(0, 8)}…
+                      {d.uid?.slice(0, 8)}…
                     </p>
                   </div>
 
@@ -127,9 +163,17 @@ export default function SidebarDispositivos({
                             ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'
                             : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300'
                         }`}
-                        title={estaConfigurado ? 'Dispositivo configurado' : 'Aún no configurado'}
+                        title={
+                          estaConfigurado
+                            ? 'Dispositivo configurado'
+                            : 'Aún no configurado'
+                        }
                       >
-                        {estaConfigurado ? <CheckCircle size={16} /> : <Wrench size={16} />}
+                        {estaConfigurado ? (
+                          <CheckCircle size={16} />
+                        ) : (
+                          <Wrench size={16} />
+                        )}
                       </div>
                     )}
                   </div>

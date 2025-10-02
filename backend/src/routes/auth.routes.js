@@ -1,10 +1,12 @@
 // src/routes/auth.routes.js
 const express = require('express');
+const jwt = require('jsonwebtoken'); // ✅ faltaba para login de agente
 const router = express.Router();
+
 const authController = require('../controllers/auth.controller');
 const csrfProtection = require('../middlewares/csrfProtection');
-const authMiddleware = require('../middlewares/auth.middleware');
-const tempAuthMiddleware = require('../middlewares/tempAuth.middleware'); // 🔥 nuevo
+
+const requireAuth = require('../middlewares/requireAuth'); // ✅ unificado
 
 // Registro de usuario
 router.post('/register', authController.registrar);
@@ -13,7 +15,7 @@ router.post('/register', authController.registrar);
 router.post('/logout', csrfProtection, authController.logout);
 
 // Perfil del usuario autenticado
-router.get('/perfil', authMiddleware, authController.obtenerPerfil);
+router.get('/perfil', requireAuth, authController.obtenerPerfil);
 
 // Token desde cookie
 router.get('/jwt-token', (req, res) => {

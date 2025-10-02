@@ -1,9 +1,9 @@
-// src/components/wizard/PasoVerificarConexion.jsx
+// src/features/device-setup/wizard/PasoVerificarConexion.jsx
 import { motion } from 'framer-motion';
 import { forwardRef, useImperativeHandle, useState, useContext } from 'react';
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { WizardContext } from '../../context/WizardContext';
+import { WizardContext } from "@/context/WizardContext";
 
 const AGENT_URL = import.meta.env.VITE_AGENT_URL || 'http://localhost:3001';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://localhost:4443';

@@ -1,8 +1,8 @@
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispositivo } from '../../hooks/useDispositivo';
+import { useDispositivo } from "@/hooks/useDispositivo";
 import { toast } from 'sonner';
-import axios from 'axios';
+import axiosInstance from "@/api/axiosInstance";
 
 export default function ThingSummary({ sensores = [] }) {
   const { id: uid } = useParams();
@@ -21,11 +21,11 @@ export default function ThingSummary({ sensores = [] }) {
   const handleConfirm = async () => {
     try {
       // 🔥 1. Guardar sensores
-      await axios.patch(`/api/dispositivos/${uid}/sensores`, { sensores }, config);
+      await axiosInstance.patch(`/api/dispositivos/${uid}/sensores`, { sensores }, config);
       toast.success('📦 Sensores guardados correctamente');
 
       // ✅ 2. Marcar como configurado (opcional si backend ya lo hace)
-      await axios.patch(`/api/dispositivos/${uid}/configurado`, {}, config);
+      await axiosInstance.patch(`/api/dispositivos/${uid}/configurado`, {}, config);
       toast.success('✅ Dispositivo marcado como configurado');
 
       navigate('/proyectos');

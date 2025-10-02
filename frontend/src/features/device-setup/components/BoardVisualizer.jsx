@@ -1,4 +1,4 @@
-// src/components/things/BoardVisualizer.jsx
+// src/features/device-setup/components/BoardVisualizer.jsx
 
 import { useState } from 'react';
 import PropTypes from 'prop-types';

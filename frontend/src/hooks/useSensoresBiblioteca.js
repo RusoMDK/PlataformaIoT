@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import api from '@/utils/axios';
+import axiosInstance from '@/api/axiosInstance';
+
 
 export default function useSensoresBiblioteca() {
   const [sensores, setSensores] = useState([]);
@@ -8,7 +9,7 @@ export default function useSensoresBiblioteca() {
   useEffect(() => {
     const fetchSensores = async () => {
       try {
-        const { data } = await api.get('/sensores-biblioteca');
+        const { data } = await axiosInstance.get('/sensores-biblioteca');
         setSensores(data || []);
       } catch (err) {
         console.error('❌ Error al obtener sensores de biblioteca:', err);

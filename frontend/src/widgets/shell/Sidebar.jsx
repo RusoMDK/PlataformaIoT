@@ -1,4 +1,4 @@
-// src/components/shared/Sidebar.jsx
+// src/widgets/shell/Sidebar.jsx
 import { useLocation, Link } from 'react-router-dom';
 import {
   Home,

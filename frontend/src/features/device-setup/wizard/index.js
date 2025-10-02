@@ -1,0 +1,11 @@
+export { default as Wizard } from './Wizard.jsx';
+export { default as PasoSeleccionPlaca } from './PasoSeleccionPlaca.jsx';
+export { default as PasoConexionDispositivo } from './PasoConexionDispositivo.jsx';
+export { default as PasoConfigurarWiFi } from './PasoConfigurarWiFi.jsx';
+export { default as PasoInstalarESP32 } from './PasoInstalarESP32.jsx';
+export { default as PasoSubirCodigo } from './PasoSubirCodigo.jsx';
+export { default as PasoVerificarConexion } from './PasoVerificarConexion.jsx';
+export { default as PasoFinal } from './PasoFinal.jsx';
+export { default as PasoDescargaAgente } from './PasoDescargaAgente.jsx';
+export { default as PasoProgresoWiFi } from './PasoProgresoWiFi.jsx';
+export { default as PasoSeleccionModo } from './PasoSeleccionModo.jsx';

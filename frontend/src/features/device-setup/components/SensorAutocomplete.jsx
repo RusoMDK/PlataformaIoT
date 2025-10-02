@@ -1,7 +1,7 @@
-// src/components/things/SensorAutocomplete.jsx
+// src/features/device-setup/components/SensorAutocomplete.jsx
 import { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
-import { obtenerBibliotecaSensores } from '../../services/sensoresBiblioteca';
+import { obtenerBibliotecaSensores } from "@/services/sensoresBiblioteca";
 
 export default function SensorAutocomplete({
   value = '',

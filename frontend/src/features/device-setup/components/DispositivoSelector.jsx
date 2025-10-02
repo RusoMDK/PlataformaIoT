@@ -1,4 +1,4 @@
-// src/components/things/DispositivoSelector.jsx
+// src/features/device-setup/components/DispositivoSelector.jsx
 import { Cpu, RefreshCw } from 'lucide-react';
 
 export default function DispositivoSelector({ dispositivo, onChangePlaca }) {

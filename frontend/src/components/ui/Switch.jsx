@@ -1,30 +1,34 @@
 // src/components/ui/Switch.jsx
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
-export function Switch({ checked, onChange, disabled = false }) {
-  const [internalChecked, setInternalChecked] = useState(checked || false);
-
-  const handleToggle = () => {
-    if (disabled) return;
-    const newChecked = !internalChecked;
-    setInternalChecked(newChecked);
-    onChange?.(newChecked);
-  };
+function Switch({ checked, onChange, disabled, className, ...props }) {
+  const toggle = useCallback(() => !disabled && onChange?.(!checked), [checked, disabled, onChange]);
 
   return (
     <button
       type="button"
-      onClick={handleToggle}
+      role="switch"
+      aria-checked={checked}
       disabled={disabled}
-      className={`relative inline-flex items-center h-6 rounded-full w-11 transition ${
-        internalChecked ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
-      }`}
+      onClick={toggle}
+      className={cn(
+        'relative inline-flex h-6 w-11 items-center rounded-full transition',
+        checked ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700',
+        disabled && 'opacity-60 cursor-not-allowed',
+        className
+      )}
+      {...props}
     >
       <span
-        className={`inline-block w-4 h-4 transform bg-white rounded-full transition ${
-          internalChecked ? 'translate-x-6' : 'translate-x-1'
-        }`}
+        className={cn(
+          'inline-block h-5 w-5 transform rounded-full bg-white transition',
+          checked ? 'translate-x-5' : 'translate-x-1'
+        )}
       />
     </button>
   );
 }
+
+export default Switch;
+export { Switch }; // ✅ ahora también soporta import nombrado

@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import api from '../../utils/axios';
+import axiosInstance from "@/api/axiosInstance";
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import Button from '../ui/Button';
-import { getCsrfToken } from '../../api/auth.api'; // ⬅️ Importar CSRF
+import Button from "@/components/ui/Button";
+import { getCsrfToken } from '@/api/auth.api'; // ⬅️ Importar CSRF
 
 export default function PasoFinal({ formData }) {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export default function PasoFinal({ formData }) {
     try {
       const csrfToken = await getCsrfToken(); // ⬅️ Pedimos el token CSRF
 
-      const res = await api.post('/dispositivos', payload, {
+      const res = await axiosInstance.post('/dispositivos', payload, {
         headers: { 'X-CSRF-Token': csrfToken }, // ⬅️ Enviamos CSRF
       });
 
@@ -49,7 +49,7 @@ export default function PasoFinal({ formData }) {
         return;
       }
 
-      await api.patch(`/dispositivos/${formData.uid}/configurado`, null, {
+      await axiosInstance.patch(`/dispositivos/${formData.uid}/configurado`, null, {
         headers: { 'X-CSRF-Token': csrfToken }, // ⬅️ También para el PATCH
       });
 
