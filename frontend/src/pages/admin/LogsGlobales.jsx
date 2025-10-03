@@ -56,7 +56,7 @@ const actionBadgeClass = (a = '') => {
   const v = String(a).toLowerCase();
   if (/(delete|remove|eliminar|borrar|destroy)/.test(v))
     return 'bg-red-100 text-red-700 ring-1 ring-inset ring-black/5 dark:bg-red-400/15 dark:text-red-300';
-  if (/(create|add|crear|registro|register|new|crear usuario|alta)/.test(v))
+  if (/(create|add|crear|registro|register|new|alta)/.test(v))
     return 'bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-black/5 dark:bg-emerald-400/15 dark:text-emerald-300';
   if (/(update|edit|patch|actualizar|editar|change|cambiar)/.test(v))
     return 'bg-sky-100 text-sky-700 ring-1 ring-inset ring-black/5 dark:bg-sky-400/15 dark:text-sky-300';
@@ -101,7 +101,7 @@ const isAdminFromClient = () => {
   return false;
 };
 
-/* ========================= DateRangePicker (copiado de /Logs.jsx) ========================= */
+/* ========================= DateRangePicker ========================= */
 
 const toISODate = (d) => {
   if (!(d instanceof Date) || Number.isNaN(d)) return '';
@@ -183,7 +183,7 @@ function MonthGrid({ baseDate, start, end, onSelectDay }) {
   );
 }
 
-function DateRangePicker({ from, to, onChange }) {
+function DateRangePicker({ from, to, onChange, quickPresets = true }) {
   const [open, setOpen] = useState(false);
   const [base, setBase] = useState(() => new Date());
   const [start, setStart] = useState(() => parseISODate(from));
@@ -215,20 +215,13 @@ function DateRangePicker({ from, to, onChange }) {
       setStart(day);
       setEnd(null);
     } else if (start && !end) {
-      if (day < start) {
-        setEnd(start);
-        setStart(day);
-      } else {
-        setEnd(day);
-      }
+      if (day < start) { setEnd(start); setStart(day); }
+      else { setEnd(day); }
     }
   };
 
   const apply = () => {
-    onChange({
-      from: start ? toISODate(start) : '',
-      to:   end   ? toISODate(end)   : '',
-    });
+    onChange({ from: start ? toISODate(start) : '', to: end ? toISODate(end) : '' });
     setOpen(false);
   };
 
@@ -239,11 +232,26 @@ function DateRangePicker({ from, to, onChange }) {
     setOpen(false);
   };
 
+  // presets rápidos: Hoy / 24h / 7d
+  const presets = [
+    { k: 'hoy', label: 'Hoy', fn: () => {
+      const d = new Date(); const ymd = toISODate(d); onChange({ from: ymd, to: ymd }); setOpen(false);
+    }},
+    { k: '24h', label: 'Últ. 24h', fn: () => {
+      const toD = new Date(); const fromD = new Date(Date.now() - 24*60*60*1000);
+      onChange({ from: toISODate(fromD), to: toISODate(toD) }); setOpen(false);
+    }},
+    { k: '7d', label: 'Últ. 7 días', fn: () => {
+      const toD = new Date(); const fromD = new Date(Date.now() - 7*24*60*60*1000);
+      onChange({ from: toISODate(fromD), to: toISODate(toD) }); setOpen(false);
+    }},
+  ];
+
   const Modal = (
     <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setOpen(false)} />
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-[640px] rounded-2xl border border-light-border dark:border-dark-border bg-white dark:bg-[#0b0f1a] shadow-2xl z-[10000]">
+        <div className="w-full max-w-[720px] rounded-2xl border border-light-border dark:border-dark-border bg-white dark:bg-[#0b0f1a] shadow-2xl z-[10000]">
           {/* header */}
           <div className="flex items-center justify-between p-3 border-b border-light-border dark:border-dark-border">
             <div className="flex items-center gap-2">
@@ -256,8 +264,8 @@ function DateRangePicker({ from, to, onChange }) {
           </div>
 
           {/* contenido */}
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-2">
+          <div className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
               <button
                 onClick={() => setBase(new Date(base.getFullYear(), base.getMonth() - 1, 1))}
                 className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10"
@@ -284,6 +292,20 @@ function DateRangePicker({ from, to, onChange }) {
               <MonthGrid baseDate={base} start={start} end={end} onSelectDay={handleSelect} />
               <MonthGrid baseDate={new Date(base.getFullYear(), base.getMonth() + 1, 1)} start={start} end={end} onSelectDay={handleSelect} />
             </div>
+
+            {quickPresets && (
+              <div className="flex items-center gap-2">
+                {presets.map(p => (
+                  <button
+                    key={p.k}
+                    onClick={p.fn}
+                    className="text-xs px-2 py-1 rounded-md border border-light-border dark:border-dark-border hover:bg-black/5 dark:hover:bg-white/10"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* footer */}
@@ -324,9 +346,8 @@ function DateRangePicker({ from, to, onChange }) {
 
 export default function LogsGlobales() {
   const { t } = useTranslation();
-  const { confirmDelete } = useConfirmDialog(); // ✅ confirm reusable
+  const { confirmDelete } = useConfirmDialog();
 
-  // permisos para ver "Crudo"
   const [canSeeRaw] = useState(() => SHOW_RAW_FLAG || isAdminFromClient());
 
   // tabla (server-mode)
@@ -370,12 +391,13 @@ export default function LogsGlobales() {
       if (level) params.level = level;
       if (moduleName) params.module = moduleName;
       if (action) params.action = action;
-      if (q) params.q = q;        // en backend: buscar usuario/email/mensaje/acción/módulo
+      if (q) params.q = q;        // backend: buscar usuario/email/mensaje/acción/módulo
       if (from) params.from = from;
       if (to) params.to = to;
 
       const res = await axios.get('/logs/globales', {
         params,
+        // axiosInstance ya mete Authorization/CSRF; mantener esto por si acaso
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
@@ -398,35 +420,37 @@ export default function LogsGlobales() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // filtros → recargar
+  // filtros → recargar (debounce suave)
   useEffect(() => {
     const id = setTimeout(() => {
       setPage(1);
       fetchData({ pageArg: 1 });
-    }, 200);
+    }, 220);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, level, moduleName, action, from, to, sortBy, sortDir, pageSize]);
 
-  // tiempo real
+  // tiempo real (usa VITE_WS_URL para mantener coherencia con otras páginas)
   useEffect(() => {
     if (!live || !token) return;
     if (socketRef.current) return;
 
-    const BASE = (import.meta.env.VITE_API_URL || 'https://localhost:4443').replace(/\/$/, '');
+    const BASE = (import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || 'https://localhost:4443').replace(/\/$/, '');
     const s = io(`${BASE}/dashboard`, {
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 8000,
       timeout: 10000,
+      auth: { token },
     });
     socketRef.current = s;
 
-    s.on('connect', () => { s.emit('auth', { token }); });
-    s.on('auth:error', () => { try { s.disconnect(); } catch {} });
+    s.on('connect', () => {
+      // opcional: ya se manda en auth
+    });
 
     s.on('logs:new', () => {
       if (sortBy === 'ts' && sortDir === 'desc' && page === 1) {
@@ -469,7 +493,7 @@ export default function LogsGlobales() {
     }
   };
 
-  // columnas (parecidas a Logs.jsx + columna Usuario)
+  /* ========================= columnas ========================= */
   const columnas = useMemo(
     () => [
       {
@@ -625,19 +649,20 @@ export default function LogsGlobales() {
     }
   };
 
+  /* ========================= UI ========================= */
   return (
     <div className="relative min-h-[calc(100vh-var(--header-h,80px)-var(--footer-h,60px))] flex flex-col">
-      {/* fondo */}
+      {/* fondo suave como en admin */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-28 -left-24 w-96 h-96 rounded-full bg-primary/15 dark:bg-primary/25 blur-2xl opacity-70 dark:opacity-40" />
-        <div className="absolute -bottom-28 -right-24 w-[28rem] h-[28rem] rounded-full bg-accent/15 dark:bg-accent/25 blur-2xl opacity-70 dark:opacity-40" />
+        <div className="absolute -top-28 -left-24 w-96 h-96 rounded-full bg-black/[0.03] dark:bg-white/[0.04] blur-2xl" />
+        <div className="absolute -bottom-28 -right-24 w-[28rem] h-[28rem] rounded-full bg-black/[0.03] dark:bg-white/[0.04] blur-2xl" />
       </div>
 
       <div className="flex-1 max-w-7xl mx-auto px-6 lg:px-8 py-10 space-y-8 w-full">
         {/* Header */}
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <FileText className="w-6 h-6 text-primary" />
               {t('logsGlobal.titulo', 'Logs globales')}
             </h1>
@@ -712,7 +737,6 @@ export default function LogsGlobales() {
                 />
               </div>
 
-              {/* 👇 FIX: clase corregida (antes: dark:bg:white/[0.04]) y badge para coherencia visual */}
               <div className="inline-flex items-center gap-2 rounded-xl border border-light-border dark:border-dark-border bg-white/80 dark:bg-white/[0.04] px-3 py-1.5">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Acción</span>
                 <input
@@ -732,6 +756,29 @@ export default function LogsGlobales() {
                   {t('logs.limpiar', 'Limpiar filtros')}
                 </Button>
               </div>
+            </div>
+
+            {/* fila 3: chips rápidos de nivel (UX) */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {[
+                { v: '', label: 'Todos' },
+                { v: 'info', label: 'Info' },
+                { v: 'warn', label: 'Warn' },
+                { v: 'error', label: 'Error' },
+                { v: 'success', label: 'Success' },
+                { v: 'debug', label: 'Debug' },
+              ].map(({ v, label }) => (
+                <button
+                  key={v || 'all'}
+                  onClick={() => setLevel(v)}
+                  className={`px-2.5 py-1 rounded-full text-xs border transition
+                    ${level === v
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-white/80 dark:bg-white/[0.04] border-light-border dark:border-dark-border hover:bg-black/5 dark:hover:bg-white/10 text-gray-800 dark:text-gray-200'}`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
